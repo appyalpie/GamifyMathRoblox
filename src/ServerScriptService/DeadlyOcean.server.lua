@@ -11,7 +11,7 @@ OceanBlock.TAG_NAME = "Ocean"
 local CollectionService = game:GetService("CollectionService")
 
 -- adds Ocean tag to blocks named OceanBlock
-local Block = workspace.OceanBlock
+local Block = workspace.OceanAssets.OceanBlock
 CollectionService:AddTag(Block,"Ocean")
 
 -- is meant to initilize the OceanBlock table
