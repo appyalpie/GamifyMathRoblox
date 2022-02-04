@@ -3,7 +3,6 @@
     Collide is disabled in workspace
 ]]
 --OceanBlock traits 
-
 local OceanBlock = {}
 OceanBlock.__index = OceanBlock
 OceanBlock.TAG_NAME = "Ocean"
@@ -11,8 +10,7 @@ OceanBlock.ANTI_GRAVITY = .5
 
 local CollectionService = game:GetService("CollectionService")
 
--- local tweenService = game:GetService("TweenService") will be used later to adjust fall rate
-
+-- adds Ocean tag to blocks named OceanBlock
 local Block = workspace.OceanBlock
 CollectionService:AddTag(Block,"Ocean")
 
@@ -25,7 +23,6 @@ function OceanBlock.new(Ocean)
         self.touchConn = Ocean.Touched:Connect(function(...)
         self:onTouch(...)
         end)
-    --self:KillPlayer(false)
     return self
 end
 
@@ -39,21 +36,28 @@ function OceanBlock:onTouch(part)
     if not human then 
         return 
     end
+    --[[
+
+    This commented out section provides the oppurtunity for additonal traits or capabilities
+    commented out for now to accomplish the issue prior to commenting out this worked
+
     local bf = Instance.new("BodyForce")
 
-    -- slows falling when in water
-    -- antigravity effect may need adjustments on
-    bf.Force = Vector3.new(0, workspace.Gravity * part:GetMass() * OceanBlock.ANTI_GRAVITY, 0)
-    bf.Parent = part.Parent
+     slows falling when in water
+     antigravity effect may need adjustments on
 
-    -- checks if player is in free fall in ocean to help with future idea of non death areas in ocean
+     bf.Force = Vector3.new(0, workspace.Gravity * part:GetMass() * OceanBlock.ANTI_GRAVITY, 0)
+     bf.Parent = part.Parent
+
+     checks if player is in free fall in ocean to help with future idea of non death areas in ocean
 
     if human:GetState() == Enum.HumanoidStateType.Freefall then
         wait(3) -- saftey check for freefall
-        if human:GetState() == Enum.HumanoidStateType.Freefall then
+        ]]
+       -- if human:GetState() == Enum.HumanoidStateType.Freefall then
         human.Health = 0
-        end
-    end
+       -- end
+    -- end
     
 end
 
@@ -71,12 +75,14 @@ end
 
 local OceanBlocks = {}
 
+--indexes blocks in the collection service table
 
 local function onOceanBlockAdded(Ocean)
     if Ocean:IsA("Part") then
         OceanBlocks[Ocean] = OceanBlock.new(Ocean)
     end
 end
+-- use this to get tagged blocks look above on how to add tags to untagged blocks
 for _,inst in pairs(CollectionService:GetTagged(OceanBlock.TAG_NAME)) do
     onOceanBlockAdded(inst)
 end
