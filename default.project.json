@@ -13,11 +13,6 @@
       "$path": "src/ServerScriptService"
     },
 
-    "StarterGui": {
-      "$className": "StarterGui",
-      "$path": "src/StaterGui"
-    },
-
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
