@@ -1,9 +1,8 @@
 --[[
     to apply script make sure the target Blocks are named OceanBlock
 ]]
-
-local OceanBlock = {}
 --OceanBlock traits 
+local OceanBlock = {}
 OceanBlock.__index = OceanBlock
 OceanBlock.TAG_NAME = "Ocean"
 OceanBlock.ANTI_GRAVITY = .5
@@ -15,7 +14,7 @@ local CollectionService = game:GetService("CollectionService")
 -- local tweenService = game:GetService("TweenService") will be used later to adjust fall rate
 local Block = workspace.OceanBlock
 CollectionService:AddTag(Block,"Ocean")
-
+-- is meant to initilize the OceanBlock table
 function OceanBlock.new(Ocean)
     local self = {}
     setmetatable(self,OceanBlock)
@@ -27,8 +26,10 @@ function OceanBlock.new(Ocean)
     self:KillPlayer(false)
     return self
 end
-
-
+--[[
+    Starts a timer once a player touches the ocean blocks checks if in Freefall as 
+well as is suppose to slow falling speed and kill players if still falling after timer
+]]
 function OceanBlock:onTouch(part)
     if self.debounce then 
         return 
@@ -51,11 +52,15 @@ function OceanBlock:onTouch(part)
     end
     
 end
+-- shows up as the cleanup to prevent memory loss inside the API documentation
 function OceanBlock:Cleanup()
     self.touchConn:disconnect()
     self.touchConn = nil
 end
-
+--[[
+   is meant to Call the startup and cleanup of block tags based on what i could find from
+    API documentation and tutorials so far
+]]
 local OceanBlockAddedSignal = CollectionService:GetInstanceAddedSignal(OceanBlock.TAG_NAME)
 local OceanBlockRemovedSignal = CollectionService:GetInstanceRemovedSignal(OceanBlock.TAG_NAME)
 
