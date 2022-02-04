@@ -19,6 +19,7 @@ musicEvent.OnClientEvent:Connect(function(musicId)
         sound.Looped = true
 
         --Play the new sound, set the lastSound = this one so we don't replay sounds
+    
         sound:Play()
         lastSound = sound
     end
