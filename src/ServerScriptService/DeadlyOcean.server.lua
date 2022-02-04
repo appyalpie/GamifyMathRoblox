@@ -6,7 +6,7 @@
 local OceanBlock = {}
 OceanBlock.__index = OceanBlock
 OceanBlock.TAG_NAME = "Ocean"
-OceanBlock.ANTI_GRAVITY = .5
+
 
 local CollectionService = game:GetService("CollectionService")
 
@@ -27,8 +27,7 @@ function OceanBlock.new(Ocean)
 end
 
 --[[
-    Starts a timer once a player touches the ocean blocks checks if in Freefall as 
-well as is suppose to slow falling speed and kill players if still falling after timer
+    Ocean tagged blocks Kills player on touch
 ]]
 
 function OceanBlock:onTouch(part)
@@ -36,29 +35,7 @@ function OceanBlock:onTouch(part)
     if not human then 
         return 
     end
-    --[[
-
-    This commented out section provides the oppurtunity for additonal traits or capabilities
-    commented out for now to accomplish the issue prior to commenting out this worked
-
-    local bf = Instance.new("BodyForce")
-
-     slows falling when in water
-     antigravity effect may need adjustments on
-
-     bf.Force = Vector3.new(0, workspace.Gravity * part:GetMass() * OceanBlock.ANTI_GRAVITY, 0)
-     bf.Parent = part.Parent
-
-     checks if player is in free fall in ocean to help with future idea of non death areas in ocean
-
-    if human:GetState() == Enum.HumanoidStateType.Freefall then
-        wait(3) -- saftey check for freefall
-        ]]
-       -- if human:GetState() == Enum.HumanoidStateType.Freefall then
-        human.Health = 0
-       -- end
-    -- end
-    
+        human.Health = 0    
 end
 
 -- shows up as the cleanup to prevent memory loss inside the API documentation
