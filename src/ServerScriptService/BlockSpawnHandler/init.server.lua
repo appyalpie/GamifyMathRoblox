@@ -34,11 +34,12 @@ local DIVIDE_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(DIVI
 ADD_BLOCK_TAGGED_SIGNAL:Connect(function(newAddBlock)
     print("ADD BLOCK HAS BEEN ADDED")
     newAddBlock.Touched:Connect(function(objectHit)
-        if not newAddBlock:GetAttribute("Touched") then -- newAddBlock has attribute "Touched" (Boolean) for debounce
+        if not newAddBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then -- newAddBlock has attribute "Touched" (Boolean) for debounce
             if objectHit:IsA("Part") then -- TODO: better logic for models + logic for if objectHit is combinable
                 if objectHit:GetAttribute("value") ~= nil then
 
                     objectHit:SetAttribute("Touched", true) -- prevent further touches
+                    newAddBlock:SetAttribute("Touched", true)
                     CollisionUtilities.additionCollisionProcessing(newAddBlock, objectHit) -- collision processing
                 end -- end check if objectHas attribute "value"
             end -- end check if hit Part
@@ -61,7 +62,7 @@ local function onChildRemovedFromAddBlocksFolder()
         local newAddBlock = ADD_BLOCK:Clone() -- Clone from ServerStorage
         CollectionService:AddTag(newAddBlock, ADD_BLOCK_TAG) -- Give logic
         newAddBlock.Parent = ADD_BLOCKS_FOLDER
-        newAddBlock.Position = ADD_BLOCKS_FOLDER:GetAttribute("position") + Vector3.new(math.random(-25, 25), 0, math.random(-10, 10))
+        newAddBlock.Position = ADD_BLOCKS_FOLDER:GetAttribute("position") + Vector3.new(math.random(-25, 25), 0, math.random(-25, 25))
     end
 end
 --local function onChildRemovedFromSubtractBlocksFolder()
