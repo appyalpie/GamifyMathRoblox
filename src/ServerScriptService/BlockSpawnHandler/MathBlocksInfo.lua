@@ -3,14 +3,16 @@ local CollectionService = game:GetService("CollectionService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local ADD_BLOCK = ServerStorage.Island_1.Math_Blocks.Add_Block
---local SUB_BLOCK
+local SUBTRACT_BLOCK = ServerStorage.Island_1.Math_Blocks.Subtract_Block
 --local MUL_BLOCK
 --local DIV_BLOCK
 
 local ADD_LIMIT = 5
+local SUBTRACT_UPPER_LIMIT = 5
+local SUBTRACT_LOWER_LIMIT = -5
 
 local ADD_BLOCKS_FOLDER = game.Workspace.Island_1.Math_Blocks.Add_Blocks
---local SUBTRACT_BLOCKS_FOLDER
+local SUBTRACT_BLOCKS_FOLDER = game.Workspace.Island_1.Math_Blocks.Subtract_Blocks
 --local MULTIPLY_BLOCKS_FOLDER
 --local DIVIDE_BLOCKS_FOLDER
 
@@ -31,6 +33,13 @@ MathBlocksInfo.ADD_BLOCK = ADD_BLOCK
 MathBlocksInfo.ADD_LIMIT = ADD_LIMIT
 MathBlocksInfo.ADD_BLOCK_TAG = ADD_BLOCK_TAG
 MathBlocksInfo.ADD_BLOCKS_FOLDER = ADD_BLOCKS_FOLDER
+
+MathBlocksInfo.SUBTRACT_BLOCK = SUBTRACT_BLOCK
+MathBlocksInfo.SUBTRACT_UPPER_LIMIT = SUBTRACT_UPPER_LIMIT
+MathBlocksInfo.SUBTRACT_LOWER_LIMIT = SUBTRACT_LOWER_LIMIT
+MathBlocksInfo.SUBTRACT_BLOCK_TAG = SUBTRACT_BLOCK_TAG
+MathBlocksInfo.SUBTRACT_BLOCK_FOLDER = SUBTRACT_BLOCKS_FOLDER
+
 
 MathBlocksInfo.COMBINE_PARTICLES_CORE = COMBINE_PARTICLES_CORE
 MathBlocksInfo.EXPLOSION_PARTICLES_CORE = EXPLOSION_PARTICLES_CORE
@@ -64,10 +73,12 @@ MathBlocksInfo.NewBlockInfo = {
     Transparency = 0,
 }
 
+--[[
 MathBlocksInfo.AngularVelocityInfo = {
     MaxTorque = 99999,
     AngularVelocity = Vector3.new(1,3,2)
 }
+]]
 
 MathBlocksInfo.AttachmentInfo = {
     Position = Vector3.new(2,0,2)

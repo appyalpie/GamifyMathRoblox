@@ -6,7 +6,7 @@ local MathBlocksInfo = require(script.Parent.MathBlocksInfo)
 
 local CollisionUtilities = {}
 
-local function setScreenGuis(block)
+CollisionUtilities.setScreenGuis = function(block)
     local combinedBlockDescendants = block:GetDescendants()
     for _, v in pairs (combinedBlockDescendants) do
         if v:IsA("TextLabel") then
@@ -14,6 +14,16 @@ local function setScreenGuis(block)
         end
     end
 end
+
+-- Get difference (higher - lower)
+--[[
+local function getDifference(block_1, block_2)
+    local higherValueBlock = block_1:GetAttribute("value") >= block_2:GetAttribute("value") and block_1 or block_2
+    local lowerValueBlock = block_1:GetAttribute("value") < block_2:GetAttribute("value") and block_1 or block_2
+    return higherValueBlock:GetAttribute("value") - lowerValueBlock:GetAttribute("value")
+end
+]]
+
 
 local function resetAssemblyVelocity(block)
     block.AssemblyLinearVelocity = Vector3.new(0,0,0)
@@ -38,11 +48,20 @@ local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
     local combineParticlesCore = MathBlocksInfo.COMBINE_PARTICLES_CORE:Clone()
     combineParticlesCore.CFrame = targetCFrame + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME
     combineParticlesCore.Parent = MathBlocksInfo.EFFECTS_FOLDER
+
+    -- sounds
+    local Sounds = combineParticlesCore.Sounds
+    --Sounds.Hover_Sound_Effect:Play()
+    --Sounds.Wind_2:Play()
     local turnOffEffectsCoroutine = coroutine.wrap(function()
-        wait(4) -- TODO: set to static from module
+        wait(3) -- TODO: set to static from module
         for _, v in pairs(combineParticlesCore.Attachment:GetChildren()) do
             v.Enabled = false
         end
+        -- fade sound out
+        local soundTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+        local soundTween = TweenService:Create(Sounds.Hover_Sound_Effect, soundTweenInfo, {Volume = 0})
+        soundTween:Play()
     end)
     turnOffEffectsCoroutine()
     Debris:AddItem(combineParticlesCore, 6)
@@ -58,6 +77,10 @@ local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
         -- Math Explosion
         combineParticlesCore.Add_Particles:Emit(50)
 
+        -- sound effect
+        local soundName = "Light_Spell_" .. tostring(math.random(1,5))
+        Sounds[soundName]:Play()
+
         -- Anchor combined block (avoids annoying gravity physics)
         combinedBlock.Anchored = true
 
@@ -72,6 +95,7 @@ local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
             combinedBlock.CanTouch = true
             resetAssemblyVelocity(combinedBlock)
             combinedBlock.Anchored = false
+            Sounds.Roblox_Button_Sound_Effect:Play() -- sound effect
             conn:Disconnect()
         end)
     end)
@@ -90,12 +114,21 @@ local function explosionCollisionProcessing(block_1, block_2, operator)
     local explosionParticlesCore = MathBlocksInfo.EXPLOSION_PARTICLES_CORE:Clone()
     explosionParticlesCore.CFrame = targetCFrame + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME
     explosionParticlesCore.Parent = MathBlocksInfo.EFFECTS_FOLDER
+
+    -- sounds
+    local Sounds = explosionParticlesCore.Sounds
+    Sounds.Hover_Sound_Effect:Play()
+    Sounds.Wind_2:Play()
     local turnOffEffectsCoroutine = coroutine.wrap(function()
-        wait(4) -- TODO: set to static from module
+        wait(3) -- TODO: set to static from module
         for _, v in pairs(explosionParticlesCore.Attachment:GetChildren()) do
             v.Enabled = false
         end
         explosionParticlesCore.Sparks.Enabled = false
+        -- fade sound out
+        local soundTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+        local soundTween = TweenService:Create(Sounds.Hover_Sound_Effect, soundTweenInfo, {Volume = 0})
+        soundTween:Play()
     end)
     turnOffEffectsCoroutine()
     Debris:AddItem(explosionParticlesCore, 6)
@@ -109,6 +142,7 @@ local function explosionCollisionProcessing(block_1, block_2, operator)
         block_1:Destroy()
         block_2:Destroy()
         -- Math Explosion
+        Sounds.Explosion_sound_effect:Play()
         explosionParticlesCore.Dirt:Emit(50)
         explosionParticlesCore.Explosion_Random:Emit(50) --TODO: Set to some random decal
         explosionParticlesCore.Heat:Emit(50)
@@ -130,7 +164,26 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
         combinedBlock.Parent = MathBlocksInfo.ADD_BLOCKS_FOLDER
 
         -- set screenGuis
-        setScreenGuis(combinedBlock)
+        CollisionUtilities.setScreenGuis(combinedBlock)
+
+        -- VFX
+        twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
+    elseif operator == MathBlocksInfo.SUBTRACT_BLOCK_TAG then
+        local combinedBlock = MathBlocksInfo.SUBTRACT_BLOCK:Clone()
+        combinedBlock.CanTouch = false
+        CollectionService:AddTag(combinedBlock, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
+        -- find which block has higher value
+        --local newValue = getDifference(block_1, block_2)
+
+        --combinedBlock:SetAttribute("value", newValue)
+        combinedBlock:SetAttribute("value", block_1:GetAttribute("value") + block_2:GetAttribute("value"))
+        if combinedBlock:GetAttribute("value") < 0 then
+            combinedBlock.BrickColor = BrickColor.new("Pastel Blue") -- indicate that number is negative
+        end
+        combinedBlock.Parent = MathBlocksInfo.SUBTRACT_BLOCK_FOLDER
+
+        -- set screenGuis
+        CollisionUtilities.setScreenGuis(combinedBlock)
 
         -- VFX
         twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
@@ -147,6 +200,22 @@ function CollisionUtilities.additionCollisionProcessing(block_1, block_2)
         explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.ADD_BLOCK_TAG)
     else
         successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.ADD_BLOCK_TAG)
+    end
+end
+
+function CollisionUtilities.subtractionCollisionProcessing(block_1, block_2)
+    --local newValue = getDifference(block_1, block_2)
+    if not block_1:GetAttribute("operator") == "subtract" or not block_2:GetAttribute("operator") == "subtract" then
+        -- TODO: Explosion for invalid operator combining
+        print("Invalid")
+    --elseif newValue > MathBlocksInfo.SUBTRACT_LIMIT then
+    elseif block_1:GetAttribute("value") + block_2:GetAttribute("value") > MathBlocksInfo.SUBTRACT_UPPER_LIMIT or 
+    block_1:GetAttribute("value") + block_2:GetAttribute("value") < MathBlocksInfo.SUBTRACT_LOWER_LIMIT then
+        -- TODO: Explosion for max exceeded
+        print("MAX EXCEEDED EXPLOSION IMMINENT")
+        explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
+    else
+        successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
     end
 end
 
