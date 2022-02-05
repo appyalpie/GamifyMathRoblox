@@ -22,7 +22,7 @@
     },
     "LightingSystem": {
       "$className": "LightingSystem",
-      "$path": "src/StarterPlayerScripts/LightingSystem"
+      "$path": "src/ServerScriptService/LightingSystem"
     },
 
     "Workspace": {
