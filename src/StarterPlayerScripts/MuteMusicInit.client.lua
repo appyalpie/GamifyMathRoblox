@@ -1,12 +1,16 @@
-local starterGui = game:GetService("StarterGui")
-local screenGui = starterGui:FindFirstChild("PersistentUI")
+--local starterGui = game:GetService("StarterGui")
+local client = game:GetService("Players").LocalPlayer
+local playerGui = client:WaitForChild("PlayerGui")
+local screenGui = playerGui:WaitForChild("PersistentUI")
 local muteMusicButton = screenGui:FindFirstChildWhichIsA("TextButton")
 
-print(muteMusicButton.Text)
-muteMusicButton.Text = "Unmute Music"
+for i,v in pairs(playerGui:GetChildren()) do
+    print(v.Name)
+end
 
 muteMusicButton.Activated:Connect(function()
     print('muteMusic hit')
     local soundToMute = workspace.Sounds:FindFirstChild("Sound")
     soundToMute:Pause()
+    muteMusicButton.Text = "Unmute Music"
 end)
