@@ -1,5 +1,12 @@
 
-
+--[[
+    1.adds tags to First children parts inside LightingZones folder for additonal modification in the future if necessary 
+    2.applies a default lighting setting on connection
+    3.applies a lighting setting once inside any of the Tag parts
+    Parts are configured as
+        [Part Name]
+            ... [LightingProperty Name]-> Value as a variable object
+]]
 
 local collectionService = game:GetService("CollectionService")
 -- is meant to find all children within the LightingZones folder in workspace
