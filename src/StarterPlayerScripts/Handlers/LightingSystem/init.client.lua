@@ -17,7 +17,7 @@ local zones = game.Workspace.LightingZones
 
 --this makes sure a default is defined in local execution so it appears in the subscript
 
-local default = script.parent.Default
+local default = game.Workspace.LightingZones.Default
 
 local ZoneLightingHandler = require(script.ZoneLightingHandler)
 
@@ -48,13 +48,12 @@ for i = 1, #Zones do
 end
 
 --LightZone constructor
+-- remaining for function handling related to tagged
+
 function Zones.new(LightZone)
     local self = {}
     setmetatable(self,LightZoneTraits)
     self.LightZone = LightZone
-        self.touchConn = LightZone.Touched:Connect(function(...)
-        self:onTouch(...)
-        end)
     return self
 end
 

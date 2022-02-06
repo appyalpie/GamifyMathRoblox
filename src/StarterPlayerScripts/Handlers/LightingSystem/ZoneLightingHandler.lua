@@ -1,7 +1,7 @@
 local ZoneLightingHandler = {}
 
 local tweenService = game:GetService("TweenService")
-local default = script.parent.parent.Default
+local default = game.Workspace.LightingZones.Default
 
 --Update is the function that calls for switching Lighting properties
 --so long as lighting has the property a variable can be added to zones as long as a
