@@ -1,5 +1,3 @@
-local TweenService = game:GetService("TweenService")
-local CollectionService = game:GetService("CollectionService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local ADD_BLOCK = ServerStorage.Island_1.Math_Blocks.Add_Block
@@ -25,6 +23,7 @@ local DIVIDE_BLOCK_TAG = "Divide_Block"
 
 local COMBINE_PARTICLES_CORE = ServerStorage.Island_1.Math_Blocks.Particles.Combine_Particles_Core
 local EXPLOSION_PARTICLES_CORE = ServerStorage.Island_1.Math_Blocks.Particles.Explosion_Particles_Core
+local EXPLOSION_PARTICLES_CORE_DIVISION = ServerStorage.Island_1.Math_Blocks.Particles.Explosion_Particles_Core_Division
 
 local EFFECTS_FOLDER = game.Workspace.Island_1.Math_Blocks.Effects
 
@@ -70,6 +69,7 @@ MathBlocksInfo.DIVIDE_BLOCK_BRICKCOLOR = BrickColor.new("Pastel green")
 
 MathBlocksInfo.COMBINE_PARTICLES_CORE = COMBINE_PARTICLES_CORE
 MathBlocksInfo.EXPLOSION_PARTICLES_CORE = EXPLOSION_PARTICLES_CORE
+MathBlocksInfo.EXPLOSION_PARTICLES_CORE_DIVISION = EXPLOSION_PARTICLES_CORE_DIVISION
 MathBlocksInfo.EFFECTS_FOLDER = EFFECTS_FOLDER
 
 MathBlocksInfo.COMBINE_PARTICLES_COLOR_BY_OPERATOR = {
@@ -104,6 +104,12 @@ MathBlocksInfo.TweenInfo = {
 }
 
 MathBlocksInfo.ExplosionTweenInfo = {
+    Division = {
+        Time = 1.5,
+        EasingStyle = Enum.EasingStyle.Linear,
+        EasingDirection = Enum.EasingDirection.In,
+        WaitDuration = 2
+    },
     Time = 2,
     EasingStyle = Enum.EasingStyle.Elastic,
     EasingDirection = Enum.EasingDirection.In,

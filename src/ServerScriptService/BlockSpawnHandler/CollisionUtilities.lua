@@ -1,6 +1,5 @@
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
-local MarketplaceService = game:GetService("MarketplaceService")
 local CollectionService = game:GetService("CollectionService")
 
 local MathBlocksInfo = require(script.Parent.MathBlocksInfo)
@@ -117,16 +116,31 @@ local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock, operat
 end
 
 local function explosionCollisionProcessing(block_1, block_2, operator)
+    block_1.Anchored = true -- Prevent weird gravity interaction while tweening
+    block_2.Anchored = true
+    block_1.CanTouch = false -- Disallow further interaction while combining TODO: Change if model is used and not a part
+    block_2.CanTouch = false
+
     local targetCFrame = block_1.CFrame:Lerp(block_2.CFrame, 0.5) + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME
     local ExplosionInfo = MathBlocksInfo.ExplosionTweenInfo
-    local explosionTweenInfo = TweenInfo.new(ExplosionInfo.Time, ExplosionInfo.EasingStyle, ExplosionInfo.EasingDirection)
+    local explosionTweenInfo
+    if operator == MathBlocksInfo.DIVIDE_BLOCK_TAG then
+        explosionTweenInfo = TweenInfo.new(ExplosionInfo.Division.Time, ExplosionInfo.Division.EasingStyle, ExplosionInfo.Division.EasingDirection)
+    else
+        explosionTweenInfo = TweenInfo.new(ExplosionInfo.Time, ExplosionInfo.EasingStyle, ExplosionInfo.EasingDirection)
+    end
     local tweenBlock1 = TweenService:Create(block_1, explosionTweenInfo, {Position = targetCFrame.Position + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME, 
     Size = ExplosionInfo.Properties.Size, Transparency =  ExplosionInfo.Properties.Transparency, Orientation = block_1.Orientation + ExplosionInfo.Properties.Orientation})
     local tweenBlock2 = TweenService:Create(block_2, explosionTweenInfo, {Position = targetCFrame.Position + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME, 
     Size = ExplosionInfo.Properties.Size, Transparency = ExplosionInfo.Properties.Transparency, Orientation = block_2.Orientation + ExplosionInfo.Properties.Orientation})
 
     -- particles
-    local explosionParticlesCore = MathBlocksInfo.EXPLOSION_PARTICLES_CORE:Clone()
+    local explosionParticlesCore 
+    if operator == MathBlocksInfo.DIVIDE_BLOCK_TAG then
+        explosionParticlesCore = MathBlocksInfo.EXPLOSION_PARTICLES_CORE_DIVISION:Clone()
+    else
+        explosionParticlesCore= MathBlocksInfo.EXPLOSION_PARTICLES_CORE:Clone()
+    end
     explosionParticlesCore.CFrame = targetCFrame + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME
     explosionParticlesCore.Parent = MathBlocksInfo.EFFECTS_FOLDER
 
@@ -135,7 +149,11 @@ local function explosionCollisionProcessing(block_1, block_2, operator)
     Sounds.Hover_Sound_Effect:Play()
     Sounds.Wind_2:Play()
     local turnOffEffectsCoroutine = coroutine.wrap(function()
-        wait(3) -- TODO: set to static from module
+        if operator == MathBlocksInfo.DIVIDE_BLOCK_TAG then
+            wait(MathBlocksInfo.ExplosionTweenInfo.Division.WaitDuration)
+        else
+            wait(3) -- TODO: set to static from module
+        end
         for _, v in pairs(explosionParticlesCore.Attachment:GetChildren()) do
             v.Enabled = false
         end
@@ -241,7 +259,6 @@ function CollisionUtilities.additionCollisionProcessing(block_1, block_2)
         -- TODO: Explosion for invalid operator combining
         print("Invalid")
     elseif block_1:GetAttribute("value") + block_2:GetAttribute("value") > MathBlocksInfo.ADD_LIMIT then
-        print("MAX EXCEEDED EXPLOSION IMMINENT")
         explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.ADD_BLOCK_TAG)
     else
         successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.ADD_BLOCK_TAG)
@@ -256,7 +273,6 @@ function CollisionUtilities.subtractionCollisionProcessing(block_1, block_2)
     --elseif newValue > MathBlocksInfo.SUBTRACT_LIMIT then
     elseif block_1:GetAttribute("value") + block_2:GetAttribute("value") > MathBlocksInfo.SUBTRACT_UPPER_LIMIT or 
     block_1:GetAttribute("value") + block_2:GetAttribute("value") < MathBlocksInfo.SUBTRACT_LOWER_LIMIT then
-        print("MAX EXCEEDED EXPLOSION IMMINENT")
         explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
     else
         successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.SUBTRACT_BLOCK_TAG)

@@ -3,7 +3,6 @@
 --]]
 
 local CollectionService = game:GetService("CollectionService") -- for tags
-local ServerStorage = game:GetService("ServerStorage") -- for blocks
 
 local CollisionUtilities = require(script:WaitForChild("CollisionUtilities")) -- module to handle collision VFX and logic
 local MathBlocksInfo = require(script:WaitForChild("MathBlocksInfo")) -- Information on Math_Blocks Game Settings
@@ -17,7 +16,7 @@ local MULTIPLY_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(Ma
 local DIVIDE_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(MathBlocksInfo.DIVIDE_BLOCK_TAG)
 
 ADD_BLOCK_TAGGED_SIGNAL:Connect(function(newAddBlock)
-    print("ADD BLOCK HAS BEEN ADDED")
+    --print("ADD BLOCK HAS BEEN ADDED")
     newAddBlock.Touched:Connect(function(objectHit)
         if not newAddBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then -- newAddBlock has attribute "Touched" (Boolean) for debounce
             if objectHit:IsA("Part") then -- TODO: better logic for models + logic for if objectHit is combinable
@@ -32,7 +31,7 @@ ADD_BLOCK_TAGGED_SIGNAL:Connect(function(newAddBlock)
     end)
 end)
 SUBTRACT_BLOCK_TAGGED_SIGNAL:Connect(function(newSubtractBlock)
-    print("SUBTRACT BLOCK HAS BEEN ADDED")
+    --print("SUBTRACT BLOCK HAS BEEN ADDED")
     newSubtractBlock.Touched:Connect(function(objectHit)
         if not newSubtractBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
             if objectHit:IsA("Part") then
@@ -60,7 +59,7 @@ MULTIPLY_BLOCK_TAGGED_SIGNAL:Connect(function(newMultiplyBlock)
     end)
 end)
 DIVIDE_BLOCK_TAGGED_SIGNAL:Connect(function(newDivideBlock)
-    print("DIVIDE BLOCK HAS BEEN ADDED")
+    --print("DIVIDE BLOCK HAS BEEN ADDED")
     newDivideBlock.Touched:Connect(function(objectHit)
         if not newDivideBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
             if objectHit:IsA("Part") then
@@ -171,7 +170,7 @@ local function onChildRemovedFromDivideBlocksFolder()
     for i = 1, numberOfLargeChildrenToSpawn do
         local newDivideBlock = MathBlocksInfo.DIVIDE_BLOCK:Clone()
         newDivideBlock:SetAttribute("value", MathBlocksInfo.DIVIDE_BLOCK_DROP:GetAttribute("key_value") * 
-            MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS[math.random(1,#MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS)])
+            MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS[math.random(1,#MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS)]) -- TODO: improve upon multiplier value heuristics!
         CollisionUtilities.setScreenGuis(newDivideBlock)
         CollectionService:AddTag(newDivideBlock, MathBlocksInfo.DIVIDE_BLOCK_TAG)
         newDivideBlock.Parent = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER
@@ -180,7 +179,8 @@ local function onChildRemovedFromDivideBlocksFolder()
     end
     for i = 1, numberOfSmallChildrenToSpawn do
         local newDivideBlock = MathBlocksInfo.DIVIDE_BLOCK:Clone()
-        newDivideBlock:SetAttribute("value", MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS[math.random(1, #MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS)])
+        newDivideBlock:SetAttribute("value", MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS[math.random(1, #MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS)]) -- TODO: Change to match heuristic
+        -- or evolve algorithm to listen to the key_value in the block drop
         CollisionUtilities.setScreenGuis(newDivideBlock)
         CollectionService:AddTag(newDivideBlock, MathBlocksInfo.DIVIDE_BLOCK_TAG)
         newDivideBlock.Parent = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER
