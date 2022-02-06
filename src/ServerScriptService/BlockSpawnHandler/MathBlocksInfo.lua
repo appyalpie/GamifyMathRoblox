@@ -5,7 +5,7 @@ local ServerStorage = game:GetService("ServerStorage")
 local ADD_BLOCK = ServerStorage.Island_1.Math_Blocks.Add_Block
 local SUBTRACT_BLOCK = ServerStorage.Island_1.Math_Blocks.Subtract_Block
 local MULTIPLY_BLOCK = ServerStorage.Island_1.Math_Blocks.Multiply_Block
---local DIV_BLOCK
+local DIVIDE_BLOCK = ServerStorage.Island_1.Math_Blocks.Divide_Block
 
 local ADD_LIMIT = 5
 local SUBTRACT_UPPER_LIMIT = 5
@@ -15,7 +15,7 @@ local MULTIPLY_LIMIT = 100
 local ADD_BLOCKS_FOLDER = game.Workspace.Island_1.Math_Blocks.Add_Blocks
 local SUBTRACT_BLOCKS_FOLDER = game.Workspace.Island_1.Math_Blocks.Subtract_Blocks
 local MULTIPLY_BLOCKS_FOLDER = game.Workspace.Island_1.Math_Blocks.Multiply_Blocks
---local DIVIDE_BLOCKS_FOLDER
+local DIVIDE_BLOCKS_FOLDER = game.Workspace.Island_1.Math_Blocks.Divide_Blocks
 
 -- Static Tag Listings
 local ADD_BLOCK_TAG = "Add_Block"
@@ -27,6 +27,9 @@ local COMBINE_PARTICLES_CORE = ServerStorage.Island_1.Math_Blocks.Particles.Comb
 local EXPLOSION_PARTICLES_CORE = ServerStorage.Island_1.Math_Blocks.Particles.Explosion_Particles_Core
 
 local EFFECTS_FOLDER = game.Workspace.Island_1.Math_Blocks.Effects
+
+local BLOCK_DROPS_FOLDER = game.Workspace.Island_1.Math_Blocks.Block_Drops
+local DIVIDE_BLOCK_DROP = BLOCK_DROPS_FOLDER.Divide_Block_Drop
 
 local MathBlocksInfo = {}
 
@@ -52,6 +55,13 @@ MathBlocksInfo.MULTIPLY_BLOCK = MULTIPLY_BLOCK
 MathBlocksInfo.MULTIPLY_LIMIT = MULTIPLY_LIMIT
 MathBlocksInfo.MULTIPLY_BLOCK_TAG = MULTIPLY_BLOCK_TAG
 MathBlocksInfo.MULTIPLY_BLOCKS_FOLDER = MULTIPLY_BLOCKS_FOLDER
+
+MathBlocksInfo.DIVIDE_BLOCK = DIVIDE_BLOCK
+MathBlocksInfo.DIVIDE_BLOCK_TAG = DIVIDE_BLOCK_TAG
+MathBlocksInfo.DIVIDE_BLOCKS_FOLDER = DIVIDE_BLOCKS_FOLDER
+MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS = { 2, 3, 5, 7 }
+MathBlocksInfo.DIVIDE_BLOCK_DROP = DIVIDE_BLOCK_DROP
+MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS = { 5, 6, 7, 8 }
 
 MathBlocksInfo.ADD_BLOCK_BRICKCOLOR = BrickColor.new("Pastel yellow")
 MathBlocksInfo.SUBTRACT_BLOCK_BRICKCOLOR = BrickColor.new("Pastel Blue")

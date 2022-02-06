@@ -218,6 +218,21 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
 
         -- VFX
         twoBlocksCollisionEffects(block_1, block_2, combinedBlock, MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR)
+    elseif operator == MathBlocksInfo.DIVIDE_BLOCK_TAG then
+        local combinedBlock = MathBlocksInfo.DIVIDE_BLOCK:Clone()
+        combinedBlock.CanTouch = false
+        CollectionService:AddTag(combinedBlock, MathBlocksInfo.DIVIDE_BLOCK_TAG)
+        -- divides higher by lower
+        local higherValueBlock = block_1:GetAttribute("value") >= block_2:GetAttribute("value") and block_1 or block_2
+        local lowerValueBlock = block_1:GetAttribute("value") < block_2:GetAttribute("value") and block_1 or block_2
+        combinedBlock:SetAttribute("value", higherValueBlock:GetAttribute("value") / lowerValueBlock:GetAttribute("value"))
+        combinedBlock.Parent = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER
+
+        -- set screenGuis
+        CollisionUtilities.setScreenGuis(combinedBlock)
+
+        -- VFX
+        twoBlocksCollisionEffects(block_1, block_2, combinedBlock, MathBlocksInfo.OPERATORS.DIVIDE_OPERATOR)
     end
 end
 
@@ -255,6 +270,18 @@ function CollisionUtilities.multiplicationCollsionProcessing(block_1, block_2)
         explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.MULTIPLY_BLOCK_TAG)
     else
         successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.MULTIPLY_BLOCK_TAG)
+    end
+end
+
+function CollisionUtilities.divisionCollisionProcessing(block_1, block_2)
+    local higherValueBlock = block_1:GetAttribute("value") >= block_2:GetAttribute("value") and block_1 or block_2
+    local lowerValueBlock = block_1:GetAttribute("value") < block_2:GetAttribute("value") and block_1 or block_2
+    if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.DIVIDE_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.DIVIDE_OPERATOR then
+        print("Invalid") -- perhaps not invalid later, for secret divide by 0 error achievement
+    elseif higherValueBlock:GetAttribute("value") % lowerValueBlock:GetAttribute("value") ~= 0 then
+        explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.DIVIDE_BLOCK_TAG) --TODO: Special explosion for division (decimal or fraction showcase)
+    else
+        successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.DIVIDE_BLOCK_TAG)
     end
 end
 

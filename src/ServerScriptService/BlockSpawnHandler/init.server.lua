@@ -14,7 +14,7 @@ local MathBlocksInfo = require(script:WaitForChild("MathBlocksInfo")) -- Informa
 local ADD_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(MathBlocksInfo.ADD_BLOCK_TAG)
 local SUBTRACT_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(MathBlocksInfo.SUBTRACT_BLOCK_TAG)
 local MULTIPLY_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(MathBlocksInfo.MULTIPLY_BLOCK_TAG)
---local DIVIDE_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(DIVIDE_BLOCK_TAG)
+local DIVIDE_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(MathBlocksInfo.DIVIDE_BLOCK_TAG)
 
 ADD_BLOCK_TAGGED_SIGNAL:Connect(function(newAddBlock)
     print("ADD BLOCK HAS BEEN ADDED")
@@ -59,7 +59,20 @@ MULTIPLY_BLOCK_TAGGED_SIGNAL:Connect(function(newMultiplyBlock)
         end
     end)
 end)
---DIVIDE_BLOCK_TAGGED_SIGNAL
+DIVIDE_BLOCK_TAGGED_SIGNAL:Connect(function(newDivideBlock)
+    print("DIVIDE BLOCK HAS BEEN ADDED")
+    newDivideBlock.Touched:Connect(function(objectHit)
+        if not newDivideBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
+            if objectHit:IsA("Part") then
+                if objectHit:GetAttribute("value") ~= nil then
+                    objectHit:SetAttribute("Touched", true)
+                    newDivideBlock:SetAttribute("Touched", true)
+                    CollisionUtilities.divisionCollisionProcessing(newDivideBlock, objectHit)
+                end
+            end
+        end
+    end)
+end)
 
 --[[
     Set Event on Block Destroyed/Removed from Game to spawn an additional one back in.
@@ -129,18 +142,59 @@ local function onChildRemovedFromMultiplyBlocksFolder()
 
         newMultiplyBlock:SetAttribute("value", math.random(1,9)) -- TODO: Change to balance based on key value
         CollisionUtilities.setScreenGuis(newMultiplyBlock)
-        
+
         newMultiplyBlock.Parent = MathBlocksInfo.MULTIPLY_BLOCKS_FOLDER
         newMultiplyBlock.Position = MathBlocksInfo.MULTIPLY_BLOCKS_FOLDER:GetAttribute("position") + 
             Vector3.new(math.random(MathBlocksInfo.SPAWN_AREA_LOW, MathBlocksInfo.SPAWN_AREA_HIGH), 0, math.random(MathBlocksInfo.SPAWN_AREA_LOW, MathBlocksInfo.SPAWN_AREA_HIGH))
     end
 end
---local function onChildRemovedFromDivideBlocksFolder()
+
+--[[
+    Currently, large children are non prime factors and non 1
+        small children are prime factors that are not 1
+        1s do not count toward child count
+--]]
+local function onChildRemovedFromDivideBlocksFolder()
+    local children = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER:GetChildren()
+    local largeChildrenCount, smallChildrenCount = 0, 0
+    for _, v in pairs(children) do
+        if v:GetAttribute("value") ~= 1 then
+            if table.find(MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS, v:GetAttribute("value")) then
+                smallChildrenCount = smallChildrenCount + 1
+            else
+                largeChildrenCount = largeChildrenCount + 1
+            end
+        end
+    end
+    local numberOfLargeChildrenToSpawn = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER:GetAttribute("large_capacity") - largeChildrenCount
+    local numberOfSmallChildrenToSpawn = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER:GetAttribute("small_capacity") - smallChildrenCount
+    for i = 1, numberOfLargeChildrenToSpawn do
+        local newDivideBlock = MathBlocksInfo.DIVIDE_BLOCK:Clone()
+        newDivideBlock:SetAttribute("value", MathBlocksInfo.DIVIDE_BLOCK_DROP:GetAttribute("key_value") * 
+            MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS[math.random(1,#MathBlocksInfo.DIVIDE_KEY_MULTIPLIERS)])
+        CollisionUtilities.setScreenGuis(newDivideBlock)
+        CollectionService:AddTag(newDivideBlock, MathBlocksInfo.DIVIDE_BLOCK_TAG)
+        newDivideBlock.Parent = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER
+        newDivideBlock.Position = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER:GetAttribute("position") + 
+            Vector3.new(math.random(MathBlocksInfo.SPAWN_AREA_LOW, MathBlocksInfo.SPAWN_AREA_HIGH), 0, math.random(MathBlocksInfo.SPAWN_AREA_LOW, MathBlocksInfo.SPAWN_AREA_HIGH))
+    end
+    for i = 1, numberOfSmallChildrenToSpawn do
+        local newDivideBlock = MathBlocksInfo.DIVIDE_BLOCK:Clone()
+        newDivideBlock:SetAttribute("value", MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS[math.random(1, #MathBlocksInfo.DIVIDE_BLOCKS_DIVISORS)])
+        CollisionUtilities.setScreenGuis(newDivideBlock)
+        CollectionService:AddTag(newDivideBlock, MathBlocksInfo.DIVIDE_BLOCK_TAG)
+        newDivideBlock.Parent = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER
+        newDivideBlock.Position = MathBlocksInfo.DIVIDE_BLOCKS_FOLDER:GetAttribute("position") + 
+            Vector3.new(math.random(MathBlocksInfo.SPAWN_AREA_LOW, MathBlocksInfo.SPAWN_AREA_HIGH), 0, math.random(MathBlocksInfo.SPAWN_AREA_LOW, MathBlocksInfo.SPAWN_AREA_HIGH))
+    end
+end
 
 MathBlocksInfo.ADD_BLOCKS_FOLDER.ChildRemoved:Connect(onChildRemovedFromAddBlocksFolder)
 MathBlocksInfo.SUBTRACT_BLOCKS_FOLDER.ChildRemoved:Connect(onChildRemovedFromSubtractBlocksFolder)
 MathBlocksInfo.MULTIPLY_BLOCKS_FOLDER.ChildRemoved:Connect(onChildRemovedFromMultiplyBlocksFolder)
+MathBlocksInfo.DIVIDE_BLOCKS_FOLDER.ChildRemoved:Connect(onChildRemovedFromDivideBlocksFolder)
 
 onChildRemovedFromAddBlocksFolder() -- for testing
 onChildRemovedFromSubtractBlocksFolder() -- for testing
 onChildRemovedFromMultiplyBlocksFolder() -- for testing...
+onChildRemovedFromDivideBlocksFolder() -- for testing..?
