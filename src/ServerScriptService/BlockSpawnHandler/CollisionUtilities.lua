@@ -1,5 +1,6 @@
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
+local MarketplaceService = game:GetService("MarketplaceService")
 local CollectionService = game:GetService("CollectionService")
 
 local MathBlocksInfo = require(script.Parent.MathBlocksInfo)
@@ -35,7 +36,7 @@ end
         Successful Combine Explosion
         Tweening of Position, Transparency, Orientation for Combined Block
 --]]
-local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
+local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock, operator)
     -- tween size and position
     local targetCFrame = block_1.CFrame:Lerp(block_2.CFrame, 0.5) + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME -- CFrame of middle of two blocks
     local tweenInfo = TweenInfo.new(MathBlocksInfo.TweenInfo.Time, MathBlocksInfo.TweenInfo.EasingStyle, MathBlocksInfo.TweenInfo.EasingDirection)
@@ -44,14 +45,28 @@ local function twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
     local tweenPositionSizeBlock2 = TweenService:Create(block_2, tweenInfo, {Position = targetCFrame.Position + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME, 
     Size = MathBlocksInfo.TweenInfo.Properties.Size, Transparency = MathBlocksInfo.TweenInfo.Properties.Transparency, Orientation = block_2.Orientation + Vector3.new(90,90,90)})
 
-    -- particles
+    -- Particles
     local combineParticlesCore = MathBlocksInfo.COMBINE_PARTICLES_CORE:Clone()
     combineParticlesCore.CFrame = targetCFrame + MathBlocksInfo.OFFSET_OF_TARGET_CFRAME
     combineParticlesCore.Parent = MathBlocksInfo.EFFECTS_FOLDER
+        -- Color Change Particles based on operator [No Color Change if operator == MathBlocksInfo.OPERATORS.ADD_OPERATOR]
+    if operator == MathBlocksInfo.OPERATORS.SUBTRACT_OPERATOR then
+        for _, v in pairs (combineParticlesCore.Attachment:GetChildren()) do
+            v.Color = MathBlocksInfo.COMBINE_PARTICLES_COLOR_BY_OPERATOR.SUBTRACT_OPERATOR
+        end
+    elseif operator == MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR then
+        for _, v in pairs (combineParticlesCore.Attachment:GetChildren()) do
+            v.Color = MathBlocksInfo.COMBINE_PARTICLES_COLOR_BY_OPERATOR.MULTIPLY_OPERATOR
+        end
+    elseif operator == MathBlocksInfo.OPERATORS.DIVIDE_OPERATOR then
+        for _, v in pairs (combineParticlesCore.Attachment:GetChildren()) do
+            v.Color = MathBlocksInfo.COMBINE_PARTICLES_COLOR_BY_OPERATOR.DIVIDE_OPERATOR
+        end
+    end
 
-    -- sounds
+    -- Sounds
     local Sounds = combineParticlesCore.Sounds
-    --Sounds.Hover_Sound_Effect:Play()
+    --Sounds.Hover_Sound_Effect:Play() -- not yet removed from Sounds
     --Sounds.Wind_2:Play()
     local turnOffEffectsCoroutine = coroutine.wrap(function()
         wait(3) -- TODO: set to static from module
@@ -167,7 +182,7 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
         CollisionUtilities.setScreenGuis(combinedBlock)
 
         -- VFX
-        twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
+        twoBlocksCollisionEffects(block_1, block_2, combinedBlock, MathBlocksInfo.OPERATORS.ADD_OPERATOR)
     elseif operator == MathBlocksInfo.SUBTRACT_BLOCK_TAG then
         local combinedBlock = MathBlocksInfo.SUBTRACT_BLOCK:Clone()
         combinedBlock.CanTouch = false
@@ -178,24 +193,39 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
         --combinedBlock:SetAttribute("value", newValue)
         combinedBlock:SetAttribute("value", block_1:GetAttribute("value") + block_2:GetAttribute("value"))
         if combinedBlock:GetAttribute("value") < 0 then
-            combinedBlock.BrickColor = BrickColor.new("Pastel Blue") -- indicate that number is negative
+            combinedBlock.BrickColor = MathBlocksInfo.SUBTRACT_BLOCK_BRICKCOLOR -- indicate that number is negative
         end
-        combinedBlock.Parent = MathBlocksInfo.SUBTRACT_BLOCK_FOLDER
+        combinedBlock.Parent = MathBlocksInfo.SUBTRACT_BLOCKS_FOLDER
+
+        -- set screenGuis
+        CollisionUtilities.setScreenGuis(combinedBlock)
+
+        -- VFX, based on operation perform different visuals
+        if block_1:GetAttribute("value") < 0 or block_2:GetAttribute("value") < 0 then
+            twoBlocksCollisionEffects(block_1, block_2, combinedBlock, MathBlocksInfo.OPERATORS.SUBTRACT_OPERATOR)
+        else
+            twoBlocksCollisionEffects(block_1, block_2, combinedBlock, MathBlocksInfo.OPERATORS.ADD_OPERATOR)
+        end
+    elseif operator == MathBlocksInfo.MULTIPLY_BLOCK_TAG then
+        local combinedBlock = MathBlocksInfo.MULTIPLY_BLOCK:Clone()
+        combinedBlock.CanTouch = false
+        CollectionService:AddTag(combinedBlock, MathBlocksInfo.MULTIPLY_BLOCK_TAG)
+        combinedBlock:SetAttribute("value", block_1:GetAttribute("value") * block_2:GetAttribute("value"))
+        combinedBlock.Parent = MathBlocksInfo.MULTIPLY_BLOCKS_FOLDER
 
         -- set screenGuis
         CollisionUtilities.setScreenGuis(combinedBlock)
 
         -- VFX
-        twoBlocksCollisionEffects(block_1, block_2, combinedBlock)
+        twoBlocksCollisionEffects(block_1, block_2, combinedBlock, MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR)
     end
 end
 
 function CollisionUtilities.additionCollisionProcessing(block_1, block_2)
-    if not block_1:GetAttribute("operator") == "add" or not block_2:GetAttribute("operator") == "add" then
+    if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.ADD_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.ADD_OPERATOR then
         -- TODO: Explosion for invalid operator combining
         print("Invalid")
     elseif block_1:GetAttribute("value") + block_2:GetAttribute("value") > MathBlocksInfo.ADD_LIMIT then
-        -- TODO: Explosion for max exceeded
         print("MAX EXCEEDED EXPLOSION IMMINENT")
         explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.ADD_BLOCK_TAG)
     else
@@ -205,17 +235,26 @@ end
 
 function CollisionUtilities.subtractionCollisionProcessing(block_1, block_2)
     --local newValue = getDifference(block_1, block_2)
-    if not block_1:GetAttribute("operator") == "subtract" or not block_2:GetAttribute("operator") == "subtract" then
+    if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.SUBTRACT_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.SUBTRACT_OPERATOR then
         -- TODO: Explosion for invalid operator combining
         print("Invalid")
     --elseif newValue > MathBlocksInfo.SUBTRACT_LIMIT then
     elseif block_1:GetAttribute("value") + block_2:GetAttribute("value") > MathBlocksInfo.SUBTRACT_UPPER_LIMIT or 
     block_1:GetAttribute("value") + block_2:GetAttribute("value") < MathBlocksInfo.SUBTRACT_LOWER_LIMIT then
-        -- TODO: Explosion for max exceeded
         print("MAX EXCEEDED EXPLOSION IMMINENT")
         explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
     else
         successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
+    end
+end
+
+function CollisionUtilities.multiplicationCollsionProcessing(block_1, block_2)
+    if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR then
+        print("Invalid")
+    elseif block_1:GetAttribute("value") * block_2:GetAttribute("value") > MathBlocksInfo.MULTIPLY_LIMIT then
+        explosionCollisionProcessing(block_1, block_2, MathBlocksInfo.MULTIPLY_BLOCK_TAG)
+    else
+        successfulCollisionProcessing(block_1, block_2, MathBlocksInfo.MULTIPLY_BLOCK_TAG)
     end
 end
 
