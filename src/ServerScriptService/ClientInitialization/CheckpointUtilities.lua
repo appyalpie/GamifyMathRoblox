@@ -28,28 +28,4 @@ function CheckpointUtilities.setCheckpointEvents()
     end
 end
 
---[[ might need for leader board later.
-function CheckpointUtilities.addPlayerToLeaderBoard(player)
-    --[[ "leaderstats" is a special keyword in Roblox, Roblox will not add the player to if there is variation
-        in the name of the leaderstats folder, or location of the leaderstats folder. 
-    
-    local leaderstats = Instance.new("Folder")
-    leaderstats.Name = "leaderstats"
-    leaderstats.Parent = player
-    
-    --[[ Leaderboards use "value type" objects to store and display player stats, but we have an attribute
-        Workaround: Mirror the value and attribute by listening to attribute changes 
-    
-        local checkpoint = Instance.new("IntValue")
-    checkpoint.Name = "Level"
-    checkpoint.Value = player:GetAttribute("checkpoint")
-    checkpoint.Parent = leaderstats -- "value type" object should be under leaderstats folder
-    
-    player:GetAttributeChangedSignal("checkpoint"):Connect(function()
-        checkpoint.Value = player:GetAttribute("checkpoint")
-    end)
-    
-end
-]]
-
 return CheckpointUtilities
