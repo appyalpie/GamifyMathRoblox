@@ -6,6 +6,7 @@
     Parts are configured as
         [Part Name]
             ... [LightingProperty Name]-> Value as a variable object
+    A default Folder Must be in the LightingZones Folder in workspace otherwise Rojo deletes it
 ]]
 
 local collectionService = game:GetService("CollectionService")
