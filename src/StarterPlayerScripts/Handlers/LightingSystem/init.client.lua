@@ -1,15 +1,23 @@
 
+
+
 local collectionService = game:GetService("CollectionService")
 -- is meant to find all children within the LightingZones folder in workspace
 local Zones = game.Workspace.LightingZones:GetChildren()
 
 local player = game.Players.LocalPlayer
 local zones = game.Workspace.LightingZones
+
+--this makes sure a default is defined in local execution so it appears in the subscript
+
 local default = script.parent.Default
+
 local ZoneLightingHandler = require(script.ZoneLightingHandler)
 
-ZoneLightingHandler.ApplyDefault()
+ZoneLightingHandler.ApplyDefault() --sets the inital lighting when not in zone found in the folder StarterPlayerScripts/Handlers/Default
 
+-- is meant to change the lighting for the player once the player root has touched the part
+-- zone settings are meant to be determined in part settings with a value
 player.CharacterAdded:Connect(function(character)
     ZoneLightingHandler.ApplyDefault()
     
@@ -27,14 +35,10 @@ local LightZoneTraits = {}
 LightZoneTraits.__index = Zones
 LightZoneTraits.TAG_NAME = "LightZone" 
 
-
+--adds tags to all first child parts inside the LightingZones folder
 for i = 1, #Zones do
     collectionService:AddTag(Zones[i],LightZoneTraits.TAG_NAME)
 end
-
-
-
-
 
 --LightZone constructor
 function Zones.new(LightZone)
@@ -47,45 +51,6 @@ function Zones.new(LightZone)
     return self
 end
 
-
--- is meant to change the lighting for the player once the player root has touched the part
--- zone settings are meant to be determined in part settings with a value
---[[
-
-    THE CURRENT PROBLEM is i can't figuire out why self returns nil once i can get it where the part 
-    properties are reconized code should work. this is purely syntax in what i can observe
-    
-
-]]
-function Zones:onTouch(part)
-
-
-   --[[
-    self.debounce = false
-    local human = part.parent:FindFirstChild("Humanoid")
-     if not human then
-        return
-     end
-     if not self.TRANSITION.Value then
-        self.TRANSITION.Value = LightZoneTraits.TRANSITION
-     end
-
-     local tweenInfo = TweenInfo.new(self.TRANSITION.Value)
-
-     for _, value in pairs(self:GetChildren())do
-        local ZoneLightingHandler = {}
-        local succ, err = pcall(function ()
-            local goal = {[value.Name] = value.Value}
-            local tween = tweenService:Create(game.Lighting, tweenInfo, goal)
-            tween:Play()
-            table.insert(ZoneLightingHandler,value.Name)
-        end)
-        if not succ then
-            warn(err)
-        end
-    end
-    --]]
-end
 -- Tag cleanup
 function Zones:Cleanup()
     self.touchConn:Disconnect()
