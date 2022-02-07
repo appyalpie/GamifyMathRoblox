@@ -8,7 +8,6 @@ muteMusicButton.Activated:Connect(function()
     -- Check if volume is NOT 0. If it is NOT 0, mute the SoundGroup, otherwise if it IS 0, set the SoundGroup Volume multiplier to 1
     if soundGroupToMute.Volume ~= 0 
     then
-        print("time to mute")
         soundGroupToMute.Volume = 0
         muteMusicButton.Text = "Unmute Music"
     else

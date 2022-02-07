@@ -3,7 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local musicEvent = ReplicatedStorage:WaitForChild('MusicEvent')
 local lastSound
 
-musicEvent.OnClientEvent:Connect(function(musicId)
+musicEvent.OnClientEvent:Connect(function(musicId, volume)
     -- If lastSound does not exist or lastSound =/= this new one
     if not lastSound or lastSound.SoundId ~= musicId then
         -- If last sound DOES exist, stop and destroy it to save space
@@ -16,12 +16,12 @@ musicEvent.OnClientEvent:Connect(function(musicId)
         local sound = Instance.new("Sound", workspace.Sounds)
         sound.SoundGroup = workspace.Sounds.MusicSoundGroup
         sound.SoundId = musicId
+        sound.Volume = volume
         sound.Looped = true
 
         --Play the new sound, set the lastSound = this one so we don't replay sounds
     
         sound:Play()
-        print("playing music")
         lastSound = sound
     end
 end)

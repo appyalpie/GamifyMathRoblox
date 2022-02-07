@@ -12,7 +12,7 @@ for i,v in pairs(workspace.Sounds.MusicZones:GetDescendants()) do
         v.Touched:Connect(function(objectHit)
             if objectHit and objectHit.Parent and objectHit.Parent:FindFirstChildWhichIsA("Humanoid") then
                 -- Fires the musicevent client on server side (PlayMusicLocal.client.lua)
-                musicEvent:FireClient(game.Players:GetPlayerFromCharacter(objectHit.Parent),v:GetAttribute("songId"))
+                musicEvent:FireClient(game.Players:GetPlayerFromCharacter(objectHit.Parent),v:GetAttribute("songId"), v:GetAttribute("Volume"))
             end
         end)
     end
