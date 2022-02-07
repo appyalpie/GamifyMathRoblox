@@ -21,6 +21,7 @@ musicEvent.OnClientEvent:Connect(function(musicId)
         --Play the new sound, set the lastSound = this one so we don't replay sounds
     
         sound:Play()
+        print("playing music")
         lastSound = sound
     end
 end)

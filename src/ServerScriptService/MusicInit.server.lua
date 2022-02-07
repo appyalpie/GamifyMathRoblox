@@ -7,11 +7,13 @@ end
 local musicEvent = game.ReplicatedStorage:FindFirstChild('MusicEvent')
 
 --Sets song zones to play their attribute "songId" when touched
-for i,v in pairs(workspace.Sounds.MusicZones:GetChildren()) do
-    v.Touched:Connect(function(objectHit)
-        if objectHit and objectHit.Parent and objectHit.Parent:FindFirstChildWhichIsA("Humanoid") then
-            -- Fires the musicevent client on server side (PlayMusicLocal.client.lua)
-            musicEvent:FireClient(game.Players:GetPlayerFromCharacter(objectHit.Parent),v:GetAttribute("songId"))
-        end
-    end)
+for i,v in pairs(workspace.Sounds.MusicZones:GetDescendants()) do
+    if v:IsA("BasePart") then
+        v.Touched:Connect(function(objectHit)
+            if objectHit and objectHit.Parent and objectHit.Parent:FindFirstChildWhichIsA("Humanoid") then
+                -- Fires the musicevent client on server side (PlayMusicLocal.client.lua)
+                musicEvent:FireClient(game.Players:GetPlayerFromCharacter(objectHit.Parent),v:GetAttribute("songId"))
+            end
+        end)
+    end
 end
