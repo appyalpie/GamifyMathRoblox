@@ -45,7 +45,7 @@ SUBTRACT_BLOCK_TAGGED_SIGNAL:Connect(function(newSubtractBlock)
     end)
 end)
 MULTIPLY_BLOCK_TAGGED_SIGNAL:Connect(function(newMultiplyBlock)
-    print("MULTIPLY BLOCK HAS BEEN ADDED")
+    --print("MULTIPLY BLOCK HAS BEEN ADDED")
     newMultiplyBlock.Touched:Connect(function(objectHit)
         if not newMultiplyBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
             if objectHit:IsA("Part") then
