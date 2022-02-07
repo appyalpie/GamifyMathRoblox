@@ -24,6 +24,7 @@ local DIVIDE_BLOCK_TAG = "Divide_Block"
 local COMBINE_PARTICLES_CORE = ServerStorage.Island_1.Math_Blocks.Particles.Combine_Particles_Core
 local EXPLOSION_PARTICLES_CORE = ServerStorage.Island_1.Math_Blocks.Particles.Explosion_Particles_Core
 local EXPLOSION_PARTICLES_CORE_DIVISION = ServerStorage.Island_1.Math_Blocks.Particles.Explosion_Particles_Core_Division
+local DOOR_PARTICLES = ServerStorage.Island_1.Math_Blocks.Particles.Door_Particles.Door_Particles
 
 local EFFECTS_FOLDER = game.Workspace.Island_1.Math_Blocks.Effects
 
@@ -84,6 +85,7 @@ MathBlocksInfo.DIVIDE_BLOCK_BRICKCOLOR = BrickColor.new("Pastel green")
 MathBlocksInfo.COMBINE_PARTICLES_CORE = COMBINE_PARTICLES_CORE
 MathBlocksInfo.EXPLOSION_PARTICLES_CORE = EXPLOSION_PARTICLES_CORE
 MathBlocksInfo.EXPLOSION_PARTICLES_CORE_DIVISION = EXPLOSION_PARTICLES_CORE_DIVISION
+MathBlocksInfo.DOOR_PARTICLES =  DOOR_PARTICLES
 MathBlocksInfo.EFFECTS_FOLDER = EFFECTS_FOLDER
 
 MathBlocksInfo.COMBINE_PARTICLES_COLOR_BY_OPERATOR = {
@@ -165,6 +167,10 @@ MathBlocksInfo.BlockDropRejectTweenInfo = {
 
 MathBlocksInfo.DOOR_UNLOCK_DURATION = 15
 MathBlocksInfo.TIMER_BLOCK_TWEEN = TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+MathBlocksInfo.DOOR_TWEEN = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+MathBlocksInfo.DOOR_TWEEN_PROPERTIES = {
+    Transparency = .5
+}
 
 MathBlocksInfo.NewBlockInfo = {
     Size = Vector3.new(5,5,5),
