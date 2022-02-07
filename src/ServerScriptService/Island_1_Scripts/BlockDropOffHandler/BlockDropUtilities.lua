@@ -129,7 +129,40 @@ function BlockDropUtilities.correctAnswerServicing(block, operator)
             if blockDoor:GetAttribute("keys_accepted") + 1 == blockDoor:GetAttribute("keys_required") then
                 -- reset keys accepted and unlock door
                 blockDoor:SetAttribute("keys_accepted", 0)
+                
                 -- TODO: Unlock door here
+                local animationController = blockDoor:FindFirstChildWhichIsA("AnimationController")
+                local animator = animationController:FindFirstChildWhichIsA("Animator")
+
+                --Unanchor the door so it can be animated. Leave the arch anchored to keep the door from falling.
+                for i,doorParts in pairs(blockDoor:GetChildren()) do
+                    if doorParts:IsA("BasePart") and doorParts.Name ~= "Arch" then 
+                        doorParts.Anchored = false;
+                    end
+                end
+
+                -- Any changes to the lights can be made here, I will add animations for them soon
+                for i,lights in pairs(blockDoor:FindFirstChild("Lights"):GetChildren()) do
+                    lights.CanCollide = false
+                end
+
+                local doorOpenAnimation = animator:LoadAnimation(blockDoor:FindFirstChildWhichIsA("Animation"))
+                
+                local isDoorOpen = false
+                doorOpenAnimation:GetMarkerReachedSignal("DoorOpenEnd"):Connect(function(value)
+                    print ("entering GetMarkerReachedSignal(DoorOpenEnd)")
+                    if isDoorOpen == false then
+                        for i,doorParts in pairs(blockDoor:GetChildren()) do
+                            if doorParts:IsA("BasePart") then
+                                doorParts.Anchored = true;
+                            end
+                        end
+                        isDoorOpen = true
+                    end
+                end)
+                doorOpenAnimation:Play()
+
+                
                 print("DOOR IS UNLOCKED")
 
                 -- set timer
@@ -139,6 +172,24 @@ function BlockDropUtilities.correctAnswerServicing(block, operator)
                 doorTimer.finished:Connect(function()
                     -- upon timer finishing, relock the door and reset the block drop
                     -- TODO: relock door
+
+                    for i,doorParts in pairs(blockDoor:GetChildren()) do
+                        if doorParts:IsA("BasePart") and doorParts.Name ~= "Arch" then 
+                            doorParts.Anchored = false;
+                        end
+                    end
+                    doorOpenAnimation:GetMarkerReachedSignal("DoorOpenBegin"):Connect(function(value)
+                        if isDoorOpen == true then
+                            for i,doorParts in pairs(blockDoor:GetChildren()) do
+                                if doorParts:IsA("BasePart") then
+                                    doorParts.Anchored = true;
+                                end
+                            end
+                            isDoorOpen = false
+                        end
+                    end)
+                    doorOpenAnimation:Play(0, 1, -1)
+
                     print("DOOR HAS BEEN LOCKED")
                     -- reset timer block
                     TweenService:Create(blockDrop.Timer_Block, MathBlocksInfo.TIMER_BLOCK_TWEEN, {Transparency = 1}):Play()
