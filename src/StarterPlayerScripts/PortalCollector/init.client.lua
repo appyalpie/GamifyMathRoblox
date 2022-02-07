@@ -1,5 +1,5 @@
 local collectionService = game:GetService("CollectionService")
-local portals = collectionService.GetChildren()
+local portals = game.workspace:GetChildren()
 
 local PortalActivation = require(script.PortalActivation)
 
@@ -11,7 +11,7 @@ PortalTraits.TAG_NAME = "Portal"
 -- adds tag to all portal models found in game as long as each folder location only contains 1 portal
 -- only checks from first 
 for _,v in ipairs(portals) do
-    local portal = v:getFirstDiscendent("Portal")
+    local portal = v:FindFirstDescendant("Portal")
     if portal then
         collectionService.AddTag(portal,"Portal")
     end

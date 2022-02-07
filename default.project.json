@@ -28,6 +28,10 @@
       "$className": "LightingSystem",
       "$path": "src/StarterPlayer/StarterPlayerScripts/Handlers/LightingSystem"
     },
+    "PortalCollector":{
+      "$className":"PortalCollector",
+      "$path":"src/StarterPlayer/StarterPlayerScripts/PortalCollector"
+    },
 
     "Workspace": {
       "$className": "Workspace",
