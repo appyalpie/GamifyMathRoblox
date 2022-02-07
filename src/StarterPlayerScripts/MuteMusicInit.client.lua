@@ -1,17 +1,18 @@
---local starterGui = game:GetService("StarterGui")
-local client = game:GetService("Players").LocalPlayer
-local playerGui = client:WaitForChild("PlayerGui")
-local screenGui = playerGui:WaitForChild("PersistentUI")
-local muteMusicButton = screenGui:FindFirstChildWhichIsA("TextButton")
+-- Gets music button from the players local UI. 
+-- note: WaitForChild MUST be used to find UI elements from PlayerGui due to load times
+local muteMusicButton = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PersistentUI"):FindFirstChildWhichIsA("TextButton")
 
 muteMusicButton.Activated:Connect(function()
-    local soundGroupToMute = workspace.Sounds:FindFirstChildWhichIsA("SoundGroup")
-    if soundGroupToMute.Volume ~= 0 then
+    -- Fetch the SoundGroup that music is stored under
+    local soundGroupToMute = workspace.Sounds:FindFirstChild("MusicSoundGroup")
+    -- Check if volume is NOT 0. If it is NOT 0, mute the SoundGroup, otherwise if it IS 0, set the SoundGroup Volume multiplier to 1
+    if soundGroupToMute.Volume ~= 0 
+    then
+        print("time to mute")
         soundGroupToMute.Volume = 0
         muteMusicButton.Text = "Unmute Music"
-    end
-    if soundGroupToMute.Volume == 0 then
-        soundGroupToMute.Volume = 0.5
+    else
+        soundGroupToMute.Volume = 1
         muteMusicButton.Text = "Mute Music"
     end
 
