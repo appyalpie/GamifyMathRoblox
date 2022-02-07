@@ -20,6 +20,14 @@
         "$path": "src/StarterPlayerScripts"
       }
     },
+      "Handlers":{
+        "$className":"Handlers",
+        "$path":"src/StarterPlayer/StarterPlayerScripts/Handlers"
+    },
+    "LightingSystem": {
+      "$className": "LightingSystem",
+      "$path": "src/StarterPlayer/StarterPlayerScripts/Handlers/LightingSystem"
+    },
 
     "Workspace": {
       "$className": "Workspace",

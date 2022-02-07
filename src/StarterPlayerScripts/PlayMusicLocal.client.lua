@@ -14,11 +14,14 @@ musicEvent.OnClientEvent:Connect(function(musicId)
         
         -- Instance the new sound, make it looped
         local sound = Instance.new("Sound", workspace.Sounds)
+        sound.SoundGroup = workspace.Sounds.MusicSoundGroup
         sound.SoundId = musicId
         sound.Looped = true
 
         --Play the new sound, set the lastSound = this one so we don't replay sounds
+    
         sound:Play()
+        print("playing music")
         lastSound = sound
     end
 end)
