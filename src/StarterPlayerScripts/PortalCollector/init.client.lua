@@ -1,6 +1,10 @@
 local collectionService = game:GetService("CollectionService")
 local portals = game.workspace:GetChildren()
 
+local Player = game:GetService('Players').LocalPlayer
+
+Player.CharacterAdded:Wait()
+
 local PortalActivation = require(script.PortalActivation)
 
 local PortalTraits = {}
@@ -11,9 +15,9 @@ PortalTraits.TAG_NAME = "Portal"
 -- adds tag to all portal models found in game as long as each folder location only contains 1 portal
 -- only checks from first 
 for _,v in ipairs(portals) do
-    local portal = v:FindFirstDescendant("Portal")
+    local portal = v:FindFirstChild("Portal")
     if portal then
-        collectionService.AddTag(portal,"Portal")
+        collectionService:AddTag(portal,"Portal")
     end
 end
 
@@ -36,8 +40,8 @@ function Portal:onTouch(part)
     end
     -- open gui here
     -- GUI should collect Portal Tag or something to populate the GUI
-    local selection = workspace:WaitForChild("Selection") -- what selects the portal is added here
-    PortalActivation.SelectPortal(selection,human.Parent:FindFirstChild("HumanoidRootPart"))
+    --local selection = workspace:WaitForChild("Selection") -- what selects the portal is added here
+    --PortalActivation.SelectPortal(selection,human.Parent:FindFirstChild("HumanoidRootPart"))
 
     
 end
@@ -46,7 +50,7 @@ end
 --fires portalActivation event when teleports player to the exit point
 
 --cleanup of tags
-function portals:Cleanup()
+function Portal:Cleanup()
     self.touchConn:Disconnect()
     self.touchConn = nil
 end
