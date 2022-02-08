@@ -28,9 +28,14 @@ end
 
 --[[
     Ocean tagged blocks Kills player on touch
+    -- Edit 2/8/22 now checks for math block and destroys it on touch
 ]]
 
 function OceanBlock:onTouch(part)
+    if part:IsA("Part") and part:GetAttribute("value") ~= nil then
+        part:Destroy()
+        return
+    end
     local human = part.Parent:FindFirstChild("Humanoid")
     if not human then 
         return 
