@@ -3,7 +3,7 @@ local PortalActivation = {}
 function PortalActivation:SelectPortal(TargetPortal, Player)
     
     --Play animation or FX here
-    wait(3)
+   
     self:Teleport(TargetPortal, Player)
 end
 
