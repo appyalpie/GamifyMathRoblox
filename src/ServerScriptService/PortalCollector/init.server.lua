@@ -17,7 +17,7 @@ PortalTraits.TAG_NAME = "Portal"
 
 
 -- adds tag to all portal models found in game as long as each folder location only contains 1 portal
--- only checks from first 
+-- only checks from first children at the momement 
 for _,v in ipairs(portals) do
     local portal = v:FindFirstChild("Portal")
     if portal then
@@ -29,7 +29,6 @@ function portals.new(portal)
     local self = {}
     setmetatable(self,PortalTraits)
     self.portal = portal
-    print(self.Name)
     self.touchConn = portal.TeleporterINX.Touched:Connect(function(part)
         self:onTouch(part)
     end)
