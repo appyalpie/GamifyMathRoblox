@@ -1,37 +1,32 @@
 local DialogModule = {
     --create dialog for NPCs
     ["Eenie"] = {
-        [1] = "Hi There! I'm the Gatekeeper.",
-        [2] = "Each door needs 3 key blocks to Unlock it.",
+        [1] = "Hi There! I'm the Gatekeeper of Mega Blue. Welcome to the Island!",
+        [2] = "To get to the next island, you will need to face my challenge! Try and unlock the door by inserting math blocks into the colored 'zone' by that giant door.",
         [3] = "You can push and combine blocks.",
-        [4] = "The new block sums the numbers on the 2 blocks.",
-        [5] = "The new block is determined by the operator on the door",
-        [6] = "When you have the correct number found above the pedestal,",
-        [7] = "push that block onto the pedestal.",
-        [8] = "Good Luck!",
+        [4] = "Combining blocks will create a new block with a new value depending on the numbers on the 2 blocks. For this first section... we have addition!",
+        [5] = "Muahahaha",
+        [6] = "You gotta push the correct block into the zone.",
+        [7] = "Good Luck!",
     }, 
     ["Meenie"] = {
         [1] = "Hey, have we met before?",
-        [2] = "blocks here perform subtraction when combined.",
-        [3] = "Meaning two blocks can be pushed together and the new block",
-        [4] = "will be smaller than the largest of the two blocks",
-        [5] = "When you have a block that is the same number as the pedestal,",
-        [6] = "push that block onto the pedestal.",
-        [7] = "Again, please push three key blocks onto the pedestal "    
+        [2] = "Blocks here perform 'subtraction' when combined. The blue blocks can take away value.",
+        [3] = "Kinda similar to the last section... kinda...",
+        [4] = "When you have a block that is the same number as listed on that blue zone next to the giant door, go ahead and push it on there.",
+        [5] = "Again, your gonna need 3! Muahahaha."
     },
     ["Miney"] = {
-        [1] = "Gosh, you look familiar",
-        [2] = "blocks here perform multiplication when combined.",
-        [3] = "Again, 3 key blocks are needed."   
+        [1] = "Gosh, you look familiar.",
+        [2] = "Blocks here perform 'multiplication' when combined. Numbers can get really big really fast!",
+        [3] = "3 key blocks my friend, and you may pass."   
     },
     ["Moe"] = {
-        [1] = "It's me again. Your old friend.",
+        [1] = "It's me again. Your old friend. Moe.",
         [2] = "Things are a bit trickier in this area.",
-        [3] = "This time, when combine 2 blocks, the smaller number",
-        [4] = "block will divide the larger number block.",
-        [5] = "Once you've found the number displayed by the pedestal,",
-        [6] = "push that block onto the pedestal", 
-        [7] = "do this 3 times to unlock the door and proceed."   
+        [3] = "This time, when you combine 2 blocks, the smaller number block will 'divide' the larger number block. This means that blocks can reduce value from one another!",
+        [4] = "3 more key blocks! Good luck!",
+        [5] = "(Hint: watch out for 'fractions' and 'decimals'... they're explosive!)"
     },  
 }
 
