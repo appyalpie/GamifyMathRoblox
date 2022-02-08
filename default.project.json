@@ -12,7 +12,7 @@
       "$className": "ServerScriptService",
       "$path": "src/ServerScriptService"
     },
-
+    
     "StarterPlayer": {
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
@@ -26,12 +26,9 @@
     },
     "LightingSystem": {
       "$className": "LightingSystem",
-      "$path": "src/StarterPlayer/StarterPlayerScripts/Handlers/LightingSystem"
+      "$path":"src/StarterPlayer/StarterPlayerScripts/Handlers/LightingSystem"
     },
-    "PortalCollector":{
-      "$className":"PortalCollector",
-      "$path":"src/StarterPlayer/StarterPlayerScripts/PortalCollector"
-    },
+    
 
     "Workspace": {
       "$className": "Workspace",

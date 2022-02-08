@@ -1,9 +1,6 @@
 local collectionService = game:GetService("CollectionService")
 local portals = game.workspace:GetChildren()
 
-local Player = game:GetService('Players').LocalPlayer
-
-Player.CharacterAdded:Wait()
 
 local PortalActivation = require(script.PortalActivation)
 
@@ -27,8 +24,8 @@ function portals.new(portal)
     local self = {}
     setmetatable(self,PortalTraits)
     self.portal = portal
-    self.touchConn = portal.TeleporterINX.Touched:Connect(function(...)
-        self:onTouch(...)
+    self.touchConn = portal.TeleporterINX.Touched:Connect(function(part)
+        self:onTouch(part)
     end)
     return self
 end
