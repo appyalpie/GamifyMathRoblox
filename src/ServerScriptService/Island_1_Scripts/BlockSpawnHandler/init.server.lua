@@ -83,6 +83,8 @@ local function onChildRemovedFromAddBlocksFolder()
     for i = 1, numberOfBlocksToSpawn do
         --TODO: Revamp Spawning with spawn utilities module (VFX, SFX)
         local newAddBlock = MathBlocksInfo.ADD_BLOCK:Clone() -- Clone from ServerStorage
+        newAddBlock:SetAttribute("value", math.random(1,3)) --TODO: Set to MathBlocksInfo
+        CollisionUtilities.setScreenGuis(newAddBlock)
         CollectionService:AddTag(newAddBlock, MathBlocksInfo.ADD_BLOCK_TAG) -- Give logic
         newAddBlock.Parent = MathBlocksInfo.ADD_BLOCKS_FOLDER
         newAddBlock.Position = MathBlocksInfo.ADD_BLOCKS_FOLDER:GetAttribute("position") + 
@@ -117,7 +119,7 @@ local function onChildRemovedFromSubtractBlocksFolder()
     end
     for i = 1, numberOfNegativeBlocksToSpawn do
         local newSubtractBlock = MathBlocksInfo.SUBTRACT_BLOCK:Clone()
-        newSubtractBlock:SetAttribute("value", -1)
+        newSubtractBlock:SetAttribute("value", math.random(-1, -3)) --TODO: Set to MathBlocksInfo
         newSubtractBlock.BrickColor = BrickColor.new("Pastel Blue") -- indicate that number is negative
         CollisionUtilities.setScreenGuis(newSubtractBlock)
         CollectionService:AddTag(newSubtractBlock, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
