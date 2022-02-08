@@ -1,10 +1,15 @@
 --services and variables up top. allow access to globaldatastore
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local checkpointStore = DataStoreService:GetDataStore("PlayerCheckpoints")
 --get module
 local CheckpointUtilities = require(script.CheckpointUtilities)
+local BlurRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("BlurRE")
+
+
+
 
 --connects the event of adding a player to checkpoint
 Players.PlayerAdded:Connect(function(player)
@@ -36,6 +41,12 @@ Players.PlayerAdded:Connect(function(player)
     end
     CheckpointUtilities.moveCharacterToCheckpoint(player.Character)
 
+    local screengui = player:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+
+    if player:GetAttribute("checkpoint") == 0 then
+        screengui.Enabled = true
+        BlurRE:FireClient(player)
+    end
 end)
 
 -- when the player leaves, save their current checkpoint
