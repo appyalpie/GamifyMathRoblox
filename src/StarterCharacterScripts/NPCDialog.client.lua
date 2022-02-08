@@ -60,7 +60,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         })
         DialogTween = Tween
         DialogTween:Play()
-        
+
         ProximityPrompt.Enabled = true
         DialogOpen = false
         DialogIndex = 0
@@ -105,7 +105,7 @@ for _, v in pairs(NPCs:GetChildren()) do
             end
             --connect tween to handle DialogFrame    
             local Tween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-                Position = UDim2.new(0, 0, 1, 0)
+                Position = UDim2.new(0.1, 0, 0.73, 0)
             })
             DialogTween = Tween
             DialogTween:Play()
