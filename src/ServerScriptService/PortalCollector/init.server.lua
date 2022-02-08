@@ -1,3 +1,10 @@
+--[[
+    any Portal Model within a folder will get tagged portal
+    in order for teleport to work a new part is to be added to the portal model simply named "Exit" 
+    the script will then handle the rest
+]]
+
+
 local collectionService = game:GetService("CollectionService")
 local portals = game.workspace:GetChildren()
 
@@ -5,7 +12,7 @@ local portals = game.workspace:GetChildren()
 local PortalActivation = require(script.PortalActivation)
 
 local PortalTraits = {}
-PortalTraits._INDEX = portals
+PortalTraits.__index = portals
 PortalTraits.TAG_NAME = "Portal"
 
 
@@ -18,18 +25,17 @@ for _,v in ipairs(portals) do
     end
 end
 
--- defines what tag do 
-
 function portals.new(portal)
     local self = {}
     setmetatable(self,PortalTraits)
     self.portal = portal
+    print(self.Name)
     self.touchConn = portal.TeleporterINX.Touched:Connect(function(part)
         self:onTouch(part)
     end)
     return self
 end
-
+-- an oppurtunity for additonal modularity was added in mind
 function portals:onTouch(part)
     local human = part.Parent:FindFirstChild("Humanoid")
     if not human then 
@@ -38,7 +44,7 @@ function portals:onTouch(part)
     -- open gui here
     -- GUI should collect Portal Tag or something to populate the GUI
     --local selection = workspace:WaitForChild("Selection") -- what selects the portal is added here
-    PortalActivation.SelectPortal(self , human.Parent:FindFirstChild("HumanoidRootPart"))
+    PortalActivation.SelectPortal(self.portal , human.Parent:FindFirstChild("HumanoidRootPart"))
 
     
 end
@@ -46,7 +52,8 @@ end
 
 --fires portalActivation event when teleports player to the exit point
 
---cleanup of tags
+--cleanup of portals
+-- in the event that dynamic portals are created this code would be used
 --[[
     function portals:Cleanup()
         self.touchConn:Disconnect()

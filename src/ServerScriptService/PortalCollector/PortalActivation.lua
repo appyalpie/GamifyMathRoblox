@@ -3,9 +3,10 @@ local PortalActivation = {}
 
 function PortalActivation.Teleport(TargetPortal, Player)
     local targetposition = Vector3.new(TargetPortal.Exit.Position.X, TargetPortal.Exit.Position.Y+1,TargetPortal.Exit.Position.z)
-    Player:FindFirstChild("HumanoidRootPart").CFrame = targetposition.CFrame + Vector3.new(targetposition)
+    Player.Position = targetposition 
 end
 
+-- the function is a placeholder until either an animation is ready or FX to apply to the player
 function PortalActivation.SelectPortal(TargetPortal, Player)
     
     --Play animation or FX here
