@@ -119,7 +119,7 @@ local function onChildRemovedFromSubtractBlocksFolder()
     end
     for i = 1, numberOfNegativeBlocksToSpawn do
         local newSubtractBlock = MathBlocksInfo.SUBTRACT_BLOCK:Clone()
-        newSubtractBlock:SetAttribute("value", math.random(-1, -3)) --TODO: Set to MathBlocksInfo
+        newSubtractBlock:SetAttribute("value", math.random(-3, -1)) --TODO: Set to MathBlocksInfo
         newSubtractBlock.BrickColor = BrickColor.new("Pastel Blue") -- indicate that number is negative
         CollisionUtilities.setScreenGuis(newSubtractBlock)
         CollectionService:AddTag(newSubtractBlock, MathBlocksInfo.SUBTRACT_BLOCK_TAG)
