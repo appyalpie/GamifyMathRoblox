@@ -22,6 +22,7 @@ local DialogOpen = false
 local DialogTween = nil
 local DialogIndex = 0
 local GradualTextInProgress = false
+local TEXT_SPEED = .01
 
 --functions
 --helper function
@@ -36,7 +37,7 @@ local function GradualText(Text)
     for i = 1, Length, 1 do
         GradualTextInProgress = true
         DialogFrame.DialogText.Text = string.sub(Text, 1, i)
-        wait(.2)
+        wait(TEXT_SPEED)
     end
 
     GradualTextInProgress = false
@@ -68,7 +69,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     end
 end
 
---handle input button from user is this correct? should I use activate?
+--in future use context action service space bar. human computer interaction! future feature.
 InputButton.MouseButton1Click:Connect(function()
     if GradualTextInProgress then
         return
