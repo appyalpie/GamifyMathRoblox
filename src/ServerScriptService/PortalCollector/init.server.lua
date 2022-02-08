@@ -38,7 +38,7 @@ function portals:onTouch(part)
     -- open gui here
     -- GUI should collect Portal Tag or something to populate the GUI
     --local selection = workspace:WaitForChild("Selection") -- what selects the portal is added here
-    PortalActivation:SelectPortal(self,human.Parent:FindFirstChild("HumanoidRootPart"))
+    PortalActivation.SelectPortal(self , human.Parent:FindFirstChild("HumanoidRootPart"))
 
     
 end
@@ -47,10 +47,12 @@ end
 --fires portalActivation event when teleports player to the exit point
 
 --cleanup of tags
-function portals:Cleanup()
-    self.touchConn:Disconnect()
-    self.touchConn = nil
-end
+--[[
+    function portals:Cleanup()
+        self.touchConn:Disconnect()
+        self.touchConn = nil
+    end
+]]
 local PortalArray = {}
 local function onPortalAdd(portal)
     if portal:IsA("Model") then
