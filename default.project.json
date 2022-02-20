@@ -29,6 +29,10 @@
         "$className":"Handlers",
         "$path":"src/StarterPlayer/StarterPlayerScripts/Handlers"
     },
+    "Inventory":{
+      "$className": "Inventory",
+      "$path": "src/StartPlayer/StarterPlayerScripts/Inventory"
+    },
     "LightingSystem": {
       "$className": "LightingSystem",
       "$path":"src/StarterPlayer/StarterPlayerScripts/Handlers/LightingSystem"

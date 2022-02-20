@@ -1,31 +1,33 @@
-local Inventory = {}
-    Invnetory.Items = {}
-        Inventory.Items.ACH1 = {}
-            Inventory.Items.ACH1.Name = "Accessory A"
-            Inventory.Items.ACH1.Has = false
-        Inventory.Items.ACA1 = {}
-            Inventory.Items.ACA1.Name = "Accessory B"
-            Inventory.Items.ACA1.Has = false
-        Inventory.Items.ACL1 = {}
-            Inventory.Items.ACL1.Name = "Accessory C"
-            Inventory.Items.ACL1.Has = false
-        Inventory.Items.ACB1 = {}
-            Inventory.Items.ACB1.Name = "Accessory D"
-            Inventory.Items.ACB1.Has = false
-Inventory.First = true
 
-function Invnetory.new(Player,DataFromStore)
-    local self = {}
-    setmetatable(self,Inventory)
+    -- reformated so scoping won't get confusing
+    local Inventory = {
+        Items = {
+            ACH1 = Instance.new("BoolValue"),
+            ACA1 = Instance.new("BoolValue"),
+            ACL1 = Instance.new("BoolValue"),
+            ACB1 = Instance.new("BoolValue")        
+        }
+    }
+
+
+
+
+function Inventory.new(Player,DataFromStore)
+    local inventory = {}
+    setmetatable(inventory, Inventory)
+    inventory.Items.ACH1.Name = "Accesory A"
+    inventory.Items.ACA1.Name = "Accesory A"
+    inventory.Items.ACL1.Name = "Accesory A"
+    inventory.Items.ACB1.Name = "Accesory A"
+    inventory.Items.ACH1.Value = false
+    inventory.Items.ACA1.Value = false
+    inventory.Items.ACL1.Value = false
+    inventory.Items.ACB1.Value = false
+
+
     if not DataFromStore then
        table.insert(Player,Inventory)
     end
-
-    if not self.Exist(Player) then
-        
-        --attach to player here
-    end
-
 
 
 end
@@ -56,11 +58,11 @@ function Inventory.DisplayDescription(Item)
 
 end   
 
-function Invnetory.Save(Player)
+function Inventory.Save(Player)
     -- set the data table that is sent to data store here
 end
 
-function Invnetory.Reset(Player)
+function Inventory.Reset(Player)
     local Inventory = Player.Invnetory
     for _, inst in pairs (Inventory.Items) do
         Inventory.Items(_).Has = false
