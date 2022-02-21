@@ -16,8 +16,8 @@ end)
     the method to add accessories will be as follows
 
 AccessoryList.["Accesory Name Button"].Activated(function()
-    InvFunctions.DisplayDescription(self.Item)
-    InvFunctions.EquipItem(Player,self.Item)
+    InvFunctions.DisplayDescription(self.Item,self.Type)
+    InvFunctions.EquipItem(Player,self.Item,self.Type)
     self.ImageColor3 = Color3.fromRGB(75, 255, 111)
 end)
 Similar button layouts can be used for TitleList and BadgeList

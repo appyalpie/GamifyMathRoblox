@@ -12,12 +12,13 @@
             ["Legs"]  = {},
             ["Arms"] = {},
             ["Body"] = {}
-        }
+        },
+        First = true
     }
 
 
 
-
+-- Inventory Table Constructor and attach to player
 function Inventory.new(Player,DataFromStore)
     local InventoryData = {}
     setmetatable(InventoryData, inventory)
@@ -35,52 +36,53 @@ function Inventory.new(Player,DataFromStore)
        table.insert(Player,InventoryData)
     else
         for _,inst in pairs (InventoryData.Items) do
-            InventoryData.Items[inst].Value = DataFromStore.Value
+           -- InventoryData.Items[inst].Value = DataFromStore.Value
         end
         table.insert(Player,InventoryData)
 
     end
-
-
+    
+    
 end
-
+-- check if first time initalizing inventory
 function Inventory.Exist(Player)
     if Player.Inventory.First == false then
         return true
     end
     return false
 end
-
+-- adds item to player inventory
 function Inventory.AddItem(Player,Item)
     local InventoryData = Player.Inventory
     for _, inst in pairs (InventoryData.Items) do
-        if InventoryData.Items(inst).Name == Item then
-            InventoryData.Items(inst).Value = true
+        if InventoryData.Items[inst].Name == Item then
+            InventoryData.Items[inst].Value = true
             break
         end
     end
 
 end
+--equips item in player inventory
 function Inventory.EquipItem(Player,Item,Type)
     local InventoryData = Player.Inventory
     for _, inst in pairs (InventoryData.Equipped) do
-        if InventoryData.Equipped(inst).Name == Item then
+        if InventoryData.Equipped[inst].Name == Item then
             if not Type then
                 
                 break
             else
                 Inventory.UnEquipItem(Player,Type)
-                Type = InventoryData.Items(inst).Name
+                Type = InventoryData.Items[inst].Name
                 break
         end
     end 
 end
-
+--unequips item from player 
 function Inventory.UnEquipItem(Player,Type)
     local InventoryData = Player.Inventory
     for _,inst in pairs (InventoryData.Equipped) do
-        if InventoryData.Equipped(inst).Name == Type then
-            InventoryData.Equipped(inst) = nil
+        if InventoryData.Equipped[inst].Name == Type then
+            --InventoryData.Equipped(inst) = nil
             break
         end
     end
@@ -91,10 +93,12 @@ function Inventory.AddTitle(Player,Title)
 
 end 
 ]]
+-- displays the items description as a function
 function Inventory.DisplayDescription(Item)
 
 end   
 --an edit may need to happen here in the event storing data does not work
+--creates a save table to send to DataStore under InvData as key
 function Inventory.Save(Player)
     local InventoryData = Player.Inventory
     local DataToStore = {}
@@ -103,14 +107,15 @@ function Inventory.Save(Player)
     end
 --unequips all equipped items
     for _,inst in pairs (InventoryData.Equipped) do
-        InventoryData.Equipped(inst) = nil
+        InventoryData.Equipped[inst] = nil
     end
     return DataToStore
 end
-
+--resets Inventory as a function
 function Inventory.Reset(Player)
     local InventoryData = Player.Inventory
     for _, inst in pairs (InventoryData.Items) do
-        InventoryData.Items(inst).Value = false
+        InventoryData.Items[inst].Value = false
     end
+end
 end
