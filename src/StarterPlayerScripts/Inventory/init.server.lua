@@ -4,7 +4,7 @@ local dataStore = DataStoreService:GetDataStore("Data")
 local functions = require(script.functions)
 
 Players.PlayerAdded:Connect (function (Player)
-    local Inventory = functions.Inventory.new(Player)
+   local Inventory
     -- connect to player GUI
 
 
@@ -13,9 +13,10 @@ Players.PlayerAdded:Connect (function (Player)
         savedInventory = dataStore:GetAsync(Player.InvData)
     end)
     if success then
-        Inventory = savedInventory        
+        Inventory = functions.Inventory.new(Player,savedInventory)
+    else
+        Inventory = functions.Inventory.new(Player,0)
     end
-
 
 end)
 Players.PlayerRemoving:Connect(function(Player)
