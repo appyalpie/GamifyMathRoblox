@@ -1,0 +1,3 @@
+local GameInfo = {}
+
+return GameInfo
