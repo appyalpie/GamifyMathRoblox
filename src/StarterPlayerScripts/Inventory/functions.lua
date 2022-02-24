@@ -1,25 +1,30 @@
-
     -- reformated so scoping won't get confusing
     local inventory = {
+        __index ={
         Items = {
+            __index ={
             ACH1 = Instance.new("BoolValue"),
             ACA1 = Instance.new("BoolValue"),
             ACL1 = Instance.new("BoolValue"),
-            ACB1 = Instance.new("BoolValue")        
+            ACB1 = Instance.new("BoolValue")  
+            }      
         },
         Equipped = {
+            __index = {
             ["Head"] = {},
             ["Legs"]  = {},
             ["Arms"] = {},
             ["Body"] = {}
+            }
         },
         First = true
     }
+}
 
 
 
 -- Inventory Table Constructor and attach to player
-function Inventory.new(Player,DataFromStore)
+function Inventory.new(DataFromStore)
     local InventoryData = {}
     setmetatable(InventoryData, inventory)
     InventoryData.Items.ACH1.Name = "Accesory A"
@@ -32,28 +37,27 @@ function Inventory.new(Player,DataFromStore)
     InventoryData.Items.ACB1.Value = false
 
 
-    if not DataFromStore then
-       table.insert(Player,InventoryData)
-    else
+    if not DataFromStore == nil then
         for _,inst in pairs (InventoryData.Items) do
-           -- InventoryData.Items[inst].Value = DataFromStore.Value
+           InventoryData.Items[inst].Value = DataFromStore[inst].Value
         end
-        table.insert(Player,InventoryData)
-
     end
-    
+    return InventoryData
     
 end
+
+
+
 -- check if first time initalizing inventory
-function Inventory.Exist(Player)
-    if Player.Inventory.First == false then
+-- Player should be the data table
+function Inventory.Exist(InventoryData)
+    if InventoryData.First == false then
         return true
     end
     return false
 end
 -- adds item to player inventory
-function Inventory.AddItem(Player,Item)
-    local InventoryData = Player.Inventory
+function Inventory.AddItem(InventoryData,Item)
     for _, inst in pairs (InventoryData.Items) do
         if InventoryData.Items[inst].Name == Item then
             InventoryData.Items[inst].Value = true
@@ -62,34 +66,32 @@ function Inventory.AddItem(Player,Item)
     end
 
 end
+--Rework----------------------------------------------------------------------
 --equips item in player inventory
-function Inventory.EquipItem(Player,Item,Type)
-    local InventoryData = Player.Inventory
+function Inventory.EquipItem(InventoryData,Item,Type)
     for _, inst in pairs (InventoryData.Equipped) do
         if InventoryData.Equipped[inst].Name == Item then
             if not Type then
                 
                 break
             else
-                Inventory.UnEquipItem(Player,Type)
+                Inventory.UnEquipItem(InventoryData,Type)
                 Type = InventoryData.Items[inst].Name
                 break
         end
     end 
 end
 --unequips item from player 
-function Inventory.UnEquipItem(Player,Type)
-    local InventoryData = Player.Inventory
+function Inventory.UnEquipItem(InventoryData,Type)
     for _,inst in pairs (InventoryData.Equipped) do
-        if InventoryData.Equipped[inst].Name == Type then
-            --InventoryData.Equipped(inst) = nil
-            break
+        if InventoryData.Equipped[inst].Type == Type then
+            InventoryData.Equipped[inst] = nil
         end
     end
 end   
 
 --[[ pending title functionality
-function Inventory.AddTitle(Player,Title)
+function Inventory.AddTitle(InventoryData,Title)
 
 end 
 ]]
@@ -99,8 +101,7 @@ function Inventory.DisplayDescription(Item)
 end   
 --an edit may need to happen here in the event storing data does not work
 --creates a save table to send to DataStore under InvData as key
-function Inventory.Save(Player)
-    local InventoryData = Player.Inventory
+function Inventory.Save(InventoryData)
     local DataToStore = {}
     for _,inst in pairs (InventoryData.Items) do
         table.insert(DataToStore,InventoryData.Items(inst).Value)
@@ -112,8 +113,7 @@ function Inventory.Save(Player)
     return DataToStore
 end
 --resets Inventory as a function
-function Inventory.Reset(Player)
-    local InventoryData = Player.Inventory
+function Inventory.Reset(InventoryData)
     for _, inst in pairs (InventoryData.Items) do
         InventoryData.Items[inst].Value = false
     end
