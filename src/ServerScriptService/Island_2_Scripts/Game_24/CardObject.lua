@@ -25,12 +25,40 @@ end
 
 function Card.calculateValue(value)
 	if type(value) == "table" then
-        
-
         if value[1] == "add" then
-            return Card.calculateValue(value[2]) + Card.calculateValue(value[3])
+            local calculatedSecondValue = Card.calculateValue(value[2])
+            local calculatedThirdValue = Card.calculateValue(value[3])
+            if type(calculatedSecondValue) == "string" and type(calculatedThirdValue) == "string" then -- adding two fractions
+                local firstFraction = calculatedSecondValue:split("/")
+                local secondFraction = calculatedThirdValue:split("/")
+                return MathUtilities.addFractions(firstFraction[1], firstFraction[2], secondFraction[1] ,secondFraction[2])
+            end
+            if type(calculatedSecondValue) == "string" then -- add fraction and a number
+                local fraction = calculatedSecondValue:split("/")
+                return MathUtilities.addFractions(fraction[1],  fraction[2], calculatedThirdValue, 1)
+            end
+            if type(calculatedThirdValue) == "string" then -- add number and fraction
+                local fraction = calculatedThirdValue:split("/")
+                return MathUtilities.addFractions(calculatedSecondValue, 1, fraction[1], fraction[2])
+            end
+            return calculatedSecondValue + calculatedThirdValue -- add normally
         elseif value[1] == "subtract" then
-            return Card.calculateValue(value[2]) - Card.calculateValue(value[3])
+            local calculatedSecondValue = Card.calculateValue(value[2])
+            local calculatedThirdValue = Card.calculateValue(value[3])
+            if type(calculatedSecondValue) == "string" and type(calculatedThirdValue) == "string" then -- adding two fractions
+                local firstFraction = calculatedSecondValue:split("/")
+                local secondFraction = calculatedThirdValue:split("/")
+                return MathUtilities.subtractFractions(firstFraction[1], firstFraction[2], secondFraction[1] ,secondFraction[2])
+            end
+            if type(calculatedSecondValue) == "string" then -- add fraction and a number
+                local fraction = calculatedSecondValue:split("/")
+                return MathUtilities.subtractFractions(fraction[1],  fraction[2], calculatedThirdValue, 1)
+            end
+            if type(calculatedThirdValue) == "string" then -- add number and fraction
+                local fraction = calculatedThirdValue:split("/")
+                return MathUtilities.subtractFractions(calculatedSecondValue, 1, fraction[1], fraction[2])
+            end
+            return calculatedSecondValue - calculatedThirdValue
         elseif value[1] == "multiply" then
             local calculatedSecondValue = Card.calculateValue(value[2])
             local calculatedThirdValue = Card.calculateValue(value[3])
@@ -49,11 +77,25 @@ function Card.calculateValue(value)
             end
             return calculatedSecondValue * calculatedThirdValue -- multiply normally (number and number)
         elseif value[1] == "divide" then
-            if Card.calculateValue(value[2]) % Card.calculateValue(value[3]) == 0 then
-                return Card.calculateValue(value[2]) / Card.calculateValue(value[3])
-            else -- returning a fraction
-                return tostring(Card.calculateValue(value[2])) .. "/" .. tostring(Card.calculateValue(value[3]))
+            local calculatedSecondValue = Card.calculateValue(value[2])
+            local calculatedThirdValue = Card.calculateValue(value[3])
+            if type(calculatedSecondValue) == "string" and type(calculatedThirdValue) == "string" then -- divide two fractions (similar to multiply)
+                local firstFraction = calculatedSecondValue:split("/")
+                local secondFraction = calculatedThirdValue:split("/")
+                return MathUtilities.reduceFraction(firstFraction[1] * secondFraction[2], firstFraction[2] * secondFraction[1])
             end
+            if type(calculatedSecondValue) == "string" then -- divide a fraction by a number
+                local fraction = calculatedSecondValue:split("/")
+                return MathUtilities.reduceFraction(fraction[1], fraction[2] * calculatedThirdValue)
+            end
+            if type(calculatedThirdValue) == "string" then -- divide number and fraction
+                local fraction = calculatedThirdValue:split("/")
+                return MathUtilities.reduceFraction(calculatedSecondValue * fraction[2], fraction[1])
+            end
+            if calculatedSecondValue % calculatedThirdValue == 0 then -- return a whole number
+                return calculatedSecondValue / calculatedThirdValue
+            end
+            return MathUtilities.reduceFraction(calculatedSecondValue, calculatedThirdValue) -- divide two numbers
         end
 	end
 	return value

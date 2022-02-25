@@ -17,7 +17,7 @@ function MathUtilities.greatestCommonDivisor(a, b)
     end
 end
 
--- fraction reduce
+-- fraction reduce (takes in a numerator and a denominator)
 function MathUtilities.reduceFraction(a, b)
     local divisor = MathUtilities.greatestCommonDivisor(a, b)
     a = a / divisor
@@ -26,6 +26,34 @@ function MathUtilities.reduceFraction(a, b)
         return a
     end
     return a .. "/" .. b
+end
+
+-- fraction addition (takes in two pairs of numerator and denominators)
+function MathUtilities.addFractions(a, b, x, y)
+    -- find GCD of of both denominator
+    local gcd = MathUtilities.greatestCommonDivisor(b, y)
+
+    -- denominator of final fraction = LCM
+    -- LCM * GCD = b * y
+    local newDenominator = ( b * y ) / gcd
+
+    -- adjust fractions to new denominator and add
+    local newNumerator = (a * (newDenominator / b)) + (x * (newDenominator / y))
+    return MathUtilities.reduceFraction(newNumerator, newDenominator)
+end
+
+-- fraction subtraction (takes in two pairs of numerator and denominators in order, left operand then right)
+function MathUtilities.subtractFractions(a, b, x, y)
+    -- find GCD of of both denominator
+    local gcd = MathUtilities.greatestCommonDivisor(b, y)
+
+    -- denominator of final fraction = LCM
+    -- LCM * GCD = b * y
+    local newDenominator = ( b * y ) / gcd
+
+    -- adjust fractions to new denominator and add
+    local newNumerator = (a * (newDenominator / b)) - (x * (newDenominator / y))
+    return MathUtilities.reduceFraction(newNumerator, newDenominator)
 end
 
 return MathUtilities
