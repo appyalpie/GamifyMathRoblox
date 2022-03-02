@@ -19,10 +19,6 @@ function Card.new()
 	return self
 end
 
-function Card.getReducedFraction(a, b)
-
-end
-
 function Card.calculateValue(value)
 	if type(value) == "table" then
         if value[1] == "add" then
