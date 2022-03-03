@@ -4,10 +4,34 @@ local TweenService = game:GetService("TweenService")
 local CardObject = require(script.Parent.CardObject)
 local OperatorSetObject = require(script.Parent.OperatorSetObject)
 
-local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
-local Base_Card = ServerStorage.Island_2.Game_24:WaitForChild("Base_Card")
+local GameInfo = require(script.Parent.Parent.GameInfo)
+local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
+
+local Operator_Set_Model = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set_Model")
+local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
+local Level2_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level2_Card_Model")
+local Level3_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level3_Card_Model")
+local Level4_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level4_Card_Model")
+
+local Card_Model_Table = {
+    [1] = Level1_Card_Model,
+    [2] = Level2_Card_Model,
+    [3] = Level3_Card_Model,
+    [4] = Level4_Card_Model
+}
+
+--[[
+    local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
+    local Base_Card = ServerStorage.Island_2.Game_24:WaitForChild("Base_Card")
+]]
+
 
 local GameUtilities = {}
+
+--returns a cloned card based on what depth is passed in
+GameUtilities.Get_Card_Clone_From_Depth = function(depth)
+    return Card_Model_Table[depth]:Clone()
+end
 
 --TODO: add VFX
 GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
@@ -24,20 +48,20 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 	-- Create new operator set object
 	local newOperatorSetObject = OperatorSetObject.new()
 	-- clone operator set
-	newOperatorSetObject._operatorSet = Operator_Set:Clone()
+	newOperatorSetObject._operatorSet = Operator_Set_Model:Clone()
 	-- set the card's operators to the new object
 	newCard._operatorSetObject = newOperatorSetObject
 	
 	local operatorSet = newOperatorSetObject._operatorSet -- label for ease of access
 	operatorSet.Parent = game.Workspace -- TODO: set to somewhere else
-	local offset = Vector3.new(0,4,0)
-	operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.Position + offset))
-	newOperatorSetObject._cardPositionChangedSignal = newCard._cardObject:GetPropertyChangedSignal("Position"):Connect(function()
-		operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.Position + offset))
+	local offset = Vector3.new(0,5.5,0)
+	operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.PrimaryPart.Position + offset))
+	newOperatorSetObject._cardPositionChangedSignal = newCard._cardObject.PrimaryPart:GetPropertyChangedSignal("Position"):Connect(function()
+		operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.PrimaryPart.Position + offset))
 	end)
 	
 	-- Make Operator Selectable
-	newOperatorSetObject._addClickDetectorSignal = operatorSet.Add.ClickDetector.MouseClick:Connect(function(player)
+	newOperatorSetObject._addClickDetectorSignal = operatorSet.Add.Union.ClickDetector.MouseClick:Connect(function(player)
         if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 		if newOperatorSetObject._operatorSelectedName ~= nil then -- something is selected
 			if newOperatorSetObject._addOperatorSelected then -- specifically add is selected (deselect add)
@@ -56,7 +80,7 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			newOperatorSetObject:SelectSpecific("add")
 		end
 	end)
-	newOperatorSetObject._subtractClickDetectorSignal = operatorSet.Subtract.ClickDetector.MouseClick:Connect(function(player)
+	newOperatorSetObject._subtractClickDetectorSignal = operatorSet.Subtract.Union.ClickDetector.MouseClick:Connect(function(player)
         if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 		if newOperatorSetObject._operatorSelectedName ~= nil then
 			if newOperatorSetObject._subtractOperatorSelected then
@@ -69,7 +93,7 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			newOperatorSetObject:SelectSpecific("subtract")
 		end
 	end)
-	newOperatorSetObject._multiplyClickDetectorSignal = operatorSet.Multiply.ClickDetector.MouseClick:Connect(function(player)
+	newOperatorSetObject._multiplyClickDetectorSignal = operatorSet.Multiply.Union.ClickDetector.MouseClick:Connect(function(player)
         if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 		if newOperatorSetObject._operatorSelectedName ~= nil then
 			if newOperatorSetObject._multiplyOperatorSelected then
@@ -82,7 +106,7 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			newOperatorSetObject:SelectSpecific("multiply")
 		end
 	end)
-	newOperatorSetObject._divideClickDetectorSignal = operatorSet.Divide.ClickDetector.MouseClick:Connect(function(player)
+	newOperatorSetObject._divideClickDetectorSignal = operatorSet.Divide.Union.ClickDetector.MouseClick:Connect(function(player)
         if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 		if newOperatorSetObject._operatorSelectedName ~= nil then
 			if newOperatorSetObject._divideOperatorSelected then
@@ -98,16 +122,16 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 	
 	-- if the card selected is a combined card, then reveal undo button as well
 	if type(newCard._cardTable[2]) == "table" then
-		operatorSet.Undo.Transparency = 0
-		newOperatorSetObject._undoClickDetectorSignal = operatorSet.Undo.ClickDetector.MouseClick:Connect(function(player)
+		operatorSet.Undo.Union.Transparency = 0
+		newOperatorSetObject._undoClickDetectorSignal = operatorSet.Undo.Union.ClickDetector.MouseClick:Connect(function(player)
             if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 			-- split card into two cards
 			local splitCard1 = CardObject.new()
 			splitCard1._cardTable = newCard._cardTable[2] -- reference
-			splitCard1._cardObject = Base_Card:Clone()
+			splitCard1._cardObject = GameUtilities.Get_Card_Clone_From_Depth(CardObject.maxDepth(splitCard1._cardTable))
 			local splitCard2 = CardObject.new()
 			splitCard2._cardTable = newCard._cardTable[3] -- reference
-			splitCard2._cardObject = Base_Card:Clone()
+			splitCard2._cardObject = GameUtilities.Get_Card_Clone_From_Depth(CardObject.maxDepth(splitCard2._cardTable))
 
 			splitCard1:UpdateGUI()
 			splitCard2:UpdateGUI()
@@ -139,7 +163,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 	local tweenInfo = TweenInfo.new(.25, Enum.EasingStyle.Linear, Enum.EasingDirection.In) -- TODO: utilities this
 	--print("Card selection functionality adding")
 
-	local ClickDetector = card._cardObject.ClickDetector
+	local ClickDetector = card._cardObject.Base_Card.ClickDetector
 	ClickDetector.MouseClick:Connect(function(player)
         if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 
@@ -166,7 +190,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 		if cardSelected and operatorIsSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (combine)
 			if card._selected then
 				card._selected = false
-				local hoverTween = TweenService:Create(card._cardObject, tweenInfo, {Position = card._startingPosition})
+				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition})
 				hoverTween:Play()
 				GameUtilities.Hide_Operators(card)
 			else
@@ -178,7 +202,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				
 				--combinedCard._combinedCard = true [ we can tell if a card is a _combinedCard by checking table ]
 				
-				local combinedCardObject = Base_Card:Clone()
+				local combinedCardObject = GameUtilities.Get_Card_Clone_From_Depth(CardObject.maxDepth(combinedCard._cardTable))
 				combinedCard._cardObject = combinedCardObject
 				
 				--remove cards from game_cards and folder, then add to game_cards and lastly the folder
@@ -196,36 +220,94 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				table.insert(Game_Cards, newIndex, combinedCard)
                 
 				GameUtilities.Hide_Operators(otherCard)
-				card._cardObject:Destroy()
-				otherCard._cardObject:Destroy()
-				
-				combinedCard:UpdateGUI()
-				GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
-				combinedCardObject.Parent = model.CardFolder
+                -- disable click detectors while the combine is occuring
+                local cardBase = card._cardObject.Base_Card
+                local otherCardBase = otherCard._cardObject.Base_Card
+                cardBase.ClickDetector:Destroy()
+                otherCardBase.ClickDetector:Destroy()
+
+                --[[ Combine effects simplified
+                1. Get midpoint of two cards
+                2. Translate card with some trail effects
+                ]]
+                
+                local targetCFrame = cardBase.CFrame:Lerp(otherCardBase.CFrame, .5) + Vector3.new(0,5,0)
+                local tweenCard = TweenService:Create(cardBase, GameInfo.CombineTweenInfo, {Position = targetCFrame.Position})
+                local tweenOtherCard = TweenService:Create(otherCardBase, GameInfo.CombineTweenInfo, {Position = targetCFrame.Position})
+                tweenOtherCard.Completed:Connect(function()
+                    card._cardObject:Destroy()
+                    otherCard._cardObject:Destroy()
+                    
+                    combinedCard:UpdateGUI()
+                    GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
+                    combinedCardObject.Parent = model.CardFolder
+                end)
+                tweenCard:Play()
+                tweenOtherCard:Play()
+                --[[ TODO: Combine effects with SPLINE or Bezier
+                1. Calculate three points
+                2. Interpolate
+                ]]
+
+                --[[ Combine effects using multiTweenFunction
+                1. Get midpoint of two cards
+                2. Tween Y ([Quad, Quart, Quint], Out)
+                3. Tween XZ (Back, In)
+                ]]
+                --[[
+                    local yTweenCard = TweenUtilities.multiTweenFunction(GameInfo.CombineYDirectionTweenInfo, function(t)
+                        cardBase.Position = Vector3.new(cardBase.Position.X, cardBase.Position.Y + (t * (targetCFrame.Position.Y - cardBase.Position.Y)), cardBase.Position.Z)
+                    end)
+                    local yTweenOtherCard = TweenUtilities.multiTweenFunction(GameInfo.CombineYDirectionTweenInfo, function(t)
+                        otherCardBase.Position = Vector3.new(otherCardBase.Position.X, 
+                        otherCardBase.Position.Y + (t * (targetCFrame.Position.Y - otherCardBase.Position.Y)), otherCardBase.Position.Z)
+                    end)
+                    local xzTweenCard = TweenUtilities.multiTweenFunction(GameInfo.CombineXZDirectionTweenInfo, function(t)
+                        cardBase.Position = Vector3.new(cardBase.Position.X + (t * (targetCFrame.Position.X - cardBase.Position.X)),
+                        cardBase.Position.Y, cardBase.Position.Z + (t * (targetCFrame.Position.Z - cardBase.Position.Z)))
+                    end)
+                    local xzTweenOtherCard = TweenUtilities.multiTweenFunction(GameInfo.CombineXZDirectionTweenInfo, function(t)
+                        otherCardBase.Position = Vector3.new(otherCardBase.Position.X + (t * (targetCFrame.Position.X - otherCardBase.Position.X)),
+                        otherCardBase.Position.Y, otherCardBase.Position.Z + (t * (targetCFrame.Position.Z - otherCardBase.Position.Z)))
+                    end)
+                    yTweenCard:Play()
+                    yTweenOtherCard:Play()
+                    xzTweenCard:Play()
+                    xzTweenOtherCard:Play()
+
+                    xzTweenOtherCard.Completed:Connect(function()
+                        card._cardObject:Destroy()
+                        otherCard._cardObject:Destroy()
+                        
+                        combinedCard:UpdateGUI()
+                        GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
+                        combinedCardObject.Parent = model.CardFolder
+                    end)
+                ]]
 			end
 		elseif cardSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (select another)
 			if card._selected then
 				card._selected = false
-				local hoverTween = TweenService:Create(card._cardObject, tweenInfo, {Position = card._startingPosition})
+				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition})
 				hoverTween:Play()
 				GameUtilities.Hide_Operators(card)
 			else
 				for _, v in pairs(Game_Cards) do
 					if v ~= card then
 						v._selected = false
-						local hoverTween = TweenService:Create(v._cardObject, tweenInfo, {Position = v._startingPosition})
+						local hoverTween = TweenService:Create(v._cardObject.PrimaryPart, tweenInfo, {Position = v._startingPosition})
 						hoverTween:Play()
 						GameUtilities.Hide_Operators(v)
 					end
 				end
 				card._selected = true
-				local hoverTween = TweenService:Create(card._cardObject, tweenInfo, {Position = card._startingPosition + Vector3.new(0,3,0)})
+				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition + Vector3.new(0,3,0)})
 				hoverTween:Play()
 				GameUtilities.Reveal_Operators(card, model, Game_Cards, CurrentGameInfo)
 			end
 		else -- select a card
 			card._selected = true
-			local hoverTween = TweenService:Create(card._cardObject, tweenInfo, {Position = card._startingPosition + Vector3.new(0,3,0)})
+			local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition + Vector3.new(0,3,0)})
 			hoverTween:Play()
 			GameUtilities.Reveal_Operators(card, model, Game_Cards, CurrentGameInfo)
 		end

@@ -5,13 +5,11 @@ local Players = game:GetService("Players")
 local GameUtilities = require(script:WaitForChild("GameUtilities"))
 local CardList = require(script.CardList)
 local CardObject = require(script.CardObject)
-local OperatorSetObject = require(script.OperatorSetObject)
 
 local LockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("LockMovementRE")
 local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMovementRE")
 
-local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
-local Base_Card = ServerStorage.Island_2.Game_24:WaitForChild("Base_Card")
+local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
 
 local Game_24 = {}
 
@@ -78,7 +76,6 @@ function Game_24.initialize(promptObject, player)
 	-- Form to board
 	local BoardCards = ancestorModel.BoardCards
 	GameUtilities.Board_Initialization(BoardCards, cardPulled)
-	
 
 	-- Make cards reposition when a new card is added
 	local CardFolder = ancestorModel.CardFolder
@@ -97,7 +94,7 @@ function Game_24.initialize(promptObject, player)
 		]]
 		for _, v in pairs(Game_Cards) do
 			v._startingPosition = origin + Vector3.new(0, 0, iterator * gapSize)
-			v._cardObject.Position = v._startingPosition
+			v._cardObject.PrimaryPart.Position = v._startingPosition
 			iterator = iterator + 1
 		end
 		if #CardFolder:GetChildren() == 1 then -- check if winning condition is met
@@ -105,7 +102,7 @@ function Game_24.initialize(promptObject, player)
 				if v.calculateValue(v._cardTable) == 24 then
 					print("YOU WIN!")
 					cardAddedConnection:Disconnect()
-					v._cardObject.ClickDetector:Destroy()
+					v._cardObject.Base_Card.ClickDetector:Destroy()
 					wait(1) -- win sequence, split card back up into constituent parts! and showcase equation made
 					Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 					return
@@ -118,13 +115,13 @@ function Game_24.initialize(promptObject, player)
 	local numberOfCards = 4
 	for i = 1, numberOfCards do
 		-- create a new card
-		local newBaseCard = Base_Card:Clone()
+		local newBaseCard = Level1_Card_Model:Clone()
 		-- add card via card object to list of Game_Cards
 		local newCardObject = CardObject.new()
 		table.insert(Game_Cards, newCardObject)
 		newCardObject._cardTable[2] = cardPulled[i]
 		newCardObject._cardObject = newBaseCard
-		newCardObject._startingPosition = newBaseCard.Position
+		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
 
 		-- change parent
 		newBaseCard.Parent = CardFolder

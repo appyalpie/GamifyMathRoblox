@@ -46,7 +46,7 @@ function OperatorSetObject:DeselectAll()
 	self._operatorSelectedName = nil
 	
 	for _, v in pairs(self._operatorSet:GetChildren()) do
-		v.Material = "Plastic"
+		v.Union.Material = "Plastic"
 	end
 end
 
@@ -54,19 +54,19 @@ function OperatorSetObject:SelectSpecific(operatorName)
 	if operatorName == "add" then
 		self._addOperatorSelected = true
 		self._operatorSelectedName = "add"
-		self._operatorSet.Add.Material = "Neon"
+		self._operatorSet.Add.Union.Material = "Neon"
 	elseif operatorName == "subtract" then
 		self._subtractOperatorSelected = true
 		self._operatorSelectedName = "subtract"
-		self._operatorSet.Subtract.Material = "Neon"
+		self._operatorSet.Subtract.Union.Material = "Neon"
     elseif operatorName == "multiply" then
         self._multiplyOperatorSelected = true
         self._operatorSelectedName = "multiply"
-        self._operatorSet.Multiply.Material = "Neon"
+        self._operatorSet.Multiply.Union.Material = "Neon"
     elseif operatorName == "divide" then
         self._divideOperatorSelected = true
         self._operatorSelectedName = "divide"
-        self._operatorSet.Divide.Material = "Neon"
+        self._operatorSet.Divide.Union.Material = "Neon"
     end
 end
 

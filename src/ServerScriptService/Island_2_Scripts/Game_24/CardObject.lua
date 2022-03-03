@@ -99,8 +99,23 @@ end
 
 -- Calculate number from possibly recursive tables
 function Card:UpdateGUI()
-	local TextLabel = self._cardObject.SurfaceGui.TextLabel
+	local TextLabel = self._cardObject.Base_Card.SurfaceGui.TextLabel
 	TextLabel.Text = Card.calculateValue(self._cardTable)
+end
+
+function Card.maxDepth(value)
+    if type(value) == "table" then
+        local leftDepth = Card.maxDepth(value[2])
+        local rightDepth = Card.maxDepth(value[3])
+        if leftDepth == 2 and rightDepth == 2 then -- special case when depths are even
+            return 4
+        elseif leftDepth > rightDepth then
+            return leftDepth + 1
+        else
+            return rightDepth + 1
+        end
+    end
+    return 0
 end
 
 return Card
