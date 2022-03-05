@@ -2,13 +2,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local dataStore = DataStoreService:GetDataStore("Data")
-local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryStore",1)
-
-
+local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
 --attachs inventory item after checking if inventory data exist
 
  
-local function onPlayerAdded(player)
+Players.PlayerAdded:Connect(function(player)
     -- Fire the remote event
     local savedInventory  = Instance.new("Folder")
     savedInventory.Name = "AcessoryInventory"
@@ -35,19 +33,17 @@ local function onPlayerAdded(player)
     end)
     
     if success then
-        remoteEvent:FireClient(player,savedInventory)       
+        remoteEvent:WaitForChild("InventoryStore"):FireClient(player,savedInventory)       
     end  
-end
-Players.PlayerAdded:Connect(onPlayerAdded)
+end)
+
 
 
 --triggers the Save Command
 Players.PlayerRemoving:Connect(function(player)
---local functions = player.PlayerScripts.Inventory.functions
+    local store = remoteEvent:WaitForChild("InventorySave")
+    local DataToStore = store:FireClient(player)
+    dataStore:SetAsync(player.InvData, DataToStore)
 
---local Inventory = functions.Inventory.Save(player)
-  --  pcall(function()
-    --dataStore:SetAsync(player.InvData, Inventory)
-    --end)
 end)
 
