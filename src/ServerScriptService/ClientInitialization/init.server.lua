@@ -15,6 +15,7 @@ local BlurRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Blur
 Players.PlayerAdded:Connect(function(player)
     -- set the player's "checkpoint" value v    ia datastore info, or if no datastore just set to 0
     local checkpointValue = 0
+
     --handling errors
     local success, returnedValue = pcall(function()
         return checkpointStore:GetAsync(player.UserId)
