@@ -1,16 +1,27 @@
 local ServerStorage = game:GetService("ServerStorage")
-local Overhead = ServerStorage.Titles:WaitForChild("overhead")
+local overheadName = ServerStorage.Titles:WaitForChild("overheadName")
+local overheadTitle = ServerStorage.Titles:WaitForChild("overheadTitle")
+local titleModule = require(game.ServerScriptService:WaitForChild("TitleModule"))
 
 game.Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
     
-        local overheadClone = Overhead:Clone()
+        local IDs = {0, 1, 3, 4, 6, 20}
+        local titleArray = titleModule.parseTitleIDs(IDs)
+
+        local overheadTitleClone = overheadTitle:Clone()
+        local overheadNameClone = overheadName:Clone()
         -- we wait for the clone to finish I think?
         wait(1)
-        overheadClone.Parent = character.Head
-        overheadClone.TextLabel.Text = ("Grandmaster " .. player.name)
-
+        overheadNameClone.Parent = character.Head
+        overheadTitleClone.Parent = character.Head
         character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+        overheadNameClone.TextLabel.Text = (player.name)
+
+        for i = 1, #titleArray do
+            overheadTitleClone.TextLabel.Text = (titleArray[i])
+            wait(5)
+        end
 
     end)
 end)
