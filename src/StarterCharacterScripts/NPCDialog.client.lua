@@ -4,13 +4,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local DialogModule = require(ReplicatedStorage.DialogModule)
 local Player = game:GetService("Players").LocalPlayer
+--all NPCs should be in island 1 otherwise tweak this
 local NPCs = game.Workspace.Island_1.NPCs
 
---[[
-    or do i use this?
-    game.Workspace.Island_1.NPCs:GetChildren()
-    these need to be checked. I want the constituent parts of the service.
-]]
+--
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
 local InputButton =  DialogFrame:WaitForChild("Input")
 --this is the NPC name label in the dialog frame maybe not correct
@@ -75,8 +72,8 @@ InputButton.MouseButton1Click:Connect(function()
         return
     end
 
-    local Dialog = DialogModule[NPCName.Value] --check this
-    DialogIndex += 1 
+    local Dialog = DialogModule[NPCName.Value] 
+    DialogIndex += 1
     OnDialog(Dialog, DialogIndex, NPCs[NPCName.Value].HumanoidRootPart.ProximityPrompt)
 end)
 

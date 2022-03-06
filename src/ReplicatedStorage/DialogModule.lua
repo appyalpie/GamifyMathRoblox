@@ -27,7 +27,26 @@ local DialogModule = {
         [3] = "This time, when you combine 2 blocks, the smaller number block will 'divide' the larger number block. This means that blocks can reduce value from one another!",
         [4] = "3 more key blocks! Good luck!",
         [5] = "(Hint: watch out for 'fractions' and 'decimals'... they're explosive!)"
-    },  
+    },
+    ["Boe"] = {
+        [1] = "Wow, you're a new face! I'm boe! Welcome to the 24 Island Stage.",
+        [2] = "Take the teleport pad ahead to the Island." 
+    },
+
+    ["Hurdy"] = {
+        [1] = "I'm hurdy, let's play 24"
+    },
+    ["Gurdy"] = {
+        [1] = "I'm gurdy, let's play 24 " 
+    },
+    ["Tommy Two Decks"] = {
+        [1] = "Ayyyy ohh. If you wanna swing at the king then ya betta not miss!",
+        [2] = "Beat me and I'll give you the golden VIP badge."    
+    },
+    ["Rama"] = {
+        [1] = "Welcome to the main hub of Mega Blue Traveler. From here you can...",
+           
+    },
 }
 
 return DialogModule
