@@ -1,8 +1,10 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 
 local GameUtilities = require(script:WaitForChild("GameUtilities"))
+local GameInfo = require(script.Parent.GameInfo)
 local CardList = require(script.CardList)
 local CardObject = require(script.CardObject)
 
@@ -54,17 +56,27 @@ function Game_24.initialize(promptObject, player)
 	-- Initialize game cards and connections
 	local CurrentGameInfo = {}
 	CurrentGameInfo.currentPlayer = player
+	CurrentGameInfo.ancestorModel = ancestorModel
+	CurrentGameInfo._winSequencePlaying = false
     local Game_Cards = {}
 
 	-- Tie cleanup events to death and leave
 	local playerHumanoidDiedConnection
 	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
+		if CurrentGameInfo._winSequencePlaying == true then
+			playerHumanoidDiedConnection:Disconnect()
+			return
+		end
 		Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 		playerHumanoidDiedConnection:Disconnect()
 	end)
 	local playerLeaveConnection
 	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
 		if removed == player then
+			if CurrentGameInfo._winSequencePlaying == true then
+				playerLeaveConnection:Disconnect()
+				return
+			end
 			Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 			playerLeaveConnection:Disconnect()
 		end
@@ -85,16 +97,14 @@ function Game_24.initialize(promptObject, player)
 	CurrentGameInfo.cardFolderConnect = cardAddedConnection
 	cardAddedConnection = CardFolder.ChildAdded:Connect(function()
 		local iterator = 0
-		local origin = originalOriginPosition - (Vector3.new(0, 0, (.5)*(#CardFolder:GetChildren() - 1) * gapSize))
-		--[[
-		for i, v in ipairs(Game_Cards) do
-			print("Index: " .. i)
-			print(v)
-		end
-		]]
 		for _, v in pairs(Game_Cards) do
-			v._startingPosition = origin + Vector3.new(0, 0, iterator * gapSize)
-			v._cardObject.PrimaryPart.Position = v._startingPosition
+			--v._startingPosition = origin + Vector3.new(0, 0, iterator * gapSize)
+			v._startingPosition = GameUtilities.Get_Starting_Position(originalOriginPosition, gapSize, iterator, #CardFolder:GetChildren())
+
+			local positionTween = TweenService:Create(v._cardObject.PrimaryPart, GameInfo.PositionTweenInfo, {Position = v._startingPosition })
+			positionTween:Play()
+			
+			--v._cardObject.PrimaryPart.Position = v._startingPosition
 			iterator = iterator + 1
 		end
 		if #CardFolder:GetChildren() == 1 then -- check if winning condition is met
@@ -102,9 +112,15 @@ function Game_24.initialize(promptObject, player)
 				if v.calculateValue(v._cardTable) == 24 then
 					print("YOU WIN!")
 					cardAddedConnection:Disconnect()
+					CurrentGameInfo._winSequencePlaying = true
 					v._cardObject.Base_Card.ClickDetector:Destroy()
-					wait(1) -- win sequence, split card back up into constituent parts! and showcase equation made
-					Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
+
+					local finishedWinSequenceEvent = Instance.new("BindableEvent")
+					finishedWinSequenceEvent.Event:Connect(function()
+						Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
+					end)
+
+					GameUtilities.Win_Sequence(promptObject, player, Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
 					return
 				end
 			end

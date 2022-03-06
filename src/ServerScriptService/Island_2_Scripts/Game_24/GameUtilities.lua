@@ -1,4 +1,5 @@
 local ServerStorage = game:GetService("ServerStorage")
+local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 
 local CardObject = require(script.Parent.CardObject)
@@ -6,6 +7,7 @@ local OperatorSetObject = require(script.Parent.OperatorSetObject)
 
 local GameInfo = require(script.Parent.Parent.GameInfo)
 local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
+local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
 
 local Operator_Set_Model = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set_Model")
 local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
@@ -20,6 +22,10 @@ local Card_Model_Table = {
     [4] = Level4_Card_Model
 }
 
+local Energyball = ServerStorage.Island_2.Game_24:WaitForChild("Energyball")
+local Fireball = ServerStorage.Island_2.Game_24:WaitForChild("Fireball")
+local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
+
 --[[
     local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
     local Base_Card = ServerStorage.Island_2.Game_24:WaitForChild("Base_Card")
@@ -27,6 +33,12 @@ local Card_Model_Table = {
 
 
 local GameUtilities = {}
+
+-- only along z axis
+GameUtilities.Get_Starting_Position = function(center, gap, index, numberPresent)
+	local origin = center - (Vector3.new(0, 0, (.5)*(numberPresent - 1) * gap))
+	return origin + Vector3.new(0, 0, index * gap)
+end
 
 --returns a cloned card based on what depth is passed in
 GameUtilities.Get_Card_Clone_From_Depth = function(depth)
@@ -39,6 +51,7 @@ GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
     for _, v in pairs(BoardCards:GetDescendants()) do
 		if v:IsA("TextLabel") then
 			v.Text = "<u>" .. tostring(cardPulled[counter]) .. "</u>"
+			v.Parent.Parent:SetAttribute("value", cardPulled[counter])
 			counter = counter + 1
 		end
 	end
@@ -137,17 +150,127 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			splitCard2:UpdateGUI()
 
 			GameUtilities.Hide_Operators(newCard)
-			newCard._cardObject:Destroy() -- destroy card selected
-
+			
+			local newCardBase = newCard._cardObject.Base_Card
+			newCard._cardObject.Base_Card.ClickDetector:Destroy() -- destroy click detector of card selected
+			
+			--local destroyOnSplitTween = TweenService:Create(newCard._cardObject.PrimaryPart, GameInfo.DestroySplitTweenInfo, {})
+			-- Effects: 1. Card squeezed, 2. Get position of new cards 3.Energyballs fly out to the card positions, new cards are added in w/o click functionality yet
+			-- 4. tween transparency in and add click functionality 
 			local indexOfRemovedCard = table.find(Game_Cards, newCard)
+
 			table.remove(Game_Cards, indexOfRemovedCard)
 			table.insert(Game_Cards, indexOfRemovedCard, splitCard1)
 			table.insert(Game_Cards, indexOfRemovedCard + 1, splitCard2)
 
-			GameUtilities.Card_Functionality(splitCard1, model, Game_Cards, CurrentGameInfo)
-			splitCard1._cardObject.Parent = model.CardFolder
-			GameUtilities.Card_Functionality(splitCard2, model, Game_Cards, CurrentGameInfo)
-			splitCard2._cardObject.Parent = model.CardFolder
+			local energyBall1 = Energyball:Clone()
+			energyBall1.Position = newCard._cardObject.PrimaryPart.Position
+			energyBall1.Parent = game.Workspace
+			local positionOfSplit1 = GameUtilities.Get_Starting_Position(CurrentGameInfo.ancestorModel:GetAttribute("origin_position"),
+				4, indexOfRemovedCard, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3) --???
+			Debris:AddItem(energyBall1, 3)
+
+			local energyBall2 = Energyball:Clone()
+			energyBall2.Position = newCard._cardObject.PrimaryPart.Position
+			energyBall2.Parent = game.Workspace
+			local positionOfSplit2 = GameUtilities.Get_Starting_Position(CurrentGameInfo.ancestorModel:GetAttribute("origin_position"),
+				4, indexOfRemovedCard + 1, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3)
+			Debris:AddItem(energyBall2, 3)
+
+			local basePhi = SphereUtilities.getXY(positionOfSplit1, newCardBase.Position)
+			local baseTheta = SphereUtilities.getXZ(positionOfSplit1, newCardBase.Position)
+			local baseDistance = 0
+			local baseDistanceValue = Instance.new("NumberValue")
+			baseDistanceValue.Value = baseDistance
+			baseDistanceValue.Parent = energyBall1
+
+			local otherPhi = SphereUtilities.getXY(positionOfSplit2, newCardBase.Position)
+			local otherTheta = SphereUtilities.getXZ(positionOfSplit2, newCardBase.Position)
+			local otherDistance = 0
+			local otherDistanceValue = Instance.new("NumberValue")
+			otherDistanceValue.Value = otherDistance
+			baseDistanceValue.Parent = energyBall2
+
+			local squeezeTween = TweenService:Create(newCard._cardObject.Base_Card, GameInfo.DestroySplitTweenInfo, 
+				{Orientation = newCard._cardObject.Base_Card.Orientation + Vector3.new(math.random(-120,120),math.random(-120,120),math.random(-120,120)),
+				Transparency = .8, Size = Vector3.new(.1, .5, .3)})
+
+			for _, v in pairs(newCard._cardObject:GetDescendants()) do
+				if v:IsA("ParticleEmitter") then
+					v.Enabled = false
+				end
+			end
+
+			squeezeTween.Completed:Connect(function()
+				local phiIncrement = .1
+				local baseCounter = 0
+				local otherCounter = 0
+				local baseDistanceValueTween = TweenService:Create(baseDistanceValue, GameInfo.MoveSplitTweenInfo, 
+					{Value = SphereUtilities.getDistance(positionOfSplit1, newCardBase.Position)})
+				baseDistanceValue:GetPropertyChangedSignal("Value"):Connect(function()
+					energyBall1.Position = SphereUtilities.sphereToRect2(baseDistanceValue.Value, basePhi + (phiIncrement * baseCounter), baseTheta, newCardBase.Position)
+					baseCounter = baseCounter + 1
+				end)
+				local otherDistanceValueTween = TweenService:Create(otherDistanceValue, GameInfo.MoveSplitTweenInfo, 
+					{Value = SphereUtilities.getDistance(positionOfSplit1, newCardBase.Position)})
+				otherDistanceValue:GetPropertyChangedSignal("Value"):Connect(function()
+					energyBall2.Position = SphereUtilities.sphereToRect2(otherDistanceValue.Value, otherPhi + (phiIncrement * otherCounter), otherTheta, newCardBase.Position)
+					otherCounter = otherCounter + 1
+				end)
+				baseDistanceValueTween.Completed:Connect(function()
+					-- explosion and destroy
+					--[[
+					for _, v in pairs(combineCore.Attachment:GetChildren()) do
+						v.Enabled = false
+					end
+					combineCore.Sparks.Enabled = false
+					combineCore.Explosion_Random:Emit(50)
+					combineCore.Stars:Emit(50)
+					]]
+					--energyBall1:Destroy()
+					--energyBall2:Destroy()
+					for _, v in pairs(energyBall1.CoreAttachment:GetChildren()) do
+						v.Enabled = false
+					end
+					for _, v in pairs(energyBall2.CoreAttachment:GetChildren()) do
+						v.Enabled = false
+					end
+
+					newCard._cardObject:Destroy() -- destroy card selected
+
+					splitCard1._cardObject.Base_Card.Transparency = 1
+					splitCard2._cardObject.Base_Card.Transparency = 1
+					splitCard1._cardObject.Base_Card.SurfaceGui.TextLabel.TextTransparency = 1
+					splitCard2._cardObject.Base_Card.SurfaceGui.TextLabel.TextTransparency = 1
+
+					splitCard1._cardObject.Parent = model.CardFolder
+					splitCard2._cardObject.Parent = model.CardFolder
+
+					local splitCard1Tween = TweenService:Create(splitCard1._cardObject.Base_Card, GameInfo.SplitCardTweenInfo, {Transparency = 0})
+					local splitCard2Tween = TweenService:Create(splitCard2._cardObject.Base_Card, GameInfo.SplitCardTweenInfo, {Transparency = 0})
+					local splitCard1TextTween = TweenService:Create(splitCard1._cardObject.Base_Card.SurfaceGui.TextLabel, 
+						GameInfo.SplitCardTweenInfo, {TextTransparency = 0})
+					local splitCard2TextTween = TweenService:Create(splitCard2._cardObject.Base_Card.SurfaceGui.TextLabel, 
+						GameInfo.SplitCardTweenInfo, {TextTransparency = 0})
+
+					splitCard1._cardObject.Base_Card.Position = positionOfSplit1
+					splitCard2._cardObject.Base_Card.Position = positionOfSplit2
+
+					splitCard1Tween.Completed:Connect(function()
+						energyBall1.Stars:Emit(25)
+						energyBall2.Stars:Emit(25)
+						GameUtilities.Card_Functionality(splitCard1, model, Game_Cards, CurrentGameInfo)
+						GameUtilities.Card_Functionality(splitCard2, model, Game_Cards, CurrentGameInfo)
+					end)
+					splitCard1TextTween:Play()
+					splitCard2TextTween:Play()
+					splitCard1Tween:Play()
+					splitCard2Tween:Play()
+				end)
+				baseDistanceValueTween:Play()
+				otherDistanceValueTween:Play()
+			end)
+			squeezeTween:Play()
 		end)
 	end
 end
@@ -163,7 +286,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 	local tweenInfo = TweenInfo.new(.25, Enum.EasingStyle.Linear, Enum.EasingDirection.In) -- TODO: utilities this
 	--print("Card selection functionality adding")
 
-	local ClickDetector = card._cardObject.Base_Card.ClickDetector
+	local ClickDetector = card._cardObject:WaitForChild("Base_Card"):WaitForChild("ClickDetector")
 	ClickDetector.MouseClick:Connect(function(player)
         if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
 
@@ -226,11 +349,117 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
                 cardBase.ClickDetector:Destroy()
                 otherCardBase.ClickDetector:Destroy()
 
+				--[[ Combine effects (sphereical coordinates)
+				1. Get midpoint of two cards
+				1.5. Combine_Core in the midpoint
+				2. Transform cards into energy ball effects
+				]]
+				local targetCFrame = cardBase.CFrame:Lerp(otherCardBase.CFrame, .5) + Vector3.new(0,5,0)
+
+				local combineCore = Combine_Core:Clone()
+				combineCore.Position = targetCFrame.Position
+				combineCore.Parent = game.Workspace
+				Debris:AddItem(combineCore, 5)
+				
+				local energyBall1 = Energyball:Clone()
+				energyBall1.Position = card._cardObject.PrimaryPart.Position
+				energyBall1.Parent = game.Workspace
+
+				local energyBall2 = Energyball:Clone()
+				energyBall2.Position = otherCard._cardObject.PrimaryPart.Position
+				energyBall2.Parent = game.Workspace
+
+				local basePhi = SphereUtilities.getXY(cardBase.Position, targetCFrame.Position)
+				local baseTheta = SphereUtilities.getXZ(cardBase.Position, targetCFrame.Position)
+				local baseDistance = SphereUtilities.getDistance(cardBase.Position, targetCFrame.Position)
+				local baseDistanceValue = Instance.new("NumberValue")
+				baseDistanceValue.Value = baseDistance
+				baseDistanceValue.Parent = energyBall1
+
+				local otherPhi = SphereUtilities.getXY(otherCardBase.Position, targetCFrame.Position)
+				local otherTheta = SphereUtilities.getXZ(otherCardBase.Position, targetCFrame.Position)
+				local otherDistance = SphereUtilities.getDistance(otherCardBase.Position, targetCFrame.Position)
+				local otherDistanceValue = Instance.new("NumberValue")
+				otherDistanceValue.Value = otherDistance
+				baseDistanceValue.Parent = energyBall2
+
+				energyBall1.Position = SphereUtilities.sphereToRect2(baseDistance, basePhi, baseTheta, targetCFrame.Position)
+				energyBall2.Position = SphereUtilities.sphereToRect2(otherDistance, otherPhi, otherTheta, targetCFrame.Position)
+
+				-- effects
+				local combineTweenInfo = TweenInfo.new(1)
+				local squeezeTweenInfo = TweenInfo.new(.5)
+				-- cards are morphed into balls, tween orientation + transparency + size
+				local squeezeCardTween = TweenService:Create(cardBase, squeezeTweenInfo, 
+					{Orientation = cardBase.Orientation + Vector3.new(math.random(-60,60),math.random(-60,60),math.random(-60,60)),
+					Transparency = .8, Size = Vector3.new(.1, .5, .3)})
+				local squeezeOtherCardTween = TweenService:Create(otherCardBase, squeezeTweenInfo, 
+					{Orientation = cardBase.Orientation + Vector3.new(math.random(-60,60),math.random(-60,60),math.random(-60,60)),
+					Transparency = .8, Size = Vector3.new(.1, .5, .3)})
+
+				squeezeOtherCardTween.Completed:Connect(function()
+					card._cardObject:Destroy()
+                	otherCard._cardObject:Destroy()
+					
+					local phiIncrement = math.random(5,15) * .01
+					local baseCounter = 0
+					local otherCounter = 0
+					local baseDistanceValueTween = TweenService:Create(baseDistanceValue, combineTweenInfo, {Value = 0})
+					baseDistanceValue:GetPropertyChangedSignal("Value"):Connect(function()
+						energyBall1.Position = SphereUtilities.sphereToRect2(baseDistanceValue.Value, basePhi + (phiIncrement * baseCounter), baseTheta, targetCFrame.Position)
+						baseCounter = baseCounter + 1
+					end)
+					local otherDistanceValueTween = TweenService:Create(otherDistanceValue, combineTweenInfo, {Value = 0})
+					otherDistanceValue:GetPropertyChangedSignal("Value"):Connect(function()
+						energyBall2.Position = SphereUtilities.sphereToRect2(otherDistanceValue.Value, otherPhi + (phiIncrement * otherCounter), otherTheta, targetCFrame.Position)
+						otherCounter = otherCounter + 1
+					end)
+					baseDistanceValueTween.Completed:Connect(function()
+						-- explosion and destroy
+						for _, v in pairs(combineCore.Attachment:GetChildren()) do
+							v.Enabled = false
+						end
+						combineCore.Sparks.Enabled = false
+						combineCore.Explosion_Random:Emit(50)
+						combineCore.Stars:Emit(50)
+						energyBall1:Destroy()
+						energyBall2:Destroy()
+						
+						combinedCard:UpdateGUI()
+						GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
+						combinedCardObject.PrimaryPart.Position = targetCFrame.Position 
+						combinedCardObject.Parent = model.CardFolder
+					end)
+					baseDistanceValueTween:Play()
+					otherDistanceValueTween:Play()
+					--[[
+						local energyBall1Tween = TweenService:Create(energyBall1, combineTweenInfo, {Position = targetCFrame.Position})
+						
+						local energyBall2Tween = TweenService:Create(energyBall2, combineTweenInfo, {Position = targetCFrame.Position})
+						energyBall1Tween:Play()
+						energyBall2Tween:Play()
+						energyBall1Tween.Completed:Connect(function()
+							energyBall1:Destroy()
+							energyBall2:Destroy()
+							
+							combinedCard:UpdateGUI()
+							GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
+							combinedCardObject.PrimaryPart.Position = targetCFrame.Position 
+							combinedCardObject.Parent = model.CardFolder
+						end)
+					]]
+				end)
+				squeezeCardTween:Play()
+				squeezeOtherCardTween:Play()
+
+				
+
                 --[[ Combine effects simplified
                 1. Get midpoint of two cards
                 2. Translate card with some trail effects
                 ]]
                 
+				--[[
                 local targetCFrame = cardBase.CFrame:Lerp(otherCardBase.CFrame, .5) + Vector3.new(0,5,0)
                 local tweenCard = TweenService:Create(cardBase, GameInfo.CombineTweenInfo, {Position = targetCFrame.Position})
                 local tweenOtherCard = TweenService:Create(otherCardBase, GameInfo.CombineTweenInfo, {Position = targetCFrame.Position})
@@ -244,6 +473,8 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
                 end)
                 tweenCard:Play()
                 tweenOtherCard:Play()
+				]]
+                
                 --[[ TODO: Combine effects with SPLINE or Bezier
                 1. Calculate three points
                 2. Interpolate
@@ -312,6 +543,144 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 			GameUtilities.Reveal_Operators(card, model, Game_Cards, CurrentGameInfo)
 		end
 	end)
+end
+
+GameUtilities.Win_Sequence = function(promptObject, player, Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+	--[[
+	1. Get equation from last card
+	]]
+	local winningCard = Game_Cards[1]
+	local winningCardTable = winningCard._cardTable
+	local winningSequence = {}
+	local winningString = CardObject.getSequence(winningCardTable)
+	print(winningString)
+	local startIndex = 1
+	while startIndex <= string.len(winningString) do
+		local character = string.sub(winningString, startIndex, startIndex)
+		if tonumber(character) ~= nil then
+			local startOfNumber = startIndex
+			local endOfNumber = startIndex
+			while tonumber(string.sub(winningString, startIndex + 1, startIndex + 1)) ~= nil do
+				startIndex = startIndex + 1
+				endOfNumber = startIndex
+			end
+			table.insert(winningSequence, tonumber(string.sub(winningString, startOfNumber, endOfNumber)))
+		else
+			table.insert(winningSequence, character)
+		end
+		startIndex = startIndex + 1
+	end
+
+	--[[
+	Winning Effect: 
+	1. Winning card beams the board
+	2. For each board piece, create a clone
+	3. Piece out the equation quickly
+	]]
+	local winSequenceTable = {}
+	local winSequenceFolderConnection = CurrentGameInfo.ancestorModel.WinSequenceFolder.ChildAdded:Connect(function()
+		local iterator = 0
+		local gapSize = 4
+		for _, v in pairs(winSequenceTable) do
+			local newPosition = GameUtilities.Get_Starting_Position(CurrentGameInfo.ancestorModel:GetAttribute("origin_position") + GameInfo.WinningSequenceOffsetGoal,
+			 gapSize, iterator, #CurrentGameInfo.ancestorModel.WinSequenceFolder:GetChildren())
+
+			local positionTween = TweenService:Create(v, GameInfo.WinningSequenceTweenInfo, {Position = newPosition})
+			positionTween:Play()
+
+			iterator = iterator + 1
+		end
+	end)
+
+	-- 1:
+	local boardCardCloneTable = {}
+	local beamTable = {}
+	local attachment0Table = {}
+
+	local attachment1 = Instance.new("Attachment")
+	attachment1.Name = "Attachment1"
+	attachment1.Parent = winningCard._cardObject.PrimaryPart
+	for _, v in pairs(CurrentGameInfo.ancestorModel.BoardCards:GetChildren()) do
+		local boardCardClone = v:Clone()
+		boardCardClone.Transparency = 1
+		boardCardClone.Parent = CurrentGameInfo.ancestorModel.Cleanup
+		table.insert(boardCardCloneTable, boardCardClone)
+
+		local attachment0 = Instance.new("Attachment")
+		attachment0.Name = "Attachment0"
+		attachment0.Parent = boardCardClone
+
+		local newBeam = Instance.new("Beam")
+		newBeam.Attachment0 = attachment0
+		newBeam.Attachment1 = attachment1
+		newBeam.FaceCamera = true
+		newBeam.Texture = GameInfo.WinningCardBeamTexture
+		newBeam.Width0 = 6
+		newBeam.Width1 = 6
+		newBeam.Transparency = NumberSequence.new{
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(1, 0)
+		}
+		newBeam.Parent = attachment0
+
+		local boardCloneTween = TweenService:Create(boardCardClone, GameInfo.BoardCardTweenInfo, {Position = boardCardClone.Position + Vector3.new(-1,0,0), 
+			Transparency = .5, Orientation = Vector3.new(0, 180, 0)})
+		boardCloneTween:Play()
+	end
+
+	local winningCardTween = TweenService:Create(winningCard._cardObject.PrimaryPart, GameInfo.WinningCardTweenInfo, 
+		{Position = winningCard._cardObject.PrimaryPart.Position + GameInfo.WinningCardOffsetGoal})
+	
+	winningCardTween.Completed:Connect(function()
+		for i, v in ipairs(winningSequence) do
+			-- 1. create a new part based on item in sequence, 2. move part to location 3. add to folder 4. once its tween is over, play some effect
+			if type(winningSequence[i]) ~= "number" then
+				local newPart = GameInfo.LookUpTable[winningSequence[i]]:Clone()
+				newPart.Position = CurrentGameInfo.ancestorModel.Center.Position
+				table.insert(winSequenceTable, newPart)
+				newPart.Parent = CurrentGameInfo.ancestorModel.WinSequenceFolder
+			else
+				print("Number")
+				-- find the corresponding value in the boardClones, add it to the winSequenceTable + parent to folder, remove from the boardClones
+				for _, v in pairs(boardCardCloneTable) do
+					if v:GetAttribute("value") == winningSequence[i] then
+						table.insert(winSequenceTable, v)
+						v.Parent = CurrentGameInfo.ancestorModel.WinSequenceFolder
+						table.remove(boardCardCloneTable, table.find(boardCardCloneTable, v))
+						break
+					end
+				end
+			end
+			wait(.1) --TODO: Config
+		end
+		winSequenceFolderConnection:Disconnect()
+
+		wait(2) --TODO: Config
+
+		for _, v in pairs(winSequenceTable) do
+			local squeezeTween = TweenService:Create(v, GameInfo.WinningSequenceSqueezeTweenInfo, {Size = Vector3.new(.5, .5, .5), Transparency = 1})
+			local squeezeTweenConnection
+			squeezeTweenConnection = squeezeTween.Completed:Connect(function()
+				v:Destroy()
+				squeezeTweenConnection:Disconnect()
+
+				local energyBall = Energyball:Clone()
+				energyBall.Position = v.Position
+				energyBall.Parent = CurrentGameInfo.ancestorModel.Cleanup
+				local energyBallTween = TweenService:Create(energyBall, GameInfo.WinningSequenceEnergyBallTweenInfo, {Position = CurrentGameInfo.ancestorModel.Center.Position})
+				energyBallTween.Completed:Connect(function()
+					energyBall:Destroy()
+					if CurrentGameInfo._winSequencePlaying == true then
+						finishedWinSequenceEvent:Fire()
+						CurrentGameInfo._winSequencePlaying = false
+					end
+				end)
+				energyBallTween:Play()
+			end)
+			squeezeTween:Play()
+		end
+	end)
+	winningCardTween:Play()
 end
 
 return GameUtilities

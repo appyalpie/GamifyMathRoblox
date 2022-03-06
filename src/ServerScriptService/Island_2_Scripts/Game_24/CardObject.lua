@@ -4,6 +4,20 @@ local MathUtilities = require(ServerScriptService.Utilities.MathUtilities)
 local Card = {}
 Card.__index = Card
 
+--[[
+add = "➕",
+subtract = "➖",
+multiply = "✖️",
+divide = "➗"
+]]
+
+local operatorTranslations = {
+    add = "+",
+    subtract = "-",
+    multiply = "x",
+    divide = "/"
+}
+
 function Card.new()
 	local self
 	self = setmetatable({}, Card)
@@ -116,6 +130,13 @@ function Card.maxDepth(value)
         end
     end
     return 0
+end
+
+function Card.getSequence(value)
+    if type(value[2]) == "table" and type(value[3]) == "table" then
+        return "(" .. Card.getSequence(value[2]) .. operatorTranslations[tostring(value[1])] .. Card.getSequence(value[3]) .. ")"
+    end
+    return tostring(value[2])
 end
 
 return Card
