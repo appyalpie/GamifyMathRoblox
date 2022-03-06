@@ -41,9 +41,6 @@ end
 function Game_24.initialize(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
 
-	-- Move player to position
-	player.Character:WaitForChild("HumanoidRootPart").Position = ancestorModel:GetAttribute("move_to_position") -- config
-
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
 
@@ -58,7 +55,15 @@ function Game_24.initialize(promptObject, player)
 	CurrentGameInfo.currentPlayer = player
 	CurrentGameInfo.ancestorModel = ancestorModel
 	CurrentGameInfo._winSequencePlaying = false
+	CurrentGameInfo._orientation = math.rad(ancestorModel.PromptPart.Orientation.Y)
+	CurrentGameInfo._orientationDegrees = ancestorModel.PromptPart.Orientation.Y
+
     local Game_Cards = {}
+
+	-- Move player to position
+	--player.Character:WaitForChild("HumanoidRootPart").Position = ancestorModel:GetAttribute("move_to_position") -- config
+	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
+	+ ancestorModel.PromptPart.Position
 
 	-- Tie cleanup events to death and leave
 	local playerHumanoidDiedConnection
@@ -92,19 +97,21 @@ function Game_24.initialize(promptObject, player)
 	-- Make cards reposition when a new card is added
 	local CardFolder = ancestorModel.CardFolder
 	local gapSize = 4 --TODO: change to dynamic
-	local originalOriginPosition = ancestorModel:GetAttribute("origin_position") -- TODO: change to dynamic
+	--local originalOriginPosition = ancestorModel:GetAttribute("origin_position") -- TODO: change to dynamic
+	local originalOriginPosition = (Vector3.new(math.sin(CurrentGameInfo._orientation - (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation - (math.pi / 2))) * GameInfo.ORIGIN_POSITION_OFFSET) 
+		+ ancestorModel.PromptPart.Position - Vector3.new(0, 1.5, 0)
+
+	CurrentGameInfo._originalOriginPosition = originalOriginPosition
 	local cardAddedConnection
 	CurrentGameInfo.cardFolderConnect = cardAddedConnection
 	cardAddedConnection = CardFolder.ChildAdded:Connect(function()
 		local iterator = 0
 		for _, v in pairs(Game_Cards) do
-			--v._startingPosition = origin + Vector3.new(0, 0, iterator * gapSize)
-			v._startingPosition = GameUtilities.Get_Starting_Position(originalOriginPosition, gapSize, iterator, #CardFolder:GetChildren())
+			v._startingPosition = GameUtilities.Get_Starting_Position(originalOriginPosition, gapSize, iterator, #CardFolder:GetChildren(), CurrentGameInfo._orientation)
 
 			local positionTween = TweenService:Create(v._cardObject.PrimaryPart, GameInfo.PositionTweenInfo, {Position = v._startingPosition })
 			positionTween:Play()
 			
-			--v._cardObject.PrimaryPart.Position = v._startingPosition
 			iterator = iterator + 1
 		end
 		if #CardFolder:GetChildren() == 1 then -- check if winning condition is met
@@ -132,6 +139,7 @@ function Game_24.initialize(promptObject, player)
 	for i = 1, numberOfCards do
 		-- create a new card
 		local newBaseCard = Level1_Card_Model:Clone()
+		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, CurrentGameInfo._orientationDegrees)
 		-- add card via card object to list of Game_Cards
 		local newCardObject = CardObject.new()
 		table.insert(Game_Cards, newCardObject)

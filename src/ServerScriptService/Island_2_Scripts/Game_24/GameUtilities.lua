@@ -34,10 +34,16 @@ local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
 
 local GameUtilities = {}
 
+GameUtilities.Set_Orientation = function(part, orientation)
+	part.Orientation = Vector3.new(part.Orientation.X, orientation, part.Orientation.Z)
+end
+
 -- only along z axis
-GameUtilities.Get_Starting_Position = function(center, gap, index, numberPresent)
-	local origin = center - (Vector3.new(0, 0, (.5)*(numberPresent - 1) * gap))
-	return origin + Vector3.new(0, 0, index * gap)
+GameUtilities.Get_Starting_Position = function(center, gap, index, numberPresent, theta)
+	--local origin = center - (Vector3.new(0, 0, (.5)*(numberPresent - 1) * gap))
+	local offset = Vector3.new(math.sin(theta) * gap, 0,  math.cos(theta) * gap)
+	local origin = center + (Vector3.new((.5) * (numberPresent - 1), 0, (.5) * (numberPresent - 1)) * offset)
+	return origin - (Vector3.new(index, 0, index) * offset)
 end
 
 --returns a cloned card based on what depth is passed in
@@ -62,15 +68,18 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 	local newOperatorSetObject = OperatorSetObject.new()
 	-- clone operator set
 	newOperatorSetObject._operatorSet = Operator_Set_Model:Clone()
+	
 	-- set the card's operators to the new object
 	newCard._operatorSetObject = newOperatorSetObject
 	
 	local operatorSet = newOperatorSetObject._operatorSet -- label for ease of access
 	operatorSet.Parent = game.Workspace -- TODO: set to somewhere else
 	local offset = Vector3.new(0,5.5,0)
-	operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.PrimaryPart.Position + offset))
+	operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.PrimaryPart.Position + offset)
+		* CFrame.Angles(0, CurrentGameInfo._orientation + math.pi, 0))
 	newOperatorSetObject._cardPositionChangedSignal = newCard._cardObject.PrimaryPart:GetPropertyChangedSignal("Position"):Connect(function()
-		operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.PrimaryPart.Position + offset))
+		operatorSet:SetPrimaryPartCFrame(CFrame.new(newCard._cardObject.PrimaryPart.Position + offset) 
+		* CFrame.Angles(0, CurrentGameInfo._orientation + math.pi, 0))
 	end)
 	
 	-- Make Operator Selectable
@@ -142,9 +151,12 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			local splitCard1 = CardObject.new()
 			splitCard1._cardTable = newCard._cardTable[2] -- reference
 			splitCard1._cardObject = GameUtilities.Get_Card_Clone_From_Depth(CardObject.maxDepth(splitCard1._cardTable))
+			GameUtilities.Set_Orientation(splitCard1._cardObject.PrimaryPart, CurrentGameInfo._orientationDegrees)
+			
 			local splitCard2 = CardObject.new()
 			splitCard2._cardTable = newCard._cardTable[3] -- reference
 			splitCard2._cardObject = GameUtilities.Get_Card_Clone_From_Depth(CardObject.maxDepth(splitCard2._cardTable))
+			GameUtilities.Set_Orientation(splitCard2._cardObject.PrimaryPart, CurrentGameInfo._orientationDegrees)
 
 			splitCard1:UpdateGUI()
 			splitCard2:UpdateGUI()
@@ -166,15 +178,15 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			local energyBall1 = Energyball:Clone()
 			energyBall1.Position = newCard._cardObject.PrimaryPart.Position
 			energyBall1.Parent = game.Workspace
-			local positionOfSplit1 = GameUtilities.Get_Starting_Position(CurrentGameInfo.ancestorModel:GetAttribute("origin_position"),
-				4, indexOfRemovedCard, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3) --???
+			local positionOfSplit1 = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition,
+				4, indexOfRemovedCard, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3, CurrentGameInfo._orientation) --???
 			Debris:AddItem(energyBall1, 3)
 
 			local energyBall2 = Energyball:Clone()
 			energyBall2.Position = newCard._cardObject.PrimaryPart.Position
 			energyBall2.Parent = game.Workspace
-			local positionOfSplit2 = GameUtilities.Get_Starting_Position(CurrentGameInfo.ancestorModel:GetAttribute("origin_position"),
-				4, indexOfRemovedCard + 1, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3)
+			local positionOfSplit2 = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition,
+				4, indexOfRemovedCard + 1, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3, CurrentGameInfo._orientation)
 			Debris:AddItem(energyBall2, 3)
 
 			local basePhi = SphereUtilities.getXY(positionOfSplit1, newCardBase.Position)
@@ -327,6 +339,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				
 				local combinedCardObject = GameUtilities.Get_Card_Clone_From_Depth(CardObject.maxDepth(combinedCard._cardTable))
 				combinedCard._cardObject = combinedCardObject
+				GameUtilities.Set_Orientation(combinedCardObject.PrimaryPart, CurrentGameInfo._orientationDegrees)
 				
 				--remove cards from game_cards and folder, then add to game_cards and lastly the folder
 				local indexOfCard = table.find(Game_Cards, card)
@@ -582,8 +595,8 @@ GameUtilities.Win_Sequence = function(promptObject, player, Game_Cards, CurrentG
 		local iterator = 0
 		local gapSize = 4
 		for _, v in pairs(winSequenceTable) do
-			local newPosition = GameUtilities.Get_Starting_Position(CurrentGameInfo.ancestorModel:GetAttribute("origin_position") + GameInfo.WinningSequenceOffsetGoal,
-			 gapSize, iterator, #CurrentGameInfo.ancestorModel.WinSequenceFolder:GetChildren())
+			local newPosition = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition + GameInfo.WinningSequenceOffsetGoal,
+			 gapSize, iterator, #CurrentGameInfo.ancestorModel.WinSequenceFolder:GetChildren(), CurrentGameInfo._orientation)
 
 			local positionTween = TweenService:Create(v, GameInfo.WinningSequenceTweenInfo, {Position = newPosition})
 			positionTween:Play()
@@ -624,7 +637,7 @@ GameUtilities.Win_Sequence = function(promptObject, player, Game_Cards, CurrentG
 		newBeam.Parent = attachment0
 
 		local boardCloneTween = TweenService:Create(boardCardClone, GameInfo.BoardCardTweenInfo, {Position = boardCardClone.Position + Vector3.new(-1,0,0), 
-			Transparency = .5, Orientation = Vector3.new(0, 180, 0)})
+			Transparency = .5, Orientation = Vector3.new(0, CurrentGameInfo._orientationDegrees, 0)})
 		boardCloneTween:Play()
 	end
 
@@ -637,6 +650,7 @@ GameUtilities.Win_Sequence = function(promptObject, player, Game_Cards, CurrentG
 			if type(winningSequence[i]) ~= "number" then
 				local newPart = GameInfo.LookUpTable[winningSequence[i]]:Clone()
 				newPart.Position = CurrentGameInfo.ancestorModel.Center.Position
+				GameUtilities.Set_Orientation(newPart, CurrentGameInfo._orientationDegrees + 180)
 				table.insert(winSequenceTable, newPart)
 				newPart.Parent = CurrentGameInfo.ancestorModel.WinSequenceFolder
 			else

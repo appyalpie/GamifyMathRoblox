@@ -5,6 +5,9 @@ local Game_24_Folder = ServerStorage.Island_2.Game_24
 
 local GameInfo = {}
 
+GameInfo.ORIGIN_POSITION_OFFSET = 9
+GameInfo.MOVE_POSITION_OFFSET = 2
+
 GameInfo.PositionTweenInfo = TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 
 GameInfo.CombineTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
