@@ -56,9 +56,12 @@ game.Players.PlayerAdded:Connect(function(player)
             IDs = IDs
         }
 
+
         -- Store currently active online player titles. This helps cut down on datastore calls by
         -- copying the data to the server.
         titleModule.StoreOnlinePlayerTitles(onlinePlayerEntry)
+
+        titleModule.AddTitleToUser(player, 2)
         
         -- we can set a billboardgui to display the player titles above their head
         -- on the server side of the game. So we parse title IDs for use in the billboard gui
@@ -77,10 +80,10 @@ game.Players.PlayerAdded:Connect(function(player)
 
         -- Cycle through player titles just because. This will change to some sort of
         -- remote function once the UI is implemented
-        for i = 1, #titleArray do
-            overheadTitleClone.TextLabel.Text = (titleArray[i])
-            wait(5)
-        end
+        --for i = 1, #titleArray do
+        --    overheadTitleClone.TextLabel.Text = (titleArray[i])
+        --    wait(5)
+        --end
 
     end)
 end)

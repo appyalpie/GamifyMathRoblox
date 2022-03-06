@@ -5,19 +5,23 @@ titleModule.onlinePlayerTitleSets = {
     idArray = {}
 }
 
+-- This is where all titles will be stored
+-- IDs are simply the index in the array
+-- (starts at index 1 cause lua)
 titleModule.titles = 
 {
-    "Developer",
-    "Serf",
-    "Merchant",
-    "Professional",
-    "Knight",
-    "Baron",
-    "Count",
-    "Duke",
-    "King"
+    [1] = "Developer",
+    [2] = "Serf",
+    [3] = "Merchant",
+    [4] = "Professional",
+    [5] = "Knight",
+    [6] = "Baron",
+    [7] = "Count",
+    [8] = "Duke",
+    [9] = "King"
 }
 
+-- Parses title IDs and turns them into a string array to be returned
 titleModule.ParseTitleIDs = function(IDs)
     local titlesToReturn = {}
     if not IDs then
@@ -32,11 +36,14 @@ titleModule.ParseTitleIDs = function(IDs)
     return titlesToReturn
 end
 
+-- Stores onlinePlayerTitleSets objects into the server
 titleModule.StoreOnlinePlayerTitles = function(playerTitleSetToAdd)
     print(playerTitleSetToAdd)
     table.insert(titleModule.onlinePlayerTitleSets, playerTitleSetToAdd)
 end
 
+-- Removes onlinePlayerTitleSets objects from server
+-- TODO: test the heck out of this, I think it's broken
 titleModule.RemoveOnlinePlayerTitles = function(playerId)
     for key, value in pairs(titleModule.onlinePlayerTitleSets) do
         if value.userId == playerId then
@@ -45,6 +52,7 @@ titleModule.RemoveOnlinePlayerTitles = function(playerId)
     end
 end
 
+-- Returns array of user title IDs tied to a playerID
 titleModule.GetUserTitles = function(playerId)
     for key, value in pairs(titleModule.onlinePlayerTitleSets) do
         if value.userId == playerId then
@@ -53,6 +61,7 @@ titleModule.GetUserTitles = function(playerId)
     end
 end
 
+-- Adds title to a userID, then invokes the client to update its list of titles
 titleModule.AddTitleToUser = function(player, titleId)
     local addTitlesEvent = game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')
     for key,value in pairs(titleModule.onlinePlayerTitleSets) do

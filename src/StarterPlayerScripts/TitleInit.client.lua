@@ -4,14 +4,27 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local getTitles = ReplicatedStorage:WaitForChild("GetTitlesEvent")
 local addTitleRepopulate = ReplicatedStorage:WaitForChild("AddTitlesEvent")
  
---local titles = getTitles:InvokeServer(Players.LocalPlayer)
+local titles = getTitles:InvokeServer(Players.LocalPlayer)
 
---print(titles)
+local overheadTitle = Players.LocalPlayer.Character.Head:WaitForChild("overheadTitle")
 
+
+-- This is just a small remoteevent that gets titles from the server
+-- anytime a title is added (see TitleModule.AddTitle)
 local function onAddTitleFire(player)
-    local titles2 = getTitles:InvokeServer()
-
-    print(titles2)
+    titles = getTitles:InvokeServer()
+    wait(1)
 end
  
 addTitleRepopulate.OnClientEvent:Connect(onAddTitleFire)
+
+local function DisplayTitle(titleName)
+    for key, value in pairs(titles) do
+        if value == titleName then
+            overheadTitle.TextLabel.Text = titleName
+        end
+    end
+end
+
+DisplayTitle("Serf")
+
