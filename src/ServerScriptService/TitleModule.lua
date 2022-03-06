@@ -38,7 +38,6 @@ end
 
 -- Stores onlinePlayerTitleSets objects into the server
 titleModule.StoreOnlinePlayerTitles = function(playerTitleSetToAdd)
-    print(playerTitleSetToAdd)
     table.insert(titleModule.onlinePlayerTitleSets, playerTitleSetToAdd)
 end
 
@@ -62,6 +61,7 @@ titleModule.GetUserTitles = function(playerId)
 end
 
 -- Adds title to a userID, then invokes the client to update its list of titles
+-- titleModule.AddTitleToUser(player, int titleId)
 titleModule.AddTitleToUser = function(player, titleId)
     local addTitlesEvent = game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')
     for key,value in pairs(titleModule.onlinePlayerTitleSets) do

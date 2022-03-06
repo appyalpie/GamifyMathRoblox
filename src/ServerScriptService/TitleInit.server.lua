@@ -62,6 +62,7 @@ game.Players.PlayerAdded:Connect(function(player)
         titleModule.StoreOnlinePlayerTitles(onlinePlayerEntry)
 
         titleModule.AddTitleToUser(player, 2)
+        titleModule.AddTitleToUser(player, 1)
         
         -- we can set a billboardgui to display the player titles above their head
         -- on the server side of the game. So we parse title IDs for use in the billboard gui
