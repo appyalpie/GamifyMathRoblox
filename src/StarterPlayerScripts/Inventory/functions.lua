@@ -21,7 +21,7 @@ functions["InvData"] = {}
         functions["InvData"] = nil
     end
 
-    function functions.store(InvDat)
+    function functions.store(player,InvDat)
         functions["InvData"] = InvDat
         return functions["InvData"]
     end

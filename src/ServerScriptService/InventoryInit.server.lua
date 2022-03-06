@@ -3,11 +3,10 @@ local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local dataStore = DataStoreService:GetDataStore("Data")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
-local AccesoryTable = require(game.ServerScriptService:WaitForChild("AccessoryList"))
+local AccessoryListModule = require(game.ServerScriptService:WaitForChild("AccessoryList"))
+local AccessoryList = AccessoryListModule.GetAccesory()
+local addAccTable = remoteEvent.AddAccesoryTableEvent
 
-local addAccTable = Instance.new("RemoteEvent")
-addAccTable.Parent = remoteEvent
-addAccTable.Name = "AddAccesoryTableEvent"
 -- is intended to add to the Physical accessory to the Player Character
 -- this can be changed once Accessories are changed
 local function equipAccessory(player,Accesory)
@@ -75,8 +74,9 @@ Players.PlayerAdded:Connect(function(player)
     local arms = Instance.new("StringValue")
     arms.Name = "Arms"
     arms.Parent = Equipped
-    wait(1)
-    addAccTable:FireClient(AccesoryTable)
+    wait(5)
+    -- passes player and accessory table
+    addAccTable:FireClient(player,AccessoryList)
     
     local success = pcall(function()
         savedInventory = dataStore:GetAsync(player.InvData)
@@ -144,10 +144,10 @@ remoteServerFunction.Name = "remoteServerFunction"
 
 local function SendtoServer(player, InvData)
     for name in pairs(InvData) do
-        table.insert(player.AccesoryInventory,InvData)
-        player.AccesoryInventory[name].Value = InvData[name].Value
+        table.insert(player.AcessoryInventory,InvData)
+        player.AcessoryInventory[name].Value = InvData[name].Value
     end
-    return player.AccesoryInventory
+    return player.AcessoryInventory
 end
 
 remoteServerFunction.OnServerInvoke = SendtoServer
