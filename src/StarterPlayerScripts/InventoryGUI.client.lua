@@ -10,8 +10,8 @@ local TitleList = InventoryGUI:WaitForChild("TFrame")
 local BadgeList = InventoryGUI:WaitForChild("ZFrame")
 local Acctemplate = ReplicatedStorage:WaitForChild("Accessories"):WaitForChild("Template")
 
-local AccesoryTable = require(game.ServerScriptService:WaitForChild("AccessoryList"))
-
+local AccesoryTableEvent = ReplicatedStorage:WaitForChild("AddAccesoryTableEvent", 5)
+local AccesoryTable = AccesoryTableEvent.OnClientEvent:Connect(AccesoryTableEvent)
 local EquippedConnections = {}
 
 -- this is suppose to add buttons to the list based on the AccessoryList contents
@@ -63,6 +63,7 @@ InventoryGUI:WaitForChild("CloseButton").Activated:Connect(function()
     print("this button works")
     InventoryGUI.Parent.Enabled = false
 end)
+
 
 
 

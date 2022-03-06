@@ -1,5 +1,5 @@
-local Accessories = {}
-Accessories.Type = {
+local AccessoriesList = {}
+AccessoriesList.Type = {
     ["Head"] = {
         game.ReplicatedStorage.Accessories.HeadTest;
 
@@ -11,21 +11,21 @@ Accessories.Type = {
     };
 
     ["Arms"] = {
-        game.ReplicatedStorage.Accessories.ArmTest;
+        game.ReplicatedStorage.Accessories.ArmsTest;
 
     };
 
     ["Legs"] = {
-        game.ReplicatedStorage.Accessories.LegTest;
+        game.ReplicatedStorage.Accessories.LegsTest;
 
     };
 
 }
 
-Accessories.EquipItem = function(AcceID,Type)
-    local AccessoryTable = Accessories.Type[Type]
+AccessoriesList.EquipItem = function(AcceID,Type)
+    local AccessoryTable = AccessoriesList.Type[Type]
     local Equipping = AccessoryTable[AcceID]
     return Equipping
 end
 
-return Accessories
+return AccessoriesList

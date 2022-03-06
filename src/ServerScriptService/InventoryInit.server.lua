@@ -3,7 +3,11 @@ local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local dataStore = DataStoreService:GetDataStore("Data")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
+local AccesoryTable = require(game.ServerScriptService:WaitForChild("AccessoryList"))
 
+local addAccTable = Instance.new("RemoteEvent")
+addAccTable.Parent = remoteEvent
+addAccTable.Name = "AddAccesoryTableEvent"
 -- is intended to add to the Physical accessory to the Player Character
 -- this can be changed once Accessories are changed
 local function equipAccessory(player,Accesory)
@@ -71,7 +75,9 @@ Players.PlayerAdded:Connect(function(player)
     local arms = Instance.new("StringValue")
     arms.Name = "Arms"
     arms.Parent = Equipped
-
+    wait(1)
+    addAccTable:FireClient(AccesoryTable)
+    
     local success = pcall(function()
         savedInventory = dataStore:GetAsync(player.InvData)
     end)
@@ -80,6 +86,7 @@ Players.PlayerAdded:Connect(function(player)
         remoteEvent:WaitForChild("InventoryStore"):FireClient(player,savedInventory)       
     end  
     -- set of changed events which updates changed Equipped Slot
+   
     Equipped.Head.Changed:Connect(function()
         if Equipped.Head.Value ~= nil then
             if game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Head.Value) then
@@ -108,6 +115,7 @@ Players.PlayerAdded:Connect(function(player)
             end
         end
     end)
+
     
 end)
 
@@ -129,4 +137,19 @@ remoteEvent.InventoryEquip.OnServerEvent:Connect(function(player, AccessoryName)
     end
 
 end)
+
+local remoteServerFunction = Instance.new("RemoteFunction")
+remoteServerFunction.Parent = ReplicatedStorage
+remoteServerFunction.Name = "remoteServerFunction"
+
+local function SendtoServer(player, InvData)
+    for name in pairs(InvData) do
+        table.insert(player.AccesoryInventory,InvData)
+        player.AccesoryInventory[name].Value = InvData[name].Value
+    end
+    return player.AccesoryInventory
+end
+
+remoteServerFunction.OnServerInvoke = SendtoServer
+
 
