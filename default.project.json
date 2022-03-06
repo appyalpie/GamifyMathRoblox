@@ -7,6 +7,10 @@
       "$className": "ReplicatedStorage",
       "$path": "src/ReplicatedStorage"
     },
+    "InventoryEvents": {
+      "$className":"InventoryEvents",
+      "$path": "src/ReplicatedStorage/InventoryEvents"
+    },
 
     "ServerScriptService": {
       "$className": "ServerScriptService",

@@ -1,17 +1,21 @@
-local waiter = game:GetService("Players").LocalPlayer:WaitForChild("PlayerScripts"):WaitForChild("Inventory"):WaitForChild("functions")
-local InvFunctions = require(script.parent.Inventory.functions)
 
+
+
+local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChild("functions"))
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
 local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventroyGUI"):WaitForChild("InventoryScreen")
 local AccessoryList = InventoryGUI:WaitForChild("AFrame")
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 local BadgeList = InventoryGUI:WaitForChild("ZFrame")
-local template = script:WaitForChild("Template")
+local Acctemplate = ReplicatedStorage:WaitForChild("Accessories"):WaitForChild("Template")
 
 local AccesoryTable = require(game.ServerScriptService:WaitForChild("AccessoryList"))
 
+local EquippedConnections = {}
+
 local function addToFrame(Accessory)
-    local newtemplate = template:Clone()
+    local newtemplate = Acctemplate:Clone()
     newtemplate.Name = Accessory.Name
     newtemplate.AccessoryName.Text = Accessory.Name
     newtemplate.Parent = AccessoryList
@@ -24,8 +28,18 @@ local function addToFrame(Accessory)
     camera.Parent = newtemplate.ViewportFrame
 
     newtemplate.ViewportFrame.CurrentCamera = camera
+
+    EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function()
+        if newtemplate.Equipped[Accessory.Parent.Type] == nil then
+            InvFunctions.functions.Equip(Accessory)
+        else
+            InvFunctions.functions.UnEquip(Accessory)
+        end
+    end)
+
 end
 
+--populates the Accesory List
 local function Populate()
     for inst in pairs (AccesoryTable) do
         for inst2 in pairs (AccesoryTable.Type[inst]) do
@@ -33,6 +47,10 @@ local function Populate()
         end
     end
 end
+
+InventoryGUI:WaitForChild("HeadTest").Activated:Connect(function()
+    
+end)
 
 Populate()
 

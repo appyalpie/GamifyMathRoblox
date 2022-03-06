@@ -1,16 +1,19 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",5):WaitForChild("InventoryEvents",5)
-local remoteServerFunction = remoteEvent:WaitForChild("InventorySave")
+local remoteServerFunction = Instance.new("RemoteFunction")
+remoteServerFunction.Parent = ReplicatedStorage
+remoteServerFunction.Name = "remoteServerFunction"
 -- reformated so scoping won't get confusing
-functions["inventory"] = {
+local functions= {
+    ["inventory"] = {
         Equipped = {
                 ["Head"] = {},
                 ["Legs"] = {},
                 ["Arms"] = {},
-                ["Body"] = {}
+                ["Body"] = {},
         },
+    }
 }
-
 functions["InvData"] = {}
 
 -- displays the items description as a function
@@ -30,6 +33,7 @@ functions["InvData"] = {}
     function functions.Equip(Accessory)
         functions.UnEquip(Accessory)
         functions["inventory"].Equipped[Accessory.Type] = Accessory
+        remoteEvent:WaitForChild("InventoryEquip"):FireServer(Accessory.Name)
     end
     function functions.UnEquip(Accessory)
         functions["inventory"].Equipped[Accessory.Type] = nil
@@ -43,7 +47,8 @@ local function SendtoServer()
 end
      
     
-remoteServerFunction.OnServerInvoke = SendtoServer
+--remoteServerFunction.OnServerInvoke = SendtoServer
+return functions
 
 
 
