@@ -14,6 +14,7 @@ local AccesoryTable = require(game.ServerScriptService:WaitForChild("AccessoryLi
 
 local EquippedConnections = {}
 
+-- this is suppose to add buttons to the list based on the AccessoryList contents
 local function addToFrame(Accessory)
     local newtemplate = Acctemplate:Clone()
     newtemplate.Name = Accessory.Name
@@ -39,7 +40,7 @@ local function addToFrame(Accessory)
 
 end
 
---populates the Accesory List
+--populates the Accesory Scrolling Frame with all the items 
 local function Populate()
     for inst in pairs (AccesoryTable) do
         for inst2 in pairs (AccesoryTable.Type[inst]) do

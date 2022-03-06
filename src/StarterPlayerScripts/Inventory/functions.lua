@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",5):WaitForChild("InventoryEvents",5)
 local remoteServerFunction = Instance.new("RemoteFunction")
+-- initalizes the Server Function so when Server invokes the function the data can be sent back to the server
 remoteServerFunction.Parent = ReplicatedStorage
 remoteServerFunction.Name = "remoteServerFunction"
 -- reformated so scoping won't get confusing
@@ -42,12 +43,14 @@ functions["InvData"] = {}
     remoteEvent.InventoryStore.OnClientEvent:Connect(function(Inventory)
         functions.store(Inventory)
     end)
+
+    -- since this has the on Server Invoke when it is supposed to send it returns to server
 local function SendtoServer()
       return functions["InvData"]
 end
      
-    
---remoteServerFunction.OnServerInvoke = SendtoServer
+-- this may need to be moved to a client script local script    
+remoteServerFunction.OnServerInvoke = SendtoServer
 return functions
 
 

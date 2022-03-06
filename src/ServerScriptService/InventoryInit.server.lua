@@ -4,8 +4,8 @@ local DataStoreService = game:GetService("DataStoreService")
 local dataStore = DataStoreService:GetDataStore("Data")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
 
---attachs inventory item after checking if inventory data exist
-
+-- is intended to add to the Physical accessory to the Player Character
+-- this can be changed once Accessories are changed
 local function equipAccessory(player,Accesory)
     local character = player.character
     if Accesory ~= nil and character ~= nil then
@@ -49,9 +49,9 @@ local function equipAccessory(player,Accesory)
         end
 
 end
- 
+ -- creates the Equipped Folder inside of player with string locations
+
 Players.PlayerAdded:Connect(function(player)
-    -- Fire the remote event
     local savedInventory  = Instance.new("Folder")
     savedInventory.Name = "AcessoryInventory"
     savedInventory.Parent = player
@@ -79,6 +79,7 @@ Players.PlayerAdded:Connect(function(player)
     if success then
         remoteEvent:WaitForChild("InventoryStore"):FireClient(player,savedInventory)       
     end  
+    -- set of changed events which updates changed Equipped Slot
     Equipped.Head.Changed:Connect(function()
         if Equipped.Head.Value ~= nil then
             if game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Head.Value) then
@@ -115,11 +116,11 @@ end)
 --triggers the Save Command
 Players.PlayerRemoving:Connect(function(player)
     local store = remoteEvent:WaitForChild("InventorySave")
-    local DataToStore = store:FireClient(player)
-    --dataStore:SetAsync(player.InvData, DataToStore)
+    local DataToStore = store:FireClient(player) -- <-- this fires the InventorySave Event in the player timing may need adjustments
+    dataStore:SetAsync(player.InvData, DataToStore)
 
 end)
-
+-- updates the Players Equipped so equipped accessories shows up in the servers
 remoteEvent.InventoryEquip.OnServerEvent:Connect(function(player, AccessoryName)
     local accessory = game.ReplicatedStorage.AccessoryList:FindFirstChild(AccessoryName)
 
