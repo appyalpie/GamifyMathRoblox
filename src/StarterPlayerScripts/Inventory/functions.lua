@@ -18,7 +18,8 @@ functions["InvData"] = {}
     end
     --resets Inventory as a function
     function functions.Reset()
-        functions["InvData"] = nil
+        functions["InvData"]:Destroy()
+        functions["InvData"] = {}
     end
 
     function functions.store(player,InvDat)
@@ -26,21 +27,27 @@ functions["InvData"] = {}
         return functions["InvData"]
     end
 
-    function functions.Equip(Accessory)
-        functions.UnEquip(Accessory)
-        functions["inventory"].Equipped[Accessory.Type] = Accessory
+    function functions.Equip(Accessory,Type)
+        functions.UnEquip(Type)
+        functions["inventory"].Equipped[Type] = Accessory
     end
-    function functions.UnEquip(Accessory)
-        functions["inventory"].Equipped[Accessory.Type] = nil
+    function functions.UnEquip(Type)
+        functions["inventory"].Equipped[Type] = {}
     end 
+    function functions.AddItem(Accessory)
+        table.insert(functions["InvData"],Accessory.Name)
+        print(functions["InvData"])
+    end
     -- since this has the on Server Invoke when it is supposed to send it returns to server
     -- this may need to be moved to a client script local script    
 
 
-function functions.SendtoServer()
+function functions.SendSavedToServer()
     return functions["InvData"]
 end
-
+function functions.SendEquippedToServer()
+    return functions["inventory"].Equipped
+end
 return functions
 
 
