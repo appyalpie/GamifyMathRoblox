@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
  
 local getTitles = ReplicatedStorage:WaitForChild("GetTitlesEvent")
 local addTitleRepopulate = ReplicatedStorage:WaitForChild("AddTitlesEvent")
+local showTitleEvent = ReplicatedStorage:WaitForChild("ShowTitlesEvent")
  
 local titles = getTitles:InvokeServer(Players.LocalPlayer)
 
@@ -13,10 +14,11 @@ local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 
 -- TODO: apply title applied when the player left
+-- TODO: invoke server to show title on server
 local function DisplayTitle(titleName)
     for key, value in pairs(titles) do
         if value == titleName then
-            overheadTitle.TextLabel.Text = titleName
+            showTitleEvent.InvokeServer(Player, titleName)
         end
     end
 end
