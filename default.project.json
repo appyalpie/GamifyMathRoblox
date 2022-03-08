@@ -7,6 +7,10 @@
       "$className": "ReplicatedStorage",
       "$path": "src/ReplicatedStorage"
     },
+    "InventoryEvents": {
+      "$className":"InventoryEvents",
+      "$path": "src/ReplicatedStorage/InventoryEvents"
+    },
 
     "ServerScriptService": {
       "$className": "ServerScriptService",
@@ -28,6 +32,10 @@
       "Handlers":{
         "$className":"Handlers",
         "$path":"src/StarterPlayer/StarterPlayerScripts/Handlers"
+    },
+    "Inventory":{
+      "$className": "Inventory",
+      "$path": "src/StartPlayer/StarterPlayerScripts/Inventory"
     },
     "LightingSystem": {
       "$className": "LightingSystem",

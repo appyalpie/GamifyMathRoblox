@@ -1,3 +1,0 @@
-local ModuleScript = {}
-
-return ModuleScript
