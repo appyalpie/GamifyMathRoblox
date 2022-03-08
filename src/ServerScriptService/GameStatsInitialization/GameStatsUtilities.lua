@@ -38,6 +38,9 @@ GameStatsUtilities.setPlayerGameStats = function(player, playerData)
     playerGameStats[player.UserId]["Game24Wins"] = playerData["Game24Wins"]
     playerGameStats[player.UserId]["Game24NPCDefeated"] = playerData["Game24NPCDefeated"]
     playerGameStats[player.UserId]["BarrierToIsland3Down"] = playerData["BarrierToIsland3Down"]
+    if playerData["BarrierToIsland3Down"] == true then
+        UnlockBarrierRE:FireClient(player)
+    end
     playerGameStats[player.UserId]["Game24Last5Solutions"] = playerData["Game24Last5Solutions"]
 end
 
@@ -82,6 +85,7 @@ GameStatsUtilities.newGame24NPCDefeated = function(player, npcName)
         table.insert(playerGameStats[player.UserId]["Game24NPCDefeated"], npcName)
         if #playerGameStats[player.UserId]["Game24NPCDefeated"] >= 1 then
             print("Firing")
+            playerGameStats[player.UserId]["BarrierToIsland3Down"] = true
             UnlockBarrierRE:FireClient(player)
         end
     end
