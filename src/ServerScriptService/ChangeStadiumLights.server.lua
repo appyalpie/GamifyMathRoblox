@@ -21,8 +21,9 @@ while(true) do
         if v:FindFirstChildWhichIsA("SurfaceLight") then
             local surfaceLights = v:GetDescendants()
             for i, x in pairs (surfaceLights) do
+                x.Brightness = 5
                 if rand == 1 then
-                    x.Color = Color3.new(4, 175, 236)
+                    x.Color = Color3.fromRGB(0, 247, 255)
                 elseif rand == 2 then
                     x.Color = Color3.new(170, 0, 170)
                 else
