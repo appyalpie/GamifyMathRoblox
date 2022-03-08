@@ -163,13 +163,18 @@ function EquipToPlayer(player, ToBeEquipped, Type)
     local loadout = player.Equipped:GetChildren()
     for key in pairs(loadout) do
         if loadout[key]:GetChildren()[1].Name ~= "Slot" and loadout[key].Name == Type then
-            attach.Parent:FindFirstChild(loadout[key]:GetChildren()[1].Name):Destroy()
-            loadout[key]:GetChildren()[1].Name = "Slot"
-            return 0
+            if loadout[key]:GetChildren()[1].Name == ToBeEquipped.Parent.Name then
+                attach.Parent:FindFirstChild(loadout[key]:GetChildren()[1].Name):Destroy()
+                loadout[key]:GetChildren()[1].Name = "Slot"
+                return 0 -- stops if it is accessory to be UnEquipped
+            else
+                attach.Parent:FindFirstChild(loadout[key]:GetChildren()[1].Name):Destroy()
+                loadout[key]:GetChildren()[1].Name = "Slot"
+            end
         end
     end
     
-   
+   -- clones Accessory to player character
     for key in pairs(loadout) do
         if loadout[key].Name == Type then
             local slot = ToBeEquipped:Clone()
@@ -183,7 +188,7 @@ function EquipToPlayer(player, ToBeEquipped, Type)
 end
 
 
-  
+-- clients Invoke Server to change Accessories
 remoteFunctionEquip.OnServerInvoke = EquipToPlayer
 
 SaveTable.OnServerEvent:Connect(GetTable) 

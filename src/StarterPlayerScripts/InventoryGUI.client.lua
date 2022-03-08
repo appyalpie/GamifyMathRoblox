@@ -33,7 +33,7 @@ end
 
 
 
--- this is suppose to add buttons to the list based on the AccessoryList contents
+-- this is adds buttons to the list based on the AccessoryList contents
 local function addToFrame(AccessoryString, Type)
     local newtemplate = Acctemplate:Clone()
     newtemplate.Name = AccessoryString.Name
@@ -43,7 +43,8 @@ local function addToFrame(AccessoryString, Type)
     -- clones the accessory Object to add to button
     local newAccessory = AccessoryString.Accessory:Clone()
     newAccessory.Parent = newtemplate.ViewportFrame
-    print(InvFunctions["InvData"])
+
+    -- [[this is where the visual for the button is added]]
    
     --local camera = Instance.new("Camera")
     --camera.CFrame = CFrame.new(newAccessory.PrimaryPart.Position + (newAccessory.PrimaryPart.CFrame.lookVector * 2),newAccessory.PrimaryPart.Position)
@@ -54,12 +55,9 @@ local function addToFrame(AccessoryString, Type)
    
 
     EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function()     
-        --change to pass Accessory
-          
         if bool then
             local success, errorMessage = pcall(function()
             SendServerEquipped:InvokeServer(AccessoryString.Accessory, Type)
-            --SendServerEquipped:InvokeServer(InvFunctions["inventory"].Equipped) 
             end)
             if success then
                 print("Accessory Button called")
@@ -95,7 +93,7 @@ local function Populate(AccTable)
 end
 --[[
     make sure when using AddItem that the Button Will be Disabled in the Shop GUI Note for Self 
-    or other team member. 
+    or other team member. these are test buttons to add Accessories. Find the Accessory you wish to add to the Player from the Accessory List
 ]]
 InventoryGUI:WaitForChild("HeadTest").Activated:Connect(function()
     local Button = AccessoryList:FindFirstChild("HeadTest")
@@ -127,7 +125,6 @@ end)
 
 
 InventoryGUI:WaitForChild("CloseButton").Activated:Connect(function()
-    print("this button works")
     InventoryGUI.Parent.Enabled = false
 end)
 
@@ -138,7 +135,6 @@ AccesoryTableEvent.OnClientEvent:Connect(Populate)
 --stores saved inventory into InvFunctions table functions["InvData"]
 GetPlayerSavedInventoryEvent.OnClientEvent:Connect(InvFunctions.store)
 local function Send()
-    print(InvFunctions["InvData"])
     SendToServer:FireServer(InvFunctions["InvData"])
 end
 SendToServer.OnClientEvent:Connect(Send)
