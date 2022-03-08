@@ -55,6 +55,15 @@ local function addToFrame(AccessoryString, Type)
    
 
     EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function()     
+        --current placeholder for updating Button bool. I.E. Checks for if InvFunctions["InvData"] updated to have
+        if not bool then
+            
+            if table.find(InvFunctions["InvData"], newtemplate.AccessoryName.Text ) then
+                bool = true
+            end
+    
+         
+        end
         if bool then
             local success, errorMessage = pcall(function()
             SendServerEquipped:InvokeServer(AccessoryString.Accessory, Type)
@@ -66,13 +75,8 @@ local function addToFrame(AccessoryString, Type)
                 print("Error" .. errorMessage)
          end
         end
-        --current placeholder for updating Button bool. I.E. Checks for if InvFunctions["InvData"] updated to have
-        for keys in pairs(InvFunctions["InvData"]) do
-            if newtemplate.AccessoryName.Text == InvFunctions["InvData"][keys] then
-                bool = true
-            end
-    
-         end 
+        
+        
 
 
     end)
