@@ -25,10 +25,12 @@ end
 
 function OperatorSetObject:CleanUp()
 	self._cardPositionChangedSignal:Disconnect()
-	self._addClickDetectorSignal:Disconnect()
-	self._subtractClickDetectorSignal:Disconnect()
-    self._multiplyClickDetectorSignal:Disconnect()
-    self._divideClickDetectorSignal:Disconnect()
+	if self._addClickDetectorSignal then
+		self._addClickDetectorSignal:Disconnect()
+		self._subtractClickDetectorSignal:Disconnect()
+		self._multiplyClickDetectorSignal:Disconnect()
+		self._divideClickDetectorSignal:Disconnect()
+	end
     if self._undoClickDetectorSignal then
         self._undoClickDetectorSignal:Disconnect()
     end

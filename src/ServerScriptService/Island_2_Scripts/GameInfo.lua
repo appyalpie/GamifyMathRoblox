@@ -40,6 +40,15 @@ GameInfo.WinningSequenceTweenInfo = TweenInfo.new(.4)
 GameInfo.WinningSequenceSqueezeTweenInfo = TweenInfo.new(.4)
 GameInfo.WinningSequenceEnergyBallTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 
+GameInfo.SelectTweenInfo = TweenInfo.new(.25, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+
+GameInfo.OperatorNames = {
+    ["+"] = "add",
+    ["-"] = "subtract",
+    ["x"] = "multiply",
+    ["/"] = "divide"
+}
+
 --GameInfo.CombineYDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
 --GameInfo.CombineXZDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 
