@@ -255,7 +255,7 @@ function Game_24.initializeNPC(promptObject, player)
 	CurrentGameInfo._npcOrientationDegrees = ancestorModelArena.NPCTerminalPart.Orientation.Y
 
 	--check to see if we're fighing tommy
-	if CurrentGameInfo.currentOpponent.Name == "Tommy's Winning Robot" then
+	if CurrentGameInfo.currentOpponent.Name == "Tommy Two Decks" then
 		--play drum and bass
 		MusicEvent:FireClient(player,"rbxassetid://9042934109", 0.9)
 	else
