@@ -27,6 +27,20 @@ GameStatsUtilities.initializePlayerGameStats = function(player)
     }
 end
 
+GameStatsUtilities.setPlayerGameStats = function(player, playerData)
+    GameStatsUtilities.initializePlayerGameStats(player)
+    playerGameStats[player.UserId]["XP"] = playerData["XP"]
+    playerGameStats[player.UserId]["Currency"] = playerData["Currency"]
+    playerGameStats[player.UserId]["AddBlocksCombined"] = playerData["AddBlocksCombined"]
+    playerGameStats[player.UserId]["SubtractBlocksCombined"] = playerData["SubtractBlocksCombined"]
+    playerGameStats[player.UserId]["MultiplyBlocksCombined"] = playerData["MultiplyBlocksCombined"]
+    playerGameStats[player.UserId]["DivideBlocksCombined"] = playerData["DivideBlocksCombined"]
+    playerGameStats[player.UserId]["Game24Wins"] = playerData["Game24Wins"]
+    playerGameStats[player.UserId]["Game24NPCDefeated"] = playerData["Game24NPCDefeated"]
+    playerGameStats[player.UserId]["BarrierToIsland3Down"] = playerData["BarrierToIsland3Down"]
+    playerGameStats[player.UserId]["Game24Last5Solutions"] = playerData["Game24Last5Solutions"]
+end
+
 -----Overall Game------
 GameStatsUtilities.incrementXP = function(player, amount)
     playerGameStats[player.UserId]["XP"] = playerGameStats[player.UserId]["XP"] + amount
@@ -37,6 +51,22 @@ GameStatsUtilities.incrementCurrency = function(player, amount)
 end
 
 -----Math Blocks------
+
+GameStatsUtilities.incrementAddBlocksCombined = function(player)
+    playerGameStats[player.UserId]["AddBlocksCombined"] = playerGameStats[player.UserId]["AddBlocksCombined"] + 1
+end
+
+GameStatsUtilities.incrementSubtractBlocksCombined = function(player)
+    playerGameStats[player.UserId]["SubtractBlocksCombined"] = playerGameStats[player.UserId]["SubtractBlocksCombined"] + 1
+end
+
+GameStatsUtilities.incrementMultiplyBlocksCombined = function(player)
+    playerGameStats[player.UserId]["MultiplyBlocksCombined"] = playerGameStats[player.UserId]["MultiplyBlocksCombined"] + 1
+end
+
+GameStatsUtilities.incrementDivideBlocksCombined = function(player)
+    playerGameStats[player.UserId]["DivideBlocksCombined"] = playerGameStats[player.UserId]["DivideBlocksCombined"] + 1
+end
 
 -----24 Game------
 
