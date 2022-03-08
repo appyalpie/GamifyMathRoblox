@@ -9,7 +9,7 @@ local titles = getTitles:InvokeServer(Players.LocalPlayer)
 local overheadTitle = Players.LocalPlayer.Character.Head:WaitForChild("overheadTitle")
 
 local Player = game:GetService("Players").LocalPlayer
-local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventroyGUI"):WaitForChild("InventoryScreen")
+local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI"):WaitForChild("InventoryScreen")
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 
 -- TODO: apply title applied when the player left

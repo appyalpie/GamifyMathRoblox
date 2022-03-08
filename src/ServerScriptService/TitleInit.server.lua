@@ -3,6 +3,7 @@ local overheadName = ServerStorage.Titles:WaitForChild("overheadName")
 local overheadTitle = ServerStorage.Titles:WaitForChild("overheadTitle")
 local titleModule = require(game.ServerScriptService:WaitForChild("TitleModule"))
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
 local TitleDataStore = DataStoreService:GetDataStore("TitleDataStore")
 
@@ -14,11 +15,16 @@ if not(game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')) then
     Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'AddTitlesEvent'
 end
 
+
+
 local getTitlesEvent = game.ReplicatedStorage:FindFirstChild('GetTitlesEvent')
 
 --TODO: Make sure this is only called when player enters the server
 game.Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
+
+        local textButton = ServerStorage:WaitForChild("InventoryScrollingButtonBasic"):Clone()
+        textButton.Parent = ReplicatedStorage
 
         local IDs = {0}
 
