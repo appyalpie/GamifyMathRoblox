@@ -136,7 +136,7 @@ function Game_24.initialize(promptObject, player)
 						Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 					end)
 
-					GameUtilities.Win_Sequence(promptObject, player, Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+					GameUtilities.Win_Sequence(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
 					return
 				end
 			end
@@ -193,6 +193,9 @@ local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Card
 	-- enable promptObject
 	promptObject.Enabled = true
 
+	-- move the opponent back
+	CurrentGameInfo.currentOpponent.HumanoidRootPart.CFrame = CFrame.new(CurrentGameInfo._npcOldPosition) * CFrame.Angles(0, math.rad(CurrentGameInfo._npcOldOrientation.Y), 0)
+
 	-- reset currentGameInfo
 	-- clean up folderAdded connection
 	if CurrentGameInfo.playerCardFolderConnect then
@@ -222,6 +225,7 @@ function Game_24.initializeNPC(promptObject, player)
 	local CurrentGameInfo = {}
 	CurrentGameInfo.currentPlayer = player
 	CurrentGameInfo.currentOpponent = ancestorModel
+	CurrentGameInfo._opponentName = ancestorModel.Name
 	CurrentGameInfo.ancestorModel = ancestorModelArena
 	CurrentGameInfo._winSequencePlaying = false
 	CurrentGameInfo._orientation = math.rad(ancestorModelArena.PlayerTerminalPart.Orientation.Y)
@@ -237,12 +241,17 @@ function Game_24.initializeNPC(promptObject, player)
 
 	-- Move player to position
 	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._playerOrientation + (math.pi / 2)), 0, 
-	math.cos(CurrentGameInfo._playerOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
-	+ ancestorModelArena.PlayerTerminalPart.Position
+		math.cos(CurrentGameInfo._playerOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
+		+ ancestorModelArena.PlayerTerminalPart.Position
+
+	-- Save opponent position to move back to
+	CurrentGameInfo._npcOldPosition = ancestorModel.HumanoidRootPart.Position
+	CurrentGameInfo._npcOldOrientation = ancestorModel.HumanoidRootPart.Orientation
 
 	-- Move opponent to position
-	ancestorModel.HumanoidRootPart.Position = Vector3.new(math.sin(CurrentGameInfo._npcOrientation + (math.pi / 2)), 0, 
-	math.cos(CurrentGameInfo._npcOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET
+	ancestorModel.HumanoidRootPart.CFrame = CFrame.new((Vector3.new(math.sin(CurrentGameInfo._npcOrientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._npcOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModelArena.NPCTerminalPart.Position)
+		* CFrame.Angles(0, math.rad(ancestorModelArena.NPCTerminalPart.Orientation.Y + 90), 0)
 
 	-- Tie cleanup events to death and leave
 	local playerHumanoidDiedConnection
@@ -307,7 +316,7 @@ function Game_24.initializeNPC(promptObject, player)
 					finishedWinSequenceEvent.Event:Connect(function()
 						CleanupNPC(promptObject, player, Game_Cards, NPC_Game_Cards, CurrentGameInfo)
 					end)
-					GameUtilities.Win_Sequence_Player(Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+					GameUtilities.Win_Sequence_Player(Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
 					return
 				end
 			end

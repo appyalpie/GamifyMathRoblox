@@ -6,8 +6,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameStatsUtilities = require(script.GameStatsUtilities)
 
 ------Overall Game------
-local IncrementCurrencyRE = ReplicatedStorage.RemoteEvents:WaitForChild("IncrementCurrencyRE")
-local IncrementXPRE = ReplicatedStorage.RemoteEvents:WaitForChild("IncrementXPRE")
+--local IncrementCurrencyRE = ReplicatedStorage.RemoteEvents:WaitForChild("IncrementCurrencyRE")
+--local IncrementXPRE = ReplicatedStorage.RemoteEvents:WaitForChild("IncrementXPRE")
+local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
 
 ------Math Blocks------
 
@@ -27,3 +28,7 @@ end)
 Players.PlayerRemoving:Connect(function(player)
     GameStatsUtilities.savePlayerGameStats(player)
 end)
+
+PlayerStatsRF.OnServerInvoke = function(player)
+    return GameStatsUtilities.getPlayerData(player)
+end

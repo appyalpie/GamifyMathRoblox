@@ -1,15 +1,20 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
+
 local GameStatsUtilities = {}
 
 local playerGameStats = {}
 
 GameStatsUtilities.initializePlayerGameStats = function(player)
+    print("Game Stats Initialized")
     playerGameStats[player.UserId] = {
         ------Overall Game------
         XP = 0,
         Currency = 0,
         ------Math Blocks------
         --BlocksCombined = 0,
-        AddBlockCombinations = 0,
+        AddBlocksCombined = 0,
         SubtractBlocksCombined = 0,
         MultiplyBlocksCombined = 0,
         DivideBlocksCombined = 0,
@@ -17,6 +22,7 @@ GameStatsUtilities.initializePlayerGameStats = function(player)
         ------24 Game------
         Game24Wins = 0,
         Game24NPCDefeated = {},
+        BarrierToIsland3Down = false,
         Game24Last5Solutions = {}
     }
 end
@@ -39,15 +45,27 @@ GameStatsUtilities.incrementGame24Wins = function(player)
 end
 
 GameStatsUtilities.newGame24NPCDefeated = function(player, npcName)
-    if playerGameStats[player.UserId]["Game24NPCDefeated"][npcName] then
+    if table.find(playerGameStats[player.UserId]["Game24NPCDefeated"], npcName) ~= nil then
         return
     else
-        playerGameStats[player.UserId]["Game24NPCDefeated"][npcName] = true
+        print("Setting")
+        table.insert(playerGameStats[player.UserId]["Game24NPCDefeated"], npcName)
+        if #playerGameStats[player.UserId]["Game24NPCDefeated"] >= 1 then
+            print("Firing")
+            UnlockBarrierRE:FireClient(player)
+        end
     end
 end
 
+GameStatsUtilities.getPlayerData = function(player)
+    return playerGameStats[player.UserId]
+end
+
 GameStatsUtilities.saveLastSolution = function(player, solution)
-    table.insert(playerGameStats[player.UserId]["Game24Last5Solutions"], solution)
+    if #playerGameStats[player.UserId]["Game24Last5Solutions"] == 5 then
+        table.remove(playerGameStats[player.UserId]["Game24Last5Solutions"], 5)
+    end
+    table.insert(playerGameStats[player.UserId]["Game24Last5Solutions"], 1, solution)
 end
 
 

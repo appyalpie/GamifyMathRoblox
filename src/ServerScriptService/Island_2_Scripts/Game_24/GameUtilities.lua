@@ -1,6 +1,7 @@
 local ServerStorage = game:GetService("ServerStorage")
 local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local CardObject = require(script.Parent.CardObject)
 local OperatorSetObject = require(script.Parent.OperatorSetObject)
@@ -8,6 +9,7 @@ local OperatorSetObject = require(script.Parent.OperatorSetObject)
 local GameInfo = require(script.Parent.Parent.GameInfo)
 local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
 local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
+local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
 local Operator_Set_Model = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set_Model")
 local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
@@ -39,7 +41,6 @@ GameUtilities.Set_Orientation = function(part, orientation)
 	part.Orientation = Vector3.new(part.Orientation.X, orientation, part.Orientation.Z)
 end
 
--- only along z axis
 GameUtilities.Get_Starting_Position = function(center, gap, index, numberPresent, theta)
 	--local origin = center - (Vector3.new(0, 0, (.5)*(numberPresent - 1) * gap))
 	local offset = Vector3.new(math.sin(theta) * gap, 0,  math.cos(theta) * gap)
@@ -299,7 +300,6 @@ end
 
 GameUtilities.Hide_Operators = function(card)
 	if card._operatorSetObject then
-		print("Hiding")
 		card._operatorSetObject:CleanUp()
 		card._operatorSetObject = nil -- allow garbage collection for operatorSet
 	end
@@ -343,7 +343,6 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				GameUtilities.Hide_Operators(card)
 			elseif CardObject.calculateValue(card._cardTable) == 0 and otherCard._operatorSetObject._operatorSelectedName == "divide" then -- no divide by 0
 				card._cardObject.Base_Card.Sounds.Wrong:Play()
-
 				return
 			else
 				-- set card values to a new CardObject
@@ -586,7 +585,11 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 	end)
 end
 
-GameUtilities.Win_Sequence = function(promptObject, player, Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
+	GameStatsUtilities.incrementXP(player, 10)
+	GameStatsUtilities.incrementCurrency(player, 10)
+	GameStatsUtilities.incrementGame24Wins(player)
+
 	--[[
 	1. Get equation from last card
 	]]
@@ -595,6 +598,9 @@ GameUtilities.Win_Sequence = function(promptObject, player, Game_Cards, CurrentG
 	local winningSequence = {}
 	local winningString = CardObject.getSequence(winningCardTable)
 	print(winningString)
+
+	GameStatsUtilities.saveLastSolution(player, winningString) -- save win solution
+
 	local startIndex = 1
 	while startIndex <= string.len(winningString) do
 		local character = string.sub(winningString, startIndex, startIndex)
@@ -885,7 +891,13 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 	winningCardTween:Play()
 end
 
-GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
+	-- GameStats Changes
+	GameStatsUtilities.incrementXP(player, 15)
+	GameStatsUtilities.incrementCurrency(player, 15)
+	GameStatsUtilities.incrementGame24Wins(player)
+	GameStatsUtilities.newGame24NPCDefeated(player, CurrentGameInfo._opponentName)
+
 	-- Explode the opponent's cards for losing
 	if NPC_Game_Cards then
 		-- clean up and destroy cards and operators if any
@@ -913,6 +925,9 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 	local winningSequence = {}
 	local winningString = CardObject.getSequence(winningCardTable)
 	print(winningString)
+
+	GameStatsUtilities.saveLastSolution(player, winningString) -- save win solution
+
 	local startIndex = 1
 	while startIndex <= string.len(winningString) do
 		local character = string.sub(winningString, startIndex, startIndex)
@@ -995,7 +1010,6 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 
 				newPart.Sounds.Swoosh_1:Play()
 			else
-				print("Number")
 				-- find the corresponding value in the boardClones, add it to the winSequenceTable + parent to folder, remove from the boardClones
 				for _, v in pairs(boardCardCloneTable) do
 					if v:GetAttribute("value") == winningSequence[i] then
