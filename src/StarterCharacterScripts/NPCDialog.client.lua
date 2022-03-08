@@ -6,10 +6,15 @@ local DialogModule = require(ReplicatedStorage.DialogModule)
 local Player = game:GetService("Players").LocalPlayer
 --all NPCs should be in island 1 otherwise tweak this
 local NPCs = game.Workspace.Island_1.NPCs
+--declare remoteevents
+local ChallengeEvent = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild('ChallengeEvent')
 
 --
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
+local YesNoFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("YesNoFrame")
 local InputButton =  DialogFrame:WaitForChild("Input")
+local YesButton = YesNoFrame.YesButton
+local NoButton = YesNoFrame.NoButton
 --this is the NPC name label in the dialog frame maybe not correct
 local NPCName = DialogFrame:WaitForChild("NPCName")
 
@@ -43,9 +48,79 @@ end
 --handle dialog given proximity prompt. bring in dialog associated with individual NPC base on dialog module script
 local function OnDialog(Dialog, Index, ProximityPrompt)
     --if there is dialog at the index provided (pages of dialog lines)
+    if Index == #Dialog and ProximityPrompt:GetAttribute('Challenger') then
+        local Tween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0.1, 0, 0.5, 0)
+        })
+        Tween:Play()
+
+        --when tween is done. connect functionality to the buttons
+        Tween.Completed:Connect(function()
+            local YesButtonClickConnection
+            local NoButtonClickConnection
+
+            YesButtonClickConnection = YesButton.MouseButton1Click:Connect(function()
+                --end gradual text
+                GradualTextInProgress = false
+
+                --disconnect connections
+                if YesButtonClickConnection then
+                    YesButtonClickConnection:Disconnect()
+                end
+
+                if NoButtonClickConnection then
+                    NoButtonClickConnection:Disconnect()
+                end
+
+                --tween out both dialog and yesno frames
+                local DialogTween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                    Position = UDim2.new(0, 0, 2, 0)
+                })
+
+                local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                    Position = UDim2.new(0, 0, 2, 0)
+                })
+                DialogTween:Play()
+                YesNoTween:Play()
+                --fire the event to transport player to the game
+                ChallengeEvent:FireServer()
+
+            end)
+
+            --handle the no button behavior. 
+            NoButtonClickConnection = NoButton.MouseButton1Click:Connect(function()
+            
+                --end gradual text
+                GradualTextInProgress = false
+
+                --disconnect connections
+                if YesButtonClickConnection then
+                    YesButtonClickConnection:Disconnect()
+                end
+
+                if NoButtonClickConnection then
+                    NoButtonClickConnection:Disconnect()
+                end
+
+                --tween out both dialog and yesno frames
+                local DialogTween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                    Position = UDim2.new(0, 0, 2, 0)
+                })
+
+                local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                    Position = UDim2.new(0, 0, 2, 0)
+                })
+                DialogTween:Play()
+                YesNoTween:Play()
+                
+            end)
+        end)
+    end
+    
     if Dialog[Index] then
         --display dialog text at the page spot
         GradualText(Dialog[Index])
+    
     else
         --if the tween exists then cancel
         if DialogTween then
