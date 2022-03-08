@@ -15,6 +15,8 @@ local MusicEvent = game.ReplicatedStorage:WaitForChild("MusicEvent")
 
 local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
 
+local NPC_Challenger_Arenas = game.Workspace.Island_2.NPC_Challenger_Arenas
+
 local Game_24 = {}
 
 local function Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
@@ -172,6 +174,7 @@ function Game_24.initialize(promptObject, player)
 end
 
 local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo)
+	print("Got To Cleanup")
 	if Player_Game_Cards then
 		for _, v in pairs(Player_Game_Cards) do
 			GameUtilities.Hide_Operators(v)
@@ -210,13 +213,22 @@ local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Card
 
 	-- give player controls back
 	UnlockMovementRE:FireClient(player)
+	print("Finished Cleanup")
 end
 
 function Game_24.initializeNPC(promptObject, player)
-	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model") -- got dummy
-	local ancestorModelArena = ancestorModel.Parent
-
-	
+	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model") -- got character
+	local ancestorModelArena
+	for _, v in pairs(NPC_Challenger_Arenas:GetChildren()) do
+		--print("v: " .. v.Parent.Name)
+		--print(ancestorModel.Name)
+		--print(v:GetAttribute("challenger_arena_index"))
+		--print(ancestorModel:GetAttribute("challenger_arena_index"))
+		if v:GetAttribute("challenger_arena_index") == ancestorModel:GetAttribute("challenger_arena_index") then
+			--print("Set")
+			ancestorModelArena = v
+		end
+	end
 
 	-- Lock player movements
 	LockMovementRE:FireClient(player)

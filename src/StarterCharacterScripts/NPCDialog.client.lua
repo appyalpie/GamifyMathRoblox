@@ -83,7 +83,9 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 DialogTween:Play()
                 YesNoTween:Play()
                 --fire the event to transport player to the game
-                ChallengeEvent:FireServer()
+                Player.Character.HumanoidRootPart.Anchored = false
+
+                ChallengeEvent:FireServer(ProximityPrompt)
 
             end)
 
@@ -112,7 +114,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 })
                 DialogTween:Play()
                 YesNoTween:Play()
-                
+
+                Player.Character.HumanoidRootPart.Anchored = false
             end)
         end)
     end
