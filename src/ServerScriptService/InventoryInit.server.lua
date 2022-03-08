@@ -1,10 +1,18 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
 local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
 local DataStoreService = game:GetService("DataStoreService")
 local dataStore = DataStoreService:GetDataStore("InvData")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
-local AccessoryListModule = require(game.ServerScriptService:WaitForChild("AccessoryList"))
+
+local accessoryFolder = ServerStorage:WaitForChild("Accessories")
+local clone = accessoryFolder:Clone()
+clone.Parent = ReplicatedStorage
+
+local AccessoryListModule = require(ServerScriptService:WaitForChild("AccessoryList"))
 local AccessoryList = AccessoryListModule.GetAccesory()
+
 local addAccTable = remoteEvent.AddAccesoryTableEvent
 local SaveTable = remoteEvent.InventorySave
 local remoteFunctionEquip = remoteEvent:FindFirstChild("SendEquippedToServer")
