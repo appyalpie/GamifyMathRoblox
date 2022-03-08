@@ -13,6 +13,7 @@ local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents",5):WaitFor
 local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",1)
 local GetPlayerSavedInventoryEvent = InventoryEvents:WaitForChild("InventoryStore",1)
 local SendServerEquipped = InventoryEvents:WaitForChild("SendEquippedToServer",1)
+local SendToServer = InventoryEvents:WaitForChild("InventorySave",1)
 
 local EquippedConnections = {}
 AccesoryTable = {}
@@ -33,37 +34,49 @@ end
 
 
 -- this is suppose to add buttons to the list based on the AccessoryList contents
-local function addToFrame(Accessory, Type)
+local function addToFrame(AccessoryString, Type)
     local newtemplate = Acctemplate:Clone()
-    newtemplate.Name = Accessory.Name
-    newtemplate.AccessoryName.Text = Accessory.Name
+    newtemplate.Name = AccessoryString.Name
+    newtemplate.AccessoryName.Text = AccessoryString.Name
     newtemplate.Parent = AccessoryList
-
-    local newAccessory = Accessory:Clone()
+    local bool = false
+    -- clones the accessory Object to add to button
+    local newAccessory = AccessoryString.Accessory:Clone()
     newAccessory.Parent = newtemplate.ViewportFrame
-
+    print(InvFunctions["InvData"])
+   
     --local camera = Instance.new("Camera")
     --camera.CFrame = CFrame.new(newAccessory.PrimaryPart.Position + (newAccessory.PrimaryPart.CFrame.lookVector * 2),newAccessory.PrimaryPart.Position)
     --camera.Parent = newtemplate.ViewportFrame
 
     --newtemplate.ViewportFrame.CurrentCamera = camera
 
-    local function GetAccessoryName()
-        return Accessory.Name
-    end
+   
 
-    EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function()
-        if not newtemplate.Equipped.Value then
-            InvFunctions.Equip(Accessory,Type)
-            newtemplate.Equipped.Value = true
-        else
-            InvFunctions.UnEquip(Type)
-            newtemplate.Equipped.Value = false
+    EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function()     
+        --change to pass Accessory
+          
+        if bool then
+            local success, errorMessage = pcall(function()
+            SendServerEquipped:InvokeServer(AccessoryString.Accessory, Type)
+            --SendServerEquipped:InvokeServer(InvFunctions["inventory"].Equipped) 
+            end)
+            if success then
+                print("Accessory Button called")
+                return
+            else
+                print("Error" .. errorMessage)
+         end
         end
-        print(InvFunctions["inventory"].Equipped)
-        SendServerEquipped:InvokeServer(InvFunctions["inventory"].Equipped)
-        
-        return GetAccessoryName()
+        --current placeholder for updating Button bool. I.E. Checks for if InvFunctions["InvData"] updated to have
+        for keys in pairs(InvFunctions["InvData"]) do
+            if newtemplate.AccessoryName.Text == InvFunctions["InvData"][keys] then
+                bool = true
+            end
+    
+         end 
+
+
     end)
 
 end
@@ -74,6 +87,7 @@ local function Populate(AccTable)
     if CheckForFire() then
         for key in pairs (AccTable) do
             for inst2 in pairs (AccTable[key]) do
+                --Strings contain an Accessory Object
                 addToFrame(AccTable[key][inst2], key)
             end
         end
@@ -108,7 +122,10 @@ InventoryGUI:WaitForChild("ArmTest").Activated:Connect(function()
     InventoryGUI.ArmTest:Destroy()
 end)
 
-
+function Send()
+    print(InvFunctions["InvData"])
+    SendToServer:FireServer(InvFunctions["InvData"])
+end
 
 
 
@@ -123,3 +140,6 @@ AccesoryTableEvent.OnClientEvent:Connect(Populate)
 
 --stores saved inventory into InvFunctions table functions["InvData"]
 GetPlayerSavedInventoryEvent.OnClientEvent:Connect(InvFunctions.store)
+
+
+SendToServer.OnClientEvent:Connect(Send)

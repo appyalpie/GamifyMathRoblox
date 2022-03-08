@@ -1,15 +1,6 @@
 -- initalizes the Server Function so when Server invokes the function the data can be sent back to the server
 -- reformated so scoping won't get confusing
-local functions= {
-    ["inventory"] = {
-        Equipped = {
-                ["Head"] = {},
-                ["Legs"] = {},
-                ["Arms"] = {},
-                ["Body"] = {},
-        },
-    }
-}
+local functions= {}
 functions["InvData"] = {}
 
 -- displays the items description as a function
@@ -22,18 +13,9 @@ functions["InvData"] = {}
         functions["InvData"] = {}
     end
 
-    function functions.store(player,InvDat)
-        functions["InvData"] = InvDat
-        return functions["InvData"]
+    function functions.store(InventoryData)
+        functions["InvData"] = InventoryData
     end
-
-    function functions.Equip(Accessory,Type)
-        functions.UnEquip(Type)
-        functions["inventory"].Equipped[Type] = Accessory
-    end
-    function functions.UnEquip(Type)
-        functions["inventory"].Equipped[Type] = {}
-    end 
     function functions.AddItem(Accessory)
         table.insert(functions["InvData"],Accessory.Name)
         print(functions["InvData"])
@@ -43,10 +25,8 @@ functions["InvData"] = {}
 
 
 function functions.SendSavedToServer()
+    print(functions["InvData"])
     return functions["InvData"]
-end
-function functions.SendEquippedToServer()
-    return functions["inventory"].Equipped
 end
 return functions
 

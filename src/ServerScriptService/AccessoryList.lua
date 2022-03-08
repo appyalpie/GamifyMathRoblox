@@ -3,7 +3,7 @@ local AccessoriesList = {}
 AccessoriesList.Type = {
     ["Head"] = {
         [1] = game.ReplicatedStorage.Accessories.HeadTest;
-
+        --[2] = game.ReplicatedStorage.Accessories.MathBlockHead;
     };
 
     ["Body"] = {

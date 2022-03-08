@@ -6,11 +6,13 @@ local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChil
 local AccessoryListModule = require(game.ServerScriptService:WaitForChild("AccessoryList"))
 local AccessoryList = AccessoryListModule.GetAccesory()
 local addAccTable = remoteEvent.AddAccesoryTableEvent
+local SaveTable = remoteEvent.InventorySave
 local remoteFunctionEquip = remoteEvent:FindFirstChild("SendEquippedToServer")
+
 
 -- is intended to add to the Physical accessory to the Player Character
 -- this can be changed once Accessories are changed
-local function equipAccessory(player,Accesory)
+--[[local function equipAccessory(player,Accesory)
     local character = player.character
     if Accesory ~= nil and character ~= nil then
         if character:FindFirstChild(player.Name.."equipped" + Accesory.Type)  then
@@ -52,102 +54,120 @@ local function equipAccessory(player,Accesory)
         Accesory.Parent = character
         end
 
-end
+end]]
  -- creates the Equipped Folder inside of player with string locations
 
 Players.PlayerAdded:Connect(function(player)
     local savedInventoryClient  = Instance.new("Folder")
-    savedInventoryClient.Name = "AcessoryInventory"
+    savedInventoryClient.Name = "AccessoryInventory"
     savedInventoryClient.Parent = player
     local Equipped = Instance.new("Folder")
     Equipped.Name = "Equipped"
     Equipped.Parent = player
 
+    local Item = Instance.new("Accessory")
+    Item.Name = "Slot"
+
     local head = Instance.new("StringValue")
     head.Name = "Head"
     head.Parent = Equipped
+    Item:Clone().Parent = head
+
     local body = Instance.new("StringValue")
     body.Name = "Body"
     body.Parent = Equipped
+    Item:Clone().Parent = body
+
     local legs = Instance.new("StringValue")
     legs.Name = "Legs"
     legs.Parent = Equipped
+    Item:Clone().Parent = legs
+
     local arms = Instance.new("StringValue")
     arms.Name = "Arms"
     arms.Parent = Equipped
-    wait(5)
-    -- passes player and accessory table
-    addAccTable:FireClient(player,AccessoryList)
-    local savedInventory = {}
-    
-    local success, error = pcall(function()
-        savedInventory = dataStore:GetAsync(player.UserId)
+    Item:Clone().Parent = arms
+
+
+    wait(1)
+    local success, savedInventory = pcall(function()
+        return dataStore:GetAsync(player.UserId)
     end)
+    if savedInventory == nil then
+        success = false
+    end
+    -- passes player and accessory table
     
+    addAccTable:FireClient(player,AccessoryList) 
+
     if success then
-        print("Data Retrieved")       
+        local store = remoteEvent:WaitForChild("InventoryStore")
+        store:FireClient(player, savedInventory)
+        print("Data Retrieved")   
+
     else
-        print("Error :" .. error)
-    end 
-    if not savedInventory then
+        if not savedInventory then
         local success, error = pcall(function()
-        dataStore:setAsync(player.UserID, {})
+        dataStore:setAsync(player.UserId, {})
         end)
         if success then
             print("Data Table created")
         else
             print("Error :" .. error)
         end
+        end
     end
-    -- set of changed events which updates changed Equipped Slot this is where the Server would display
-    -- any Accessory Changes
-    Equipped.Head.Changed:Connect(function()
-        if Equipped.Head.Value ~= nil then
-            if game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Head.Value) then
-                equipAccessory(player,game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Head.Value):Clone())
-            end
-        end
-    end)
-    Equipped.Body.Changed:Connect(function()
-        if Equipped.Body.Value ~= nil then
-            if game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Body.Value) then
-                equipAccessory(player,game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Body.Value):Clone())
-            end
-        end
-    end)
-    Equipped.Arms.Changed:Connect(function()
-        if Equipped.Arms.Value ~= nil then
-            if game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Arms.Value) then
-                equipAccessory(player,game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Arms.Value):Clone())
-            end
-        end
-    end)
-    Equipped.Legs.Changed:Connect(function()
-        if Equipped.Legs.Value ~= nil then
-            if game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Legs.Value) then
-                equipAccessory(player,game.ReplicatedStorage:WaitForChild("Accessories"):FindFirstChild(Equipped.Legs.Value):Clone())
-            end
-        end
-    end)
 end)
 
+local DataToStore = {}
+function GetTable(player,SaveData)
 
-
+    DataToStore =  SaveData
+    print(DataToStore)
+end
 
 --triggers the Save Command
 Players.PlayerRemoving:Connect(function(player)
-    local store = remoteEvent:WaitForChild("InventorySave")
-    local DataToStore = store:FireClient(player) -- <-- this fires the InventorySave Event in the player timing may need adjustments
-    dataStore:SetAsync(player.UserId, DataToStore)
+    
+   
+    print(DataToStore) -- <-- this fires the InventorySave Event in the player timing may need adjustments
+    local success, ErrorMessage = pcall(function()
+        dataStore:SetAsync(player.UserId, DataToStore)
+    end)
+    if success then
+        print("Player Data saved for" .. player.UserId)
+    else
+        print("Error : " .. ErrorMessage)
+    end
 
 end)
--- updates the Players Equipped so equipped accessories shows up in the servers
-local function EquipToPlayer(player, ToBeEquipped)
-    local loadout = player.Equipped
-    for key in pairs(loadout) do
-    loadout[key].Value = ToBeEquipped[key]
-    end
-    print(loadout)
-end
 
+-- updates the Players Equipped so equipped accessories shows up in the servers
+-- change the ToBeEquipped to accessory 
+function EquipToPlayer(player, ToBeEquipped, Type)
+    local attach = player.Character.Humanoid
+    local loadout = player.Equipped:GetChildren()
+    for key in pairs(loadout) do
+        if loadout[key]:GetChildren()[1].Name ~= "Slot" and loadout[key].Name == Type then
+            attach.Parent:FindFirstChild(loadout[key]:GetChildren()[1].Name):Destroy()
+            loadout[key]:GetChildren()[1].Name = "Slot"
+            return 0
+        end
+    end
+    
+   
+    for key in pairs(loadout) do
+        if loadout[key].Name == Type then
+            local slot = ToBeEquipped:Clone()
+            slot.Parent = loadout[key]
+            slot.Name = ToBeEquipped.Parent.Name
+            loadout[key]:GetChildren()[1].Name = ToBeEquipped.Parent.Name
+            attach:AddAccessory(slot)           
+        end
+    end
+     SaveTable:FireClient(player)
+    
+end
 remoteFunctionEquip.OnServerInvoke = EquipToPlayer
+
+SaveTable.OnServer:Connect(GetTable)
