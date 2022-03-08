@@ -1,9 +1,8 @@
 local lights = {}
 
-for i,v in pairs(game.Workspace.Gym:GetDescendants()) do
+for i,v in pairs(game.Workspace.Island_2.Gym:GetDescendants()) do
     if v:IsA("BasePart") then
         if v.Name == "Light" then
-            --v.UsePartColor = true
             table.insert(lights, v)
         end
     end
@@ -18,7 +17,20 @@ while(true) do
             v.BrickColor = BrickColor.new(1015)
         else
             v.BrickColor = BrickColor.new(1020)
-        end  
+        end
+        if v:FindFirstChildWhichIsA("SurfaceLight") then
+            local surfaceLights = v:GetDescendants()
+            for i, x in pairs (surfaceLights) do
+                if rand == 1 then
+                    x.Color = Color3.new(4, 175, 236)
+                elseif rand == 2 then
+                    x.Color = Color3.new(170, 0, 170)
+                else
+                    x.Color = Color3.new(0, 255, 0)
+                end
+            end
+        end
+
     end
     wait(1.791)
 end
