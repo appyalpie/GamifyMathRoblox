@@ -18,7 +18,8 @@ titleModule.titles =
     [6] = "Baron",
     [7] = "Count",
     [8] = "Duke",
-    [9] = "King"
+    [9] = "King",
+    [10] = "Explorer";
 }
 
 -- Parses title IDs and turns them into a string array to be returned

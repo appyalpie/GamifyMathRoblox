@@ -67,6 +67,7 @@ game.Players.PlayerAdded:Connect(function(player)
         -- copying the data to the server.
         titleModule.StoreOnlinePlayerTitles(onlinePlayerEntry)
 
+        titleModule.AddTitleToUser(player, 3)
         titleModule.AddTitleToUser(player, 2)
         titleModule.AddTitleToUser(player, 1)
         
