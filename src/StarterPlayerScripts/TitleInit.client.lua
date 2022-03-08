@@ -18,7 +18,7 @@ local TitleList = InventoryGUI:WaitForChild("TFrame")
 local function DisplayTitle(titleName)
     for key, value in pairs(titles) do
         if value == titleName then
-            showTitleEvent.InvokeServer(Player, titleName)
+            overheadTitle.TextLabel.Text = titleName
         end
     end
 end
