@@ -5,11 +5,13 @@ local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMove
 local Controls = require(Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule")):GetControls()
 
 local function lockMovement()
+    print("Locking")
     Controls:Disable()
 end
 
 local function unlockMovement()
-    Controls:Enable()
+    print("Unlocking")
+    Controls:Enable(true)
 end
 
 LockMovementRE.OnClientEvent:Connect(lockMovement)
