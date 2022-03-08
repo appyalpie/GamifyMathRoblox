@@ -11,6 +11,8 @@ local CardObject = require(script.CardObject)
 local LockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("LockMovementRE")
 local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMovementRE")
 
+local MusicEvent = game.ReplicatedStorage:WaitForChild("MusicEvent")
+
 local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
 
 local Game_24 = {}
@@ -34,12 +36,19 @@ local function Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 	if CurrentGameInfo.cardFolderConnect then
 		CurrentGameInfo.cardFolderConnect:Disconnect()
 	end
+
+	-- play the song that was playing before this
+	MusicEvent:FireClient(player,"lastsound", 0.9)
+
 	-- give player controls back
 	UnlockMovementRE:FireClient(player)
 end
 
 function Game_24.initialize(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
+
+	-- play transition song (player, assetId, volume)
+	MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.9)
 
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
