@@ -15,6 +15,10 @@ if not(game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')) then
     Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'AddTitlesEvent'
 end
 
+if not(game.ReplicatedStorage:FindFirstChild('ShowTitlesEvent')) then
+    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'ShowTitlesEvent'
+end
+
 
 
 local getTitlesEvent = game.ReplicatedStorage:FindFirstChild('GetTitlesEvent')
@@ -115,6 +119,13 @@ game.Players.PlayerRemoving:Connect(function(player)
 
 
 end)
+
+local function onShowTitlesEvent(player, title)
+    overheadTitle = player.character.Head:WaitForChild("overheadTitle")
+    overheadTitle.TextLabel.Text = title
+end
+
+getTitlesEvent.OnServerInvoke = onShowTitlesEvent
 
 -- Covers the server invoke for when we want to get all titles
 local function onGetTitlesEvent(player)
