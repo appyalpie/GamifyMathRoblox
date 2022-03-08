@@ -10,6 +10,11 @@ local SaveTable = remoteEvent.InventorySave
 local remoteFunctionEquip = remoteEvent:FindFirstChild("SendEquippedToServer")
 
 
+local InvTable = {
+    
+}
+
+
 -- is intended to add to the Physical accessory to the Player Character
 -- this can be changed once Accessories are changed
 --[[local function equipAccessory(player,Accesory)
@@ -96,8 +101,10 @@ Players.PlayerAdded:Connect(function(player)
     if savedInventory == nil then
         success = false
     end
+    print(savedInventory)
+    -- creates an index on the server using the player.UserId as a key stores the saved Inventory set of strings
+    table.insert(InvTable, player.UserId, savedInventory)
     -- passes player and accessory table
-    
     addAccTable:FireClient(player,AccessoryList) 
 
     if success then
@@ -117,22 +124,30 @@ Players.PlayerAdded:Connect(function(player)
         end
         end
     end
+    -- makes sure Slots return to empty on player death as death resets accessories
+    player.CharacterRemoving:Connect(function(Character)
+        local loadout = Players:GetPlayerFromCharacter(Character)
+        loadout = loadout.Equipped:GetChildren()
+        for key in pairs(loadout) do
+            if loadout[key]:GetChildren()[1].Name ~= "Slot"then
+                loadout[key]:GetChildren()[1].Name = "Slot"
+                
+            end
+        end
+    end)
 end)
-
-local DataToStore = {}
-function GetTable(player,SaveData)
-
-    DataToStore =  SaveData
-    print(DataToStore)
+-- updates the UserId index table
+function GetTable(player, DataToStore)
+    table.insert(InvTable,player.UserId,DataToStore)
 end
 
---triggers the Save Command
+--[[Saves to Data Store, Data put in the field cannot occur here]]
 Players.PlayerRemoving:Connect(function(player)
-    
-   
-    print(DataToStore) -- <-- this fires the InventorySave Event in the player timing may need adjustments
+    local Data 
+    Data = InvTable[player.UserId]
+    print(Data) -- <-- this fires the InventorySave Event in the player timing may need adjustments
     local success, ErrorMessage = pcall(function()
-        dataStore:SetAsync(player.UserId, DataToStore)
+        dataStore:SetAsync(player.UserId, Data)
     end)
     if success then
         print("Player Data saved for" .. player.UserId)
@@ -141,7 +156,6 @@ Players.PlayerRemoving:Connect(function(player)
     end
 
 end)
-
 -- updates the Players Equipped so equipped accessories shows up in the servers
 -- change the ToBeEquipped to accessory 
 function EquipToPlayer(player, ToBeEquipped, Type)
@@ -165,9 +179,11 @@ function EquipToPlayer(player, ToBeEquipped, Type)
             attach:AddAccessory(slot)           
         end
     end
-     SaveTable:FireClient(player)
-    
+    SaveTable:FireClient(player)
 end
+
+
+  
 remoteFunctionEquip.OnServerInvoke = EquipToPlayer
 
-SaveTable.OnServer:Connect(GetTable)
+SaveTable.OnServerEvent:Connect(GetTable) 

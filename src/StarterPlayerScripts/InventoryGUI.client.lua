@@ -4,7 +4,7 @@
 local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventroyGUI"):WaitForChild("InventoryScreen")
+local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI"):WaitForChild("InventoryScreen")
 local AccessoryList = InventoryGUI:WaitForChild("AFrame")
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 local BadgeList = InventoryGUI:WaitForChild("ZFrame")
@@ -122,10 +122,7 @@ InventoryGUI:WaitForChild("ArmTest").Activated:Connect(function()
     InventoryGUI.ArmTest:Destroy()
 end)
 
-function Send()
-    print(InvFunctions["InvData"])
-    SendToServer:FireServer(InvFunctions["InvData"])
-end
+
 
 
 
@@ -140,6 +137,9 @@ AccesoryTableEvent.OnClientEvent:Connect(Populate)
 
 --stores saved inventory into InvFunctions table functions["InvData"]
 GetPlayerSavedInventoryEvent.OnClientEvent:Connect(InvFunctions.store)
-
-
+local function Send()
+    print(InvFunctions["InvData"])
+    SendToServer:FireServer(InvFunctions["InvData"])
+end
 SendToServer.OnClientEvent:Connect(Send)
+

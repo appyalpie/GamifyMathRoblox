@@ -14,7 +14,7 @@ functions["InvData"] = {}
     end
 
     function functions.store(InventoryData)
-        functions["InvData"] = InventoryData
+        functions ["InvData"] = InventoryData
     end
     function functions.AddItem(Accessory)
         table.insert(functions["InvData"],Accessory.Name)
@@ -25,7 +25,6 @@ functions["InvData"] = {}
 
 
 function functions.SendSavedToServer()
-    print(functions["InvData"])
     return functions["InvData"]
 end
 return functions
