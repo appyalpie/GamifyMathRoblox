@@ -42,8 +42,12 @@ local function CreateMusic(musicId, volume)
             sound:Play()
             battleSound = sound
             return
+        elseif musicId == "rbxassetid://9042934109" then
+            battleSound = sound
+            return
         end
         lastSound = sound
+
         print(lastSound.SoundId)
     end
 end

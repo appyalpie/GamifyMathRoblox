@@ -204,6 +204,10 @@ local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Card
 	if CurrentGameInfo.npcCardFolderConnect then
 		CurrentGameInfo.npcCardFolderConnect:Disconnect()
 	end
+
+	-- play the song that was playing before this
+	MusicEvent:FireClient(player,"lastsound", 0.9)
+
 	-- give player controls back
 	UnlockMovementRE:FireClient(player)
 end
@@ -211,6 +215,8 @@ end
 function Game_24.initializeNPC(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model") -- got dummy
 	local ancestorModelArena = ancestorModel.Parent
+
+	
 
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
@@ -235,6 +241,15 @@ function Game_24.initializeNPC(promptObject, player)
 
 	CurrentGameInfo._npcOrientation = math.rad(ancestorModelArena.NPCTerminalPart.Orientation.Y)
 	CurrentGameInfo._npcOrientationDegrees = ancestorModelArena.NPCTerminalPart.Orientation.Y
+
+	--check to see if we're fighing tommy
+	if CurrentGameInfo.currentOpponent.Name == "Tommy's Winning Robot" then
+		--play drum and bass
+		MusicEvent:FireClient(player,"rbxassetid://9042934109", 0.9)
+	else
+		-- play transition song (player, assetId, volume)
+		MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.9)
+	end
 
     local Game_Cards = {}
 	local NPC_Game_Cards = {}
