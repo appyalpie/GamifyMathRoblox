@@ -81,10 +81,10 @@ GameStatsUtilities.newGame24NPCDefeated = function(player, npcName)
     if table.find(playerGameStats[player.UserId]["Game24NPCDefeated"], npcName) ~= nil then
         return
     else
-        print("Setting")
+        --print("Setting")
         table.insert(playerGameStats[player.UserId]["Game24NPCDefeated"], npcName)
-        if #playerGameStats[player.UserId]["Game24NPCDefeated"] >= 1 then
-            print("Firing")
+        if #playerGameStats[player.UserId]["Game24NPCDefeated"] >= 2 then
+            --print("Firing")
             playerGameStats[player.UserId]["BarrierToIsland3Down"] = true
             UnlockBarrierRE:FireClient(player)
         end

@@ -335,7 +335,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 
 		if cardSelected and operatorIsSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (combine)
 			if card._selected then
-				card._cardObject.Base_Card.Sounds.Roblox_Buton_Sound_Effect:Play()
+				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play()
 
 				card._selected = false
 				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition})
