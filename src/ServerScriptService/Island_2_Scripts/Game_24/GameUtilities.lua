@@ -335,7 +335,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 
 		if cardSelected and operatorIsSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (combine)
 			if card._selected then
-				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play()
+				card._cardObject.Base_Card.Sounds.Roblox_Buton_Sound_Effect:Play()
 
 				card._selected = false
 				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition})
@@ -449,6 +449,16 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 							v.Enabled = false
 						end
 						combineCore.Sounds.Sparkle:Play()
+
+						-- make completion sounds pitch shift based on card level
+						local pitchShift = combineCore.Sounds.Combine_Sound_Effect.PitchShift
+						if combinedCard._cardObject.name == "Level3_Card_Model" then
+							pitchShift.Octave = 1.25
+							combineCore.Sounds.Combine_Sound_Effect.Volume = 0.7
+						elseif combinedCard._cardObject.name == "Level4_Card_Model" then
+							pitchShift.Octave = 1.5
+							combineCore.Sounds.Combine_Sound_Effect.Volume = 0.9
+						end
 						combineCore.Sounds.Combine_Sound_Effect:Play()
 
 						combineCore.Sparks.Enabled = false
@@ -726,6 +736,7 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 						CurrentGameInfo._winSequencePlaying = false
 					end
 				end)
+				energyBall.Sounds.Air_Woosh_Long.Volume = 0.10
 				energyBall.Sounds.Air_Woosh_Long:Play()
 				energyBallTween:Play()
 			end)

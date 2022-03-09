@@ -70,7 +70,6 @@ titleModule.AddTitleToUser = function(player, titleId)
         if value.userId == player.UserId and not table.find(value.IDs, titleId) then
             table.insert(value.IDs, titleId)
             addTitlesEvent:FireClient(player, titleModule.titles[titleId])
-            print("Sending " .. titleModule.titles[titleId])
         end
     end
 end

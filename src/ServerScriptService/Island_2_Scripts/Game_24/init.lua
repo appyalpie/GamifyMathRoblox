@@ -50,7 +50,7 @@ function Game_24.initialize(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
 
 	-- play transition song (player, assetId, volume)
-	MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.9)
+	MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.45)
 
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
@@ -260,7 +260,7 @@ function Game_24.initializeNPC(promptObject, player)
 		MusicEvent:FireClient(player,"rbxassetid://9042934109", 0.9)
 	else
 		-- play transition song (player, assetId, volume)
-		MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.9)
+		MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.5)
 	end
 
     local Game_Cards = {}
