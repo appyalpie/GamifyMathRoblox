@@ -39,16 +39,16 @@ local function CreateMusic(musicId, volume)
             repeat wait() until sound.IsPaused == true
             sound.SoundId = "rbxassetid://9042922451"
             sound.Looped = true
+            sound.Volume = 0.5
             sound:Play()
             battleSound = sound
             return
         elseif musicId == "rbxassetid://9042934109" then
+            sound.Volume = 0.45
             battleSound = sound
             return
         end
         lastSound = sound
-
-        print(lastSound.SoundId)
     end
 end
 

@@ -4,8 +4,10 @@ local Game_24 = require(ServerScriptService.Island_2_Scripts:WaitForChild("Game_
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local InitiateNPCChallengeRE = ReplicatedStorage.RemoteEvents.Island_2.InitiateNPCChallengeRE
+local ChallengeEvent = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("ChallengeEvent")
 
-InitiateNPCChallengeRE.OnServerEvent:Connect(function(promptObject, player)
+ChallengeEvent.OnServerEvent:Connect(function(player, promptObject)
+    print(promptObject.Name)
+    print(player.Name)
     Game_24.initializeNPC(promptObject, player)
 end)

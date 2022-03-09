@@ -11,9 +11,9 @@ function PromptHandler.onPromptTriggered(promptObject, player)
 		-- Initialize 24 Game Single Player Mode
 		Game_24.initialize(promptObject, player)
 	--TODO: Make less jank (thanks eric)
-	elseif ancestorModel and (ancestorModel.Name == "Opponent" or ancestorModel.Name == "Tommy's Winning Robot")then
+	--elseif ancestorModel and (ancestorModel.Name == "Opponent" or ancestorModel.Name == "Tommy's Winning Robot")then
 		-- Initialize 24 Game NPC Challenger Mode
-		Game_24.initializeNPC(promptObject, player)
+		--Game_24.initializeNPC(promptObject, player)
 	end
 end
 
