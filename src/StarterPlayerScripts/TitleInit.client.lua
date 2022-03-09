@@ -1,24 +1,24 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
  
-local getTitles = ReplicatedStorage:WaitForChild("GetTitlesEvent")
-local addTitleRepopulate = ReplicatedStorage:WaitForChild("AddTitlesEvent")
-local showTitleEvent = ReplicatedStorage:WaitForChild("ShowTitlesEvent")
- 
-local titles = getTitles:InvokeServer(Players.LocalPlayer)
+local AddTitlesEvent = ReplicatedStorage:WaitForChild("AddTitlesEvent")
+local InitTitlesEvent = ReplicatedStorage:WaitForChild("InitTitlesEvent")
+local ShowTitlesEvent = ReplicatedStorage:WaitForChild("ShowTitlesEvent")
 
-local overheadTitle = Players.LocalPlayer.Character.Head:WaitForChild("overheadTitle")
-
-local Player = game:GetService("Players").LocalPlayer
+local Player = Players.LocalPlayer
 local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI"):WaitForChild("InventoryScreen")
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 
+local overheadTitle = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadTitle")
+
+local titles = {}
+
 -- TODO: apply title applied when the player left
--- TODO: invoke server to show title on server
 local function DisplayTitle(titleName)
     for key, value in pairs(titles) do
         if value == titleName then
-            overheadTitle.TextLabel.Text = titleName
+            ShowTitlesEvent:FireServer(titleName)
+            --overheadTitle.TextLabel.Text = titleName
         end
     end
 end
@@ -63,6 +63,7 @@ local function addToFrame(title)
         end
     end)
 
+    -- When the mouse leaves the button, make the background transparent again
     textButton.MouseLeave:Connect(function()
         if(textButton:GetAttribute("chosen") == false) then
             textButton.BackgroundTransparency = 1.0
@@ -71,25 +72,32 @@ local function addToFrame(title)
 end
 
 local function Populate()
-    for i,title in pairs(titles) do
-        addToFrame(title)
+    if titles ~= nil then
+        print("we in here")
+        for i,title in pairs(titles) do
+            addToFrame(title)
+        end
     end
 end
 
-Populate()
---end populate gui code
-
 -- This is just a small remoteevent that gets titles from the server
 -- anytime a title is added (see TitleModule.AddTitle)
-local function onAddTitleFire(player)
-    titles = getTitles:InvokeServer()
+local function onAddTitleFire(title)
+    print(title)
+    table.insert(titles, title)
     Populate()
     print(titles)
 end
  
-addTitleRepopulate.OnClientEvent:Connect(onAddTitleFire)
+AddTitlesEvent.OnClientEvent:Connect(onAddTitleFire)
 
+local function onInitTitlesEvent(serverTitles)
+    print(serverTitles)
+    titles = serverTitles
+    Populate()
+end
 
+InitTitlesEvent.OnClientEvent:Connect(onInitTitlesEvent)
 
 
 

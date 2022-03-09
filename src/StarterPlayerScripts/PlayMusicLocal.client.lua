@@ -47,8 +47,6 @@ local function CreateMusic(musicId, volume)
             return
         end
         lastSound = sound
-
-        print(lastSound.SoundId)
     end
 end
 

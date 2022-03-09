@@ -29,7 +29,7 @@ titleModule.ParseTitleIDs = function(IDs)
         return titlesToReturn
     end
     for i = 1, #IDs do
-        if IDs[i] < #titleModule.titles and IDs[i] > 0 then
+        if IDs[i] <= #titleModule.titles and IDs[i] > 0 then
             table.insert(titlesToReturn, titleModule.titles[IDs[i]])
         end
     end
@@ -59,6 +59,7 @@ titleModule.GetUserTitles = function(playerId)
             return value.IDs
         end
     end
+
 end
 
 -- Adds title to a userID, then invokes the client to update its list of titles
@@ -68,7 +69,8 @@ titleModule.AddTitleToUser = function(player, titleId)
     for key,value in pairs(titleModule.onlinePlayerTitleSets) do
         if value.userId == player.UserId and not table.find(value.IDs, titleId) then
             table.insert(value.IDs, titleId)
-            addTitlesEvent:FireClient(player)
+            addTitlesEvent:FireClient(player, titleModule.titles[titleId])
+            print("Sending " .. titleModule.titles[titleId])
         end
     end
 end

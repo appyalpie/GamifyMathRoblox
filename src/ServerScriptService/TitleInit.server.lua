@@ -7,10 +7,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DataStoreService = game:GetService("DataStoreService")
 local TitleDataStore = DataStoreService:GetDataStore("TitleDataStore")
 
-if not(game.ReplicatedStorage:FindFirstChild('GetTitlesEvent')) then
-    Instance.new("RemoteFunction", game.ReplicatedStorage).Name = 'GetTitlesEvent'
-end
-
 if not(game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')) then
     Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'AddTitlesEvent'
 end
@@ -19,9 +15,12 @@ if not(game.ReplicatedStorage:FindFirstChild('ShowTitlesEvent')) then
     Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'ShowTitlesEvent'
 end
 
+if not(game.ReplicatedStorage:FindFirstChild('InitTitlesEvent')) then
+    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'InitTitlesEvent'
+end
 
-
-local getTitlesEvent = game.ReplicatedStorage:FindFirstChild('GetTitlesEvent')
+local ShowTitlesEvent = game.ReplicatedStorage:FindFirstChild('ShowTitlesEvent')
+local InitTitlesEvent = game.ReplicatedStorage:FindFirstChild('InitTitlesEvent')
 
 --TODO: Make sure this is only called when player enters the server
 game.Players.PlayerAdded:Connect(function(player)
@@ -56,8 +55,6 @@ game.Players.PlayerAdded:Connect(function(player)
             else
                 print("Error: " .. errorMessage)
             end
-
-
         end
 
         -- This is the format that is stored on the server to avoid using dataStore calls
@@ -74,10 +71,10 @@ game.Players.PlayerAdded:Connect(function(player)
         titleModule.AddTitleToUser(player, 3)
         titleModule.AddTitleToUser(player, 2)
         titleModule.AddTitleToUser(player, 1)
-        
-        -- we can set a billboardgui to display the player titles above their head
-        -- on the server side of the game. So we parse title IDs for use in the billboard gui
-        local titleArray = titleModule.ParseTitleIDs(titleModule.GetUserTitles(player.UserId))
+
+        -- send the initial titles to the current player
+        InitTitlesEvent:FireClient(player, titleModule.ParseTitleIDs(titleModule.GetUserTitles(player.UserId)))
+
 
         -- Clone both the overheadTitle and overheadName. The title sits above the name.
         local overheadTitleClone = overheadTitle:Clone()
@@ -121,16 +118,12 @@ game.Players.PlayerRemoving:Connect(function(player)
 end)
 
 local function onShowTitlesEvent(player, title)
-    overheadTitle = player.character.Head:WaitForChild("overheadTitle")
+    overheadTitle = game.Workspace:FindFirstChild(player.name):FindFirstChild("Head"):WaitForChild("overheadTitle")
     overheadTitle.TextLabel.Text = title
 end
 
-getTitlesEvent.OnServerInvoke = onShowTitlesEvent
+ShowTitlesEvent.OnServerEvent:Connect(onShowTitlesEvent)
 
--- Covers the server invoke for when we want to get all titles
-local function onGetTitlesEvent(player)
-    return titleModule.ParseTitleIDs(titleModule.GetUserTitles(player.UserId))
-end
 
-getTitlesEvent.OnServerInvoke = onGetTitlesEvent
+    
 
