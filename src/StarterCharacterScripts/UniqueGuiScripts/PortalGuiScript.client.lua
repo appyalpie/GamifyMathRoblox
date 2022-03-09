@@ -85,7 +85,7 @@ local function exit(input, gameProcessed)
 end
 ExitButton.InputEnded:Connect(exit)
 
-local MainHubPortal = game.Workspace.Main_Hub_Enclave.MainHubPortal
+local MainHubPortal = game.Workspace.Main_Hub_Enclave.MainHubPortal.PortalPromptPart
 
 local debounce = false
 MainHubPortal.ProximityPrompt.Triggered:Connect(function(player)
