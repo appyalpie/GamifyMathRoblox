@@ -49,6 +49,38 @@ GameInfo.OperatorNames = {
     ["/"] = "divide"
 }
 
+GameInfo.CameraXZOffset = 6
+GameInfo.CameraYOffset = 6.5
+GameInfo.InitialCameraMoveTime = 2
+GameInfo.CameraMoveTime = .4
+GameInfo.FOVSetTime = 1.5
+GameInfo.FOV = 85
+GameInfo.FOVWinning = 105
+
+GameInfo.NPCXPTable = {
+    easy = 15,
+    medium = 20,
+    hard = 25
+}
+
+GameInfo.NPCCurrencyTable = {
+    easy = 15,
+    medium = 20,
+    hard = 25
+}
+
+GameInfo.SinglePlayerXPTable = {
+    easy = 10,
+    medium = 15,
+    hard = 20
+}
+
+GameInfo.SinglePlayerCurrencyTable = {
+    easy = 10,
+    medium = 15,
+    hard = 20
+}
+
 --GameInfo.CombineYDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
 --GameInfo.CombineXZDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 

@@ -2,12 +2,13 @@ local ServerStorage = game:GetService("ServerStorage")
 local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CardObject = require(script.Parent.CardObject)
 local OperatorSetObject = require(script.Parent.OperatorSetObject)
 
 local GameInfo = require(script.Parent.Parent.GameInfo)
-local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
+--local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
 local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
@@ -30,6 +31,17 @@ local Energyball = ServerStorage.Island_2.Game_24:WaitForChild("Energyball")
 local Fireball = ServerStorage.Island_2.Game_24:WaitForChild("Fireball")
 local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
 local Explosion_Core = ServerStorage.Island_2.Game_24:WaitForChild("Explosion_Core")
+
+------ Camera Remote Events ------
+local CameraPointToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraPointToRE")
+local CameraFollowRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraFollowRE")
+local CameraMoveToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraMoveToRE")
+local CameraResetRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraResetRE")
+local CameraSetFOVRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraSetFOVRE")
+
+------ Victory Defeat GUI Remote Events ------
+local VictoryEventRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("VictoryEventRE")
+local DefeatEventRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("DefeatEventRE")
 
 --[[
     local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
@@ -151,6 +163,7 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 		operatorSet.Undo.Union.Transparency = 0
 		newOperatorSetObject._undoClickDetectorSignal = operatorSet.Undo.Union.ClickDetector.MouseClick:Connect(function(player)
             if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
+			CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
 			-- split card into two cards
 			local splitCard1 = CardObject.new()
 			splitCard1._cardTable = newCard._cardTable[2] -- reference
@@ -337,7 +350,8 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 
 		if cardSelected and operatorIsSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (combine)
 			if card._selected then
-				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play()
+				CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
+				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play() -- sound effect
 
 				card._selected = false
 				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition})
@@ -347,6 +361,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				card._cardObject.Base_Card.Sounds.Wrong:Play()
 				return
 			else
+				CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
 				-- set card values to a new CardObject
 				local combinedCard = CardObject.new()
 				combinedCard._cardTable[1] = otherCard._operatorSetObject._operatorSelectedName
@@ -564,6 +579,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 			end
 		elseif cardSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (select another)
 			if card._selected then
+				CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
 				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play()
 
 				card._selected = false
@@ -579,6 +595,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 						GameUtilities.Hide_Operators(v)
 					end
 				end
+				CameraPointToRE:FireClient(player, card._cardObject.Base_Card, GameInfo.CameraMoveTime)
 				card._cardObject.Base_Card.Sounds.Click_Sound_Effect:Play()
 
 				card._selected = true
@@ -587,6 +604,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				GameUtilities.Reveal_Operators(card, model, Game_Cards, CurrentGameInfo)
 			end
 		else -- select a card
+			CameraPointToRE:FireClient(player, card._cardObject.Base_Card, GameInfo.CameraMoveTime)
 			card._cardObject.Base_Card.Sounds.Click_Sound_Effect:Play()
 
 			card._selected = true
@@ -598,10 +616,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 end
 
 GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
-	GameStatsUtilities.incrementXP(player, 10)
-	GameStatsUtilities.incrementCurrency(player, 10)
-	GameStatsUtilities.incrementGame24Wins(player)
-
+	VictoryEventRE:FireClient(player)
 	--[[
 	1. Get equation from last card
 	]]
@@ -611,7 +626,8 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 	local winningString = CardObject.getSequence(winningCardTable)
 	print(winningString)
 
-	GameStatsUtilities.saveLastSolution(player, winningString) -- save win solution
+	-- GameStats Changes
+	GameUtilities.IncrementStats(CurrentGameInfo._difficulty, winningString, player, CurrentGameInfo._opponentName)
 
 	local startIndex = 1
 	while startIndex <= string.len(winningString) do
@@ -651,7 +667,7 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 		end
 	end)
 
-	-- 1:
+	CameraFollowRE:FireClient(player, winningCard._cardObject.Base_Card)
 	winningCard._cardObject.Base_Card.Sounds.Electric_Sound_Loop:Play()
 
 	local boardCardCloneTable = {}
@@ -693,6 +709,8 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 		{Position = winningCard._cardObject.PrimaryPart.Position + GameInfo.WinningCardOffsetGoal})
 	
 	winningCardTween.Completed:Connect(function()
+		CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+		CameraSetFOVRE:FireClient(player, GameInfo.FOVWinning, GameInfo.FOVSetTime)
 		for i, v in ipairs(winningSequence) do
 			-- 1. create a new part based on item in sequence, 2. move part to location 3. add to folder 4. once its tween is over, play some effect
 			if type(winningSequence[i]) ~= "number" then
@@ -749,6 +767,11 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 end
 
 GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+	DefeatEventRE:FireClient(CurrentGameInfo.currentPlayer)
+
+	-- Move Camera back to default position
+	CameraMoveToRE:FireClient(CurrentGameInfo.currentPlayer, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+	-- TODO: Add some Camera Shake
 	-- Explode the player's cards for losing
 	if Player_Game_Cards then
 		-- clean up and destroy cards and operators if any
@@ -799,7 +822,7 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 		local gapSize = 4
 		for _, v in pairs(winSequenceTable) do
 			local newPosition = GameUtilities.Get_Starting_Position(CurrentGameInfo._npcOriginalOriginPosition + GameInfo.WinningSequenceOffsetGoal,
-			 gapSize, iterator, #CurrentGameInfo.ancestorModel.WinSequenceFolder:GetChildren(), CurrentGameInfo._orientation)
+			 gapSize, iterator, #CurrentGameInfo.ancestorModel.AI_WinSequenceFolder:GetChildren(), CurrentGameInfo._npcOrientation)
 
 			local positionTween = TweenService:Create(v, GameInfo.WinningSequenceTweenInfo, {Position = newPosition})
 			positionTween:Play()
@@ -841,7 +864,7 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 		newBeam.Parent = attachment0
 
 		local boardCloneTween = TweenService:Create(boardCardClone, GameInfo.BoardCardTweenInfo, {Position = boardCardClone.Position + Vector3.new(-1,0,0), 
-			Transparency = .5, Orientation = Vector3.new(0, CurrentGameInfo._orientationDegrees, 0)})
+			Transparency = .5, Orientation = Vector3.new(0, CurrentGameInfo._npcOrientationDegrees, 0)})
 		boardCloneTween:Play()
 	end
 
@@ -854,9 +877,9 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 			if type(winningSequence[i]) ~= "number" then
 				local newPart = GameInfo.LookUpTable[winningSequence[i]]:Clone()
 				newPart.Position = CurrentGameInfo.ancestorModel.Center.Position
-				GameUtilities.Set_Orientation(newPart, CurrentGameInfo._orientationDegrees + 180)
+				GameUtilities.Set_Orientation(newPart, CurrentGameInfo._npcOrientationDegrees + 180)
 				table.insert(winSequenceTable, newPart)
-				newPart.Parent = CurrentGameInfo.ancestorModel.WinSequenceFolder
+				newPart.Parent = CurrentGameInfo.ancestorModel.AI_WinSequenceFolder
 
 				newPart.Sounds.Swoosh_1:Play()
 			else
@@ -865,7 +888,7 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 				for _, v in pairs(boardCardCloneTable) do
 					if v:GetAttribute("value") == winningSequence[i] then
 						table.insert(winSequenceTable, v)
-						v.Parent = CurrentGameInfo.ancestorModel.WinSequenceFolder
+						v.Parent = CurrentGameInfo.ancestorModel.AI_WinSequenceFolder
 						table.remove(boardCardCloneTable, table.find(boardCardCloneTable, v))
 						break
 					end
@@ -905,12 +928,7 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 end
 
 GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
-	-- GameStats Changes
-	GameStatsUtilities.incrementXP(player, 15)
-	GameStatsUtilities.incrementCurrency(player, 15)
-	GameStatsUtilities.incrementGame24Wins(player)
-	GameStatsUtilities.newGame24NPCDefeated(player, CurrentGameInfo._opponentName)
-
+	VictoryEventRE:FireClient(player)
 	-- Explode the opponent's cards for losing
 	if NPC_Game_Cards then
 		-- clean up and destroy cards and operators if any
@@ -939,7 +957,8 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 	local winningString = CardObject.getSequence(winningCardTable)
 	print(winningString)
 
-	GameStatsUtilities.saveLastSolution(player, winningString) -- save win solution
+	-- GameStats Changes
+	GameUtilities.IncrementStats(CurrentGameInfo._difficulty, winningString, player, CurrentGameInfo._opponentName)
 
 	local startIndex = 1
 	while startIndex <= string.len(winningString) do
@@ -972,7 +991,8 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 			iterator = iterator + 1
 		end
 	end)
-	-- 1:
+
+	CameraFollowRE:FireClient(player, winningCard._cardObject.Base_Card)
 	winningCard._cardObject.Base_Card.Sounds.Electric_Sound_Loop:Play()
 
 	local boardCardCloneTable = {}
@@ -1012,6 +1032,8 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 		{Position = winningCard._cardObject.PrimaryPart.Position + GameInfo.WinningCardOffsetGoal})
 	
 	winningCardTween.Completed:Connect(function()
+		CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+		CameraSetFOVRE:FireClient(player, GameInfo.FOVWinning, GameInfo.FOVSetTime)
 		for i, v in ipairs(winningSequence) do
 			-- 1. create a new part based on item in sequence, 2. move part to location 3. add to folder 4. once its tween is over, play some effect
 			if type(winningSequence[i]) ~= "number" then
@@ -1068,6 +1090,7 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 	-- add title for beating tommy two decks
 	if CurrentGameInfo._opponentName == "Tommy Two Decks" then
 		TitleModule.AddTitleToUser(CurrentGameInfo.currentPlayer, 3)
+	end
 end
 
 GameUtilities.Select_Card = function(card, model, NPC_Game_Cards, CurrentGameInfo)
@@ -1278,7 +1301,7 @@ GameUtilities.NPC_Action_Initialization = function(sequence, NPC_Game_Cards, Cur
 	-- 0: As of now, solutions are simply provided
 	for i, _ in ipairs(sequence) do
 		-- put delay
-		wait(5)
+		wait(4)
 		if CurrentGameInfo._winSequencePlaying then
 			return
 		end
@@ -1310,9 +1333,20 @@ GameUtilities.NPC_Action_Initialization = function(sequence, NPC_Game_Cards, Cur
 	-- win
 end
 
-GameUtilities.IncrementStats = function(difficulty, solution)
-	-- Increment XP and currency by some amount based on the difficulty
-	-- Increment number of games played of that difficulty, and save the last solution
+GameUtilities.IncrementStats = function(difficulty, solution, player, npcBeaten)
+	-- Increment XP and currency by some amount based on the difficulty, also increment the number of wins
+	if npcBeaten then
+		GameStatsUtilities.incrementXP(player, GameInfo.NPCXPTable[difficulty])
+		GameStatsUtilities.incrementCurrency(player, GameInfo.NPCCurrencyTable[difficulty])
+		GameStatsUtilities.incrementGame24Wins(player)
+		GameStatsUtilities.saveLastSolution(player, solution) -- save win solution
+		GameStatsUtilities.newGame24NPCDefeated(player, npcBeaten)
+	else
+		GameStatsUtilities.incrementXP(player, GameInfo.SinglePlayerXPTable[difficulty])
+		GameStatsUtilities.incrementCurrency(player, GameInfo.SinglePlayerCurrencyTable[difficulty])
+		GameStatsUtilities.incrementGame24Wins(player)
+		GameStatsUtilities.saveLastSolution(player, solution) -- save win solution
+	end
 end
 
 return GameUtilities
