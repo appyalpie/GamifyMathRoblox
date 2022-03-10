@@ -9,6 +9,9 @@ local GameInfo = require(script.Parent.GameInfo)
 local CardList = require(script.CardList)
 local CardObject = require(script.CardObject)
 
+------ Title Binding Remote Events ------
+local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideShowNameAndTitleEvent')
+local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
 ------ Movement Binding Remote Events ------
 local LockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("LockMovementRE")
 local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMovementRE")
@@ -49,6 +52,9 @@ local function Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 	-- play the song that was playing before this
 	MusicEvent:FireClient(player,"lastsound", 0.9)
 
+	-- Show player name/title on player side
+	PlayerSideShowNameAndTitleEvent:FireClient(player)
+
 	-- Reenable Player Movement Controls
 	UnlockMovementRE:FireClient(player)
 
@@ -59,6 +65,9 @@ end
 
 function Game_24.initialize(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
+
+	-- Hide player name/title on player side
+	PlayerSideHideNameAndTitleEvent:FireClient(player)
 
 	-- play transition song (player, assetId, volume)
 	MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.45)
@@ -234,11 +243,19 @@ local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Card
 	-- Reenable Player Camera Controls
 	CameraSetFOVRE:FireClient(player, 70)
 	CameraResetRE:FireClient(player)
+
+	
+	-- Show player name/title on player side
+	PlayerSideShowNameAndTitleEvent:FireClient(player)
 end
 
 function Game_24.initializeNPC(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model") -- got character
 	local ancestorModelArena
+
+	-- Hide player name/title on player side
+	PlayerSideHideNameAndTitleEvent:FireClient(player)
+
 	for _, v in pairs(NPC_Challenger_Arenas:GetChildren()) do
 		--print("v: " .. v.Parent.Name)
 		--print(ancestorModel.Name)

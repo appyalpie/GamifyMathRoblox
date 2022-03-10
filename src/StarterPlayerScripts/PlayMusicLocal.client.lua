@@ -44,7 +44,7 @@ local function CreateMusic(musicId, volume)
             battleSound = sound
             return
         elseif musicId == "rbxassetid://9042934109" then
-            sound.Volume = 0.45
+            sound.Volume = 0.55
             battleSound = sound
             return
         end

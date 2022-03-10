@@ -24,9 +24,18 @@ if not(game.ReplicatedStorage:FindFirstChild('ActivateTitleButtonEvent')) then
     Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'ActivateTitleButtonEvent'
 end
 
+if not(game.ReplicatedStorage:FindFirstChild('PlayerSideHideNameAndTitleEvent')) then
+    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'PlayerSideHideNameAndTitleEvent'
+end
+
+if not(game.ReplicatedStorage:FindFirstChild('PlayerSideShowNameAndTitleEvent')) then
+    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'PlayerSideShowNameAndTitleEvent'
+end
+
 local ShowTitlesEvent = game.ReplicatedStorage:FindFirstChild('ShowTitlesEvent')
 local InitTitlesEvent = game.ReplicatedStorage:FindFirstChild('InitTitlesEvent')
 local ActivateTitleButtonEvent = game.ReplicatedStorage:FindFirstChild('ActivateTitleButtonEvent')
+
 
 local overheadTitleClone
 
@@ -109,9 +118,6 @@ game.Players.PlayerAdded:Connect(function(player)
         -- This removes the default names above players heads that roblox has
         character.Humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
         overheadNameClone.TextLabel.Text = (player.name)
-        if overheadNameClone.TextLabel.Text.TextFits == false then
-            overheadNameClone.TextLabel.TextScaled = true
-        end
 
 
 
@@ -148,7 +154,7 @@ game.Players.PlayerRemoving:Connect(function(player)
     else
         print("Error: " .. errorMessage)
     end
-
+    
     -- Remove the entry on the server when the player leaves because they are no longer active
     titleModule.RemoveOnlinePlayerTitles(player.UserId)
 
@@ -159,11 +165,6 @@ end)
 local function onShowTitlesEvent(player, title)
     overheadTitle = game.Workspace:FindFirstChild(player.name):FindFirstChild("Head"):WaitForChild("overheadTitle")
     overheadTitle.TextLabel.Text = title
-    if overheadTitle.TextLabel.TextFits == false then
-        overheadTitle.TextLabel.TextScaled = true
-    else
-        overheadTitle.TextLabel.TextScaled = false
-    end
 end
 
 ShowTitlesEvent.OnServerEvent:Connect(onShowTitlesEvent)

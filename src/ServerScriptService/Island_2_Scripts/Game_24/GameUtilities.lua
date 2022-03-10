@@ -32,6 +32,10 @@ local Fireball = ServerStorage.Island_2.Game_24:WaitForChild("Fireball")
 local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
 local Explosion_Core = ServerStorage.Island_2.Game_24:WaitForChild("Explosion_Core")
 
+------ Title Binding Remote Events ------
+local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
+local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
+
 ------ Camera Remote Events ------
 local CameraPointToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraPointToRE")
 local CameraFollowRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraFollowRE")
@@ -756,7 +760,7 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 						CurrentGameInfo._winSequencePlaying = false
 					end
 				end)
-				energyBall.Sounds.Air_Woosh_Long.Volume = 0.10
+				energyBall.Sounds.Air_Woosh_Long.Volume = 0.05
 				energyBall.Sounds.Air_Woosh_Long:Play()
 				energyBallTween:Play()
 			end)

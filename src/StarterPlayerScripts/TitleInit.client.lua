@@ -1,9 +1,12 @@
 local Players = game:GetService("Players")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
  
 local AddTitlesEvent = ReplicatedStorage:WaitForChild("AddTitlesEvent")
 local InitTitlesEvent = ReplicatedStorage:WaitForChild("InitTitlesEvent")
 local ShowTitlesEvent = ReplicatedStorage:WaitForChild("ShowTitlesEvent")
+local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
+local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideShowNameAndTitleEvent')
 local ActivateTitleButtonEvent = ReplicatedStorage:WaitForChild("ActivateTitleButtonEvent")
 
 local Player = Players.LocalPlayer
@@ -11,6 +14,8 @@ local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 
 local overheadTitle = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadTitle")
+local overheadName = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadName")
+
 
 local titles = {}
 
@@ -65,6 +70,7 @@ local function addToFrame(title)
         end
         textButton.BackgroundTransparency = 0.7
         textButton.Selected = true
+        currentTitle = textButton.text
     end)
 
     -- When the mouse scrolls over the button, show a yellow background
@@ -118,8 +124,19 @@ end
 
 ActivateTitleButtonEvent.OnClientEvent:Connect(onActivateTitleButton)
 
+local function onPlayerSideHideNameAndTitle()
+    overheadName.TextLabel.Visible = false
+    overheadTitle.TextLabel.Visible = false
+end
 
+PlayerSideHideNameAndTitleEvent.OnClientEvent:Connect(onPlayerSideHideNameAndTitle)
 
+local function onPlayerSideShowNameAndTitle()
+    overheadName.TextLabel.Visible = true
+    overheadTitle.TextLabel.Visible = true
+end
+
+PlayerSideShowNameAndTitleEvent.OnClientEvent:Connect(onPlayerSideShowNameAndTitle)
 
 
 
