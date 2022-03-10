@@ -57,7 +57,7 @@ local function addToFrame(AccessoryString, Type)
         --current placeholder for updating Button bool. I.E. Checks for if InvFunctions["InvData"] updated to have
         if not bool then
             
-            if table.find(InvFunctions["InvData"], newtemplate.AccessoryName.Text ) then
+            if table.find(InvFunctions["InvData"], newtemplate.Name ) then
                 bool = true
             end
     
