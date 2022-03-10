@@ -16,7 +16,7 @@ for i,v in pairs(workspace.Locations:GetDescendants()) do
             if objectHit and objectHit.Parent and objectHit.Parent:FindFirstChildWhichIsA("Humanoid") then  
                 locationEvent:FireClient(game.Players:GetPlayerFromCharacter(objectHit.Parent), v.Name)
                 if v.Name == "Champions Club" then
-                    TitleModule.AddTitleToUser(game.Players:GetPlayerFromCharacter(objectHit.Parent), 9)
+                    TitleModule.AddTitleToUser(game.Players:GetPlayerFromCharacter(objectHit.Parent), 2)
                 end
             end
         end)

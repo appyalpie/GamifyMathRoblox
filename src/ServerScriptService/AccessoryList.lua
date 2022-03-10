@@ -2,23 +2,23 @@ local AccessoriesList = {}
 
 AccessoriesList.Type = {
     ["Head"] = {
-        [1] = game.ReplicatedStorage.Accessories.HeadTest;
-        --[2] = game.ReplicatedStorage.Accessories.MathBlockHead;
+        [1] = game.ReplicatedStorage.Accessories.MathBlockHead;
+        [2] = game.ReplicatedStorage.Accessories.Goggles;
     };
 
     ["Body"] = {
-        [1] = game.ReplicatedStorage.Accessories.BodyTest;
-
+        [1] = game.ReplicatedStorage.Accessories.BackPack;
+        [2] = game.ReplicatedStorage.Accessories.Card24;
     };
 
     ["Arms"] = {
-        [1] = game.ReplicatedStorage.Accessories.ArmsTest;
-
+        [1] = game.ReplicatedStorage.Accessories.PetBlock;
+        [2] = game.ReplicatedStorage.Accessories.WristWatch;
     };
 
     ["Legs"] = {
-        [1] = game.ReplicatedStorage.Accessories.LegsTest;
-
+        [1] = game.ReplicatedStorage.Accessories.MathBlockKneeCover;
+        [2] = game.ReplicatedStorage.Accessories.TwoDeckKneeCover;
     };
 
 }

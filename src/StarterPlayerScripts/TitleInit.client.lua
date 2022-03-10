@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local AddTitlesEvent = ReplicatedStorage:WaitForChild("AddTitlesEvent")
 local InitTitlesEvent = ReplicatedStorage:WaitForChild("InitTitlesEvent")
 local ShowTitlesEvent = ReplicatedStorage:WaitForChild("ShowTitlesEvent")
+local ActivateTitleButtonEvent = ReplicatedStorage:WaitForChild("ActivateTitleButtonEvent")
 
 local Player = Players.LocalPlayer
 local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI"):WaitForChild("InventoryScreen")
@@ -21,6 +22,10 @@ local function DisplayTitle(titleName)
             --overheadTitle.TextLabel.Text = titleName
         end
     end
+end
+
+local function HideTitle()
+    ShowTitlesEvent:FireServer("")
 end
 
 --begin populate gui code
@@ -41,31 +46,37 @@ local function addToFrame(title)
     if textButton.TextFits == false then
         textButton.TextScaled = true
     end
-    -- On activation, set "chosen" on all other buttons to false and
+    -- On activation, set Selected on all other buttons to false and
     -- make other buttons background transparent
     textButton.Activated:Connect(function()
+        if textButton.Selected == true then
+            HideTitle()
+            textButton.Selected = false
+            textButton.BackgroundTransparency = 1.0
+            return
+        end
         DisplayTitle(textButton.text)
         local temp = TitleList:GetChildren()
         for i = 1, #temp do
             if temp[i]:IsA("TextButton") then
-                temp[i]:SetAttribute("chosen", false)
+                temp[i].Selected = false
                 temp[i].BackgroundTransparency = 1.0
             end
         end
         textButton.BackgroundTransparency = 0.7
-        textButton:SetAttribute("chosen", true)
+        textButton.Selected = true
     end)
 
     -- When the mouse scrolls over the button, show a yellow background
     textButton.MouseEnter:Connect(function()
-        if(textButton:GetAttribute("chosen") == false) then
+        if textButton.Selected == false then
             textButton.BackgroundTransparency = 0.9
         end
     end)
 
     -- When the mouse leaves the button, make the background transparent again
     textButton.MouseLeave:Connect(function()
-        if(textButton:GetAttribute("chosen") == false) then
+        if textButton.Selected == false then
             textButton.BackgroundTransparency = 1.0
         end
     end)
@@ -73,7 +84,6 @@ end
 
 local function Populate()
     if titles ~= nil then
-        print("we in here")
         for i,title in pairs(titles) do
             addToFrame(title)
         end
@@ -83,21 +93,30 @@ end
 -- This is just a small remoteevent that gets titles from the server
 -- anytime a title is added (see TitleModule.AddTitle)
 local function onAddTitleFire(title)
-    print(title)
     table.insert(titles, title)
     Populate()
-    print(titles)
 end
  
 AddTitlesEvent.OnClientEvent:Connect(onAddTitleFire)
 
 local function onInitTitlesEvent(serverTitles)
-    print(serverTitles)
     titles = serverTitles
     Populate()
 end
 
 InitTitlesEvent.OnClientEvent:Connect(onInitTitlesEvent)
+
+local function onActivateTitleButton(titleName)
+    for _,v in pairs(TitleList:GetChildren()) do
+        if v:IsA("TextButton") and v.Text == titleName then
+            DisplayTitle(v.Text)
+            v.BackgroundTransparency = 0.7
+            v.Selected = true
+        end
+    end
+end
+
+ActivateTitleButtonEvent.OnClientEvent:Connect(onActivateTitleButton)
 
 
 
