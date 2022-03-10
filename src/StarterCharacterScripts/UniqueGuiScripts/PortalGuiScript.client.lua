@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
+local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
 local localPlayer = Players.LocalPlayer
 
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
@@ -107,3 +108,19 @@ MainHubPortal.ProximityPrompt.Triggered:Connect(function(player)
         debounce = false
     end)
 end)
+
+------ Get Player Data and set Player GUI when character is in ------
+local playerData = PlayerStatsRF:InvokeServer()
+print("Got Player Data")
+
+if playerData["BarrierToIsland3Down"] == true then
+    local WarpButton3 = InlayFrame2:WaitForChild("WarpButton3")
+    local WarpTitle3 = InlayFrame2:WaitForChild("WarpTitle3")
+
+    WarpButton3.BackgroundColor3 = Color3.fromRGB(255, 105, 105)
+    WarpButton3.AutoButtonColor = true
+    WarpTitle3.BackgroundColor3 = Color3.fromRGB(188, 188, 188)
+    WarpButton3.InputEnded:Connect(function(input, gameProcessed)
+        warpButton(input, gameProcessed, WarpButton3:GetAttribute("warp_position"))
+    end)
+end
