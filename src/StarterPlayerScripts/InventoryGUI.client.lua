@@ -37,7 +37,7 @@ end
 local function addToFrame(AccessoryString, Type)
     local newtemplate = Acctemplate:Clone()
     newtemplate.Name = AccessoryString.Name
-    newtemplate.AccessoryName.Text = AccessoryString.Name
+    newtemplate.AccessoryName.Text = AccessoryString.Value
     newtemplate.Parent = AccessoryList
     local bool = false
     -- clones the accessory Object to add to button
@@ -45,12 +45,11 @@ local function addToFrame(AccessoryString, Type)
     newAccessory.Parent = newtemplate.ViewportFrame
 
     -- [[this is where the visual for the button is added]]
-   
-    --local camera = Instance.new("Camera")
-    --camera.CFrame = CFrame.new(newAccessory.PrimaryPart.Position + (newAccessory.PrimaryPart.CFrame.lookVector * 2),newAccessory.PrimaryPart.Position)
-    --camera.Parent = newtemplate.ViewportFrame
+    local camera = Instance.new("Camera")
+    camera.CFrame = CFrame.new(newAccessory.Handle.Position + (newAccessory.Handle.CFrame.lookVector * 2),newAccessory.Handle.Position)
+    camera.Parent = newtemplate.ViewportFrame
 
-    --newtemplate.ViewportFrame.CurrentCamera = camera
+    newtemplate.ViewportFrame.CurrentCamera = camera
 
    
 
@@ -58,7 +57,7 @@ local function addToFrame(AccessoryString, Type)
         --current placeholder for updating Button bool. I.E. Checks for if InvFunctions["InvData"] updated to have
         if not bool then
             
-            if table.find(InvFunctions["InvData"], newtemplate.AccessoryName.Text ) then
+            if table.find(InvFunctions["InvData"], newtemplate.Name ) then
                 bool = true
             end
     
