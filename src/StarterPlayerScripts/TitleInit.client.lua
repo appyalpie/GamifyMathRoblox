@@ -73,7 +73,6 @@ end
 
 local function Populate()
     if titles ~= nil then
-        print("we in here")
         for i,title in pairs(titles) do
             addToFrame(title)
         end
@@ -83,16 +82,13 @@ end
 -- This is just a small remoteevent that gets titles from the server
 -- anytime a title is added (see TitleModule.AddTitle)
 local function onAddTitleFire(title)
-    print(title)
     table.insert(titles, title)
     Populate()
-    print(titles)
 end
  
 AddTitlesEvent.OnClientEvent:Connect(onAddTitleFire)
 
 local function onInitTitlesEvent(serverTitles)
-    print(serverTitles)
     titles = serverTitles
     Populate()
 end

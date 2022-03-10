@@ -11,6 +11,8 @@ local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilit
 local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
+local TitleModule = require(game.ServerScriptService:WaitForChild("TitleModule"))
+
 local Operator_Set_Model = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set_Model")
 local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
 local Level2_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level2_Card_Model")
@@ -1062,6 +1064,10 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 		end
 	end)
 	winningCardTween:Play()
+
+	-- add title for beating tommy two decks
+	if CurrentGameInfo._opponentName == "Tommy Two Decks" then
+		TitleModule.AddTitleToUser(CurrentGameInfo.currentPlayer, 3)
 end
 
 GameUtilities.Select_Card = function(card, model, NPC_Game_Cards, CurrentGameInfo)

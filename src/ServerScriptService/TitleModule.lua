@@ -11,15 +11,8 @@ titleModule.onlinePlayerTitleSets = {
 titleModule.titles = 
 {
     [1] = "Developer",
-    [2] = "Serf",
-    [3] = "Merchant",
-    [4] = "Professional",
-    [5] = "Knight",
-    [6] = "Baron",
-    [7] = "Count",
-    [8] = "Duke",
-    [9] = "King",
-    [10] = "Explorer";
+    [2] = "Explorer",
+    [3] = "DJ",
 }
 
 -- Parses title IDs and turns them into a string array to be returned
