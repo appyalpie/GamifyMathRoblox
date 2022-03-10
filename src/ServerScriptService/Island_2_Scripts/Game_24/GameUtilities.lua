@@ -37,6 +37,10 @@ local CameraMoveToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild(
 local CameraResetRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraResetRE")
 local CameraSetFOVRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraSetFOVRE")
 
+------ Victory Defeat GUI Remote Events ------
+local VictoryEventRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("VictoryEventRE")
+local DefeatEventRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("DefeatEventRE")
+
 --[[
     local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
     local Base_Card = ServerStorage.Island_2.Game_24:WaitForChild("Base_Card")
@@ -610,6 +614,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 end
 
 GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
+	VictoryEventRE:FireClient(player)
 	--[[
 	1. Get equation from last card
 	]]
@@ -760,6 +765,8 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 end
 
 GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+	DefeatEventRE:FireClient(CurrentGameInfo.currentPlayer)
+
 	-- Move Camera back to default position
 	CameraMoveToRE:FireClient(CurrentGameInfo.currentPlayer, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
 	-- TODO: Add some Camera Shake
@@ -919,6 +926,7 @@ GameUtilities.Win_Sequence_NPC = function(Player_Game_Cards, NPC_Game_Cards, Cur
 end
 
 GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo, finishedWinSequenceEvent, player)
+	VictoryEventRE:FireClient(player)
 	-- Explode the opponent's cards for losing
 	if NPC_Game_Cards then
 		-- clean up and destroy cards and operators if any
