@@ -114,8 +114,10 @@ function Game_24.initialize(promptObject, player)
 		end
 	end)
 
-	-- Pull a question -- TODO: work in difficulties
-	local cardPulled = CardList[math.random(1, #CardList)]
+	-- Pull a random question, category based on difficulty
+	local difficulty = ancestorModel:GetAttribute("difficulty")
+	CurrentGameInfo._difficulty = difficulty
+	local cardPulled = CardList[difficulty][math.random(1, #CardList[difficulty])]
 
 	-- Form to board
 	local BoardCards = ancestorModel.BoardCards
@@ -190,7 +192,6 @@ function Game_24.initialize(promptObject, player)
 end
 
 local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo)
-	print("Got To Cleanup")
 	if Player_Game_Cards then
 		for _, v in pairs(Player_Game_Cards) do
 			GameUtilities.Hide_Operators(v)
@@ -229,7 +230,10 @@ local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Card
 
 	-- give player controls back
 	UnlockMovementRE:FireClient(player)
-	print("Finished Cleanup")
+
+	-- Reenable Player Camera Controls
+	CameraSetFOVRE:FireClient(player, 70)
+	CameraResetRE:FireClient(player)
 end
 
 function Game_24.initializeNPC(promptObject, player)
@@ -249,9 +253,6 @@ function Game_24.initializeNPC(promptObject, player)
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
 
-	-- Move player camera TODO:
-	-- Lock player camera TODO:
-
 	-- Disable proximityPrompt (one user at a time) and set user who is playing
 	promptObject.Enabled = false
 
@@ -269,6 +270,15 @@ function Game_24.initializeNPC(promptObject, player)
 
 	CurrentGameInfo._npcOrientation = math.rad(ancestorModelArena.NPCTerminalPart.Orientation.Y)
 	CurrentGameInfo._npcOrientationDegrees = ancestorModelArena.NPCTerminalPart.Orientation.Y
+
+	CurrentGameInfo._defaultCameraCFrame = CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.CameraXZOffset) + ancestorModelArena.PlayerTerminalPart.Position + Vector3.new(0, GameInfo.CameraYOffset, 0)) * 
+		CFrame.Angles(0, CurrentGameInfo._orientation + (math.pi / 2), 0) * -- Prevent Euler "Gimbal Lock"
+		CFrame.Angles(-math.pi / 12, 0, 0)
+
+	-- Lock and Move Player Camera to Position + Set FOV
+	CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+	CameraSetFOVRE:FireClient(player, GameInfo.FOV, GameInfo.FOVSetTime)
 
 	--check to see if we're fighing tommy
 	if CurrentGameInfo.currentOpponent.Name == "Tommy Two Decks" then
@@ -318,8 +328,10 @@ function Game_24.initializeNPC(promptObject, player)
 		end
 	end)
 
-	-- Pull a question -- TODO: work in difficulties
-	local cardPulled = CardList[math.random(1, #CardList)]
+	-- Pull a question based on difficulty
+	local difficulty = ancestorModelArena:GetAttribute("difficulty")
+	CurrentGameInfo._difficulty = difficulty
+	local cardPulled = CardList[difficulty][math.random(1, #CardList[difficulty])]
 
 	-- Form to board
 	local BoardCards = ancestorModelArena.BoardCards
@@ -439,7 +451,6 @@ function Game_24.initializeNPC(promptObject, player)
 	
 	
 	-- Make cards selectable, via a function
-	--print(Game_Cards)a
 	for _, v in pairs(Game_Cards) do
 		GameUtilities.Card_Functionality(v, ancestorModelArena, Game_Cards, CurrentGameInfo)
 	end
