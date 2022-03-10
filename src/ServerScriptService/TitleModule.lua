@@ -13,6 +13,7 @@ titleModule.titles =
     [1] = "Developer",
     [2] = "Explorer",
     [3] = "DJ",
+    [4] = "Newbie"
 }
 
 -- Parses title IDs and turns them into a string array to be returned
