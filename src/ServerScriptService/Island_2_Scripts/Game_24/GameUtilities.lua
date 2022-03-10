@@ -2,12 +2,13 @@ local ServerStorage = game:GetService("ServerStorage")
 local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CardObject = require(script.Parent.CardObject)
 local OperatorSetObject = require(script.Parent.OperatorSetObject)
 
 local GameInfo = require(script.Parent.Parent.GameInfo)
-local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
+--local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
 local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
@@ -28,6 +29,13 @@ local Energyball = ServerStorage.Island_2.Game_24:WaitForChild("Energyball")
 local Fireball = ServerStorage.Island_2.Game_24:WaitForChild("Fireball")
 local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
 local Explosion_Core = ServerStorage.Island_2.Game_24:WaitForChild("Explosion_Core")
+
+------ Camera Remote Events ------
+local CameraPointToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraPointToRE")
+local CameraFollowRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraFollowRE")
+local CameraMoveToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraMoveToRE")
+local CameraResetRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraResetRE")
+local CameraSetFOVRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraSetFOVRE")
 
 --[[
     local Operator_Set = ServerStorage.Island_2.Game_24:WaitForChild("Operator_Set")
@@ -149,6 +157,7 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 		operatorSet.Undo.Union.Transparency = 0
 		newOperatorSetObject._undoClickDetectorSignal = operatorSet.Undo.Union.ClickDetector.MouseClick:Connect(function(player)
             if player ~= CurrentGameInfo.currentPlayer then return end -- check if player is the player in game
+			CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
 			-- split card into two cards
 			local splitCard1 = CardObject.new()
 			splitCard1._cardTable = newCard._cardTable[2] -- reference
@@ -335,7 +344,8 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 
 		if cardSelected and operatorIsSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (combine)
 			if card._selected then
-				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play()
+				CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
+				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play() -- sound effect
 
 				card._selected = false
 				local hoverTween = TweenService:Create(card._cardObject.PrimaryPart, tweenInfo, {Position = card._startingPosition})
@@ -345,6 +355,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				card._cardObject.Base_Card.Sounds.Wrong:Play()
 				return
 			else
+				CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
 				-- set card values to a new CardObject
 				local combinedCard = CardObject.new()
 				combinedCard._cardTable[1] = otherCard._operatorSetObject._operatorSelectedName
@@ -562,6 +573,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 			end
 		elseif cardSelected then -- (2) 1: selecting self (deselect self), 2: selecting another (select another)
 			if card._selected then
+				CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.CameraMoveTime)
 				card._cardObject.Base_Card.Sounds.Roblox_Button_Sound_Effect:Play()
 
 				card._selected = false
@@ -577,6 +589,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 						GameUtilities.Hide_Operators(v)
 					end
 				end
+				CameraPointToRE:FireClient(player, card._cardObject.Base_Card, GameInfo.CameraMoveTime)
 				card._cardObject.Base_Card.Sounds.Click_Sound_Effect:Play()
 
 				card._selected = true
@@ -585,6 +598,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 				GameUtilities.Reveal_Operators(card, model, Game_Cards, CurrentGameInfo)
 			end
 		else -- select a card
+			CameraPointToRE:FireClient(player, card._cardObject.Base_Card, GameInfo.CameraMoveTime)
 			card._cardObject.Base_Card.Sounds.Click_Sound_Effect:Play()
 
 			card._selected = true
@@ -649,7 +663,7 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 		end
 	end)
 
-	-- 1:
+	CameraFollowRE:FireClient(player, winningCard._cardObject.Base_Card)
 	winningCard._cardObject.Base_Card.Sounds.Electric_Sound_Loop:Play()
 
 	local boardCardCloneTable = {}
@@ -691,6 +705,8 @@ GameUtilities.Win_Sequence = function(Game_Cards, CurrentGameInfo, finishedWinSe
 		{Position = winningCard._cardObject.PrimaryPart.Position + GameInfo.WinningCardOffsetGoal})
 	
 	winningCardTween.Completed:Connect(function()
+		CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+		CameraSetFOVRE:FireClient(player, GameInfo.FOVWinning, GameInfo.FOVSetTime)
 		for i, v in ipairs(winningSequence) do
 			-- 1. create a new part based on item in sequence, 2. move part to location 3. add to folder 4. once its tween is over, play some effect
 			if type(winningSequence[i]) ~= "number" then
