@@ -99,30 +99,19 @@ end
     make sure when using AddItem that the Button Will be Disabled in the Shop GUI Note for Self 
     or other team member. these are test buttons to add Accessories. Find the Accessory you wish to add to the Player from the Accessory List
 ]]
-InventoryGUI:WaitForChild("HeadTest").Activated:Connect(function()
-    local Button = AccessoryList:FindFirstChild("HeadTest")
-    InvFunctions.AddItem(Button)
+InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
+    local Button
+    for key, value in pairs (AccessoryList:GetChildren()) do
+        if value:IsA("ImageButton") then
+     Button = value
+     InvFunctions.AddItem(Button)
+        end
+    end
+    
     --a disable or hide button would go here
-    InventoryGUI.HeadTest:Destroy()
+    InventoryGUI.AddAll:Destroy()
 end)
-InventoryGUI:WaitForChild("BodyTest").Activated:Connect(function()
-    local Button = AccessoryList:FindFirstChild("BodyTest")
-    InvFunctions.AddItem(Button)
 
-    InventoryGUI.BodyTest:Destroy()
-end)
-InventoryGUI:WaitForChild("LegTest").Activated:Connect(function()
-    local Button = AccessoryList:FindFirstChild("LegsTest")
-    InvFunctions.AddItem(Button)
-
-    InventoryGUI.LegTest:Destroy()
-end)
-InventoryGUI:WaitForChild("ArmTest").Activated:Connect(function()
-    local Button = AccessoryList:FindFirstChild("ArmsTest")
-    InvFunctions.AddItem(Button)
-
-    InventoryGUI.ArmTest:Destroy()
-end)
 
 
 
