@@ -28,26 +28,30 @@ local DialogModule = {
         [4] = "3 more key blocks! Good luck!",
         [5] = "Since I like you, here's a hint. Watch out for 'fractions' and 'decimals'... they're (whispers) explosive!"
     },
-    ["Boe"] = {
-        [1] = "Har Har! I'm Boe! Welcome to the 24 Island Stage.",
+    ["Gurdy"] = {
+        [1] = "Har Har! I'm Gurdy! Welcome to the 24 Island Stage.",
         [2] = "Take the teleport pad ahead to the Island.",
         [3] = "You'll find a scoreboard to the left. You can also find a 24 practice pedestal.",
-        [4] = "We also have a meeting space below for visitors to rest. Feel free to use it before venturing on.", 
+        [4] = "Check out Tony V's below if you need a break. Feel free to do so before venturing on.", 
         [5] = "Master the math concepts here and unlock your way to the 3rd island.",
-        [6] = "Make sure to speak to Hurdy if you want to learn more about the 24 game."  
+        [6] = "Make sure to speak to Hurdy if you want to learn more about the 24 game. It's what they pay him for..."  
+    },
+    ["Pubby"] = {
+        [1] = "Welcome to Tony V's!"
     },
     ["Hurdy"] = {
         [1] = ":Sigh: What now? Oh! Hi! I thought you were my brother Gurdy.",
         [2] = "Everyone on this island is OBSESSED with the 24 game.",
         [3] = "Let me tell you the rules. It's what they pay me for...",
-        [4] = "24 is a card game where you are dealt 4 card with values 1-9",
+        [4] = "24 is a card game where you are dealt 4 cards with number values.",
         [5] = "Your objective is to combine them all to create 24",
-        [6] = "Click on a card and select a math operator (addition, subtraction, multiplication, and division). Then click on the card you want to combine. Continue until you've made 24!",
-        [7] = "You will find games of varying difficulty. Players can play alone at pedestals or against other island denizens.",
-        [8] = "Lastly, when you are ready for a real challenge. Seek out Tommy Two Decks in the Club. ",
+        [6] = "Click on a card and select a math operator (addition, subtraction, multiplication, and division). Then click on the card you want to combine. Repeat until you've made 24!",
+        [7] = "You will find games of varying difficulty. Green pedestals are the easiest, followed by yellow for medium, and red for hard",
+        [8] = "Players can play alone at pedestals or against other island denizens.",
+        [9] = "Lastly, when you are ready for a real challenge. Seek out Tommy Two Decks in the Club. ",
     },
     ["Tammy Two Docks"] = {
-        [1] = "ohhhh ho ho ho! Let's play twenty Fo!"
+        [1] = "Ohhhh ho ho ho! Let's play twenty Fo!"
     },
     ["Timmy Two Ducks"] = {
         [1] = "If ya wanna beat the boss, ya gotta beat me!"
@@ -58,10 +62,15 @@ local DialogModule = {
         [3] = "Remember, If you wanna swing at the king then ya betta not miss!" 
     },
     ["Rama"] = {
-        [1] = "Welcome to the main hub of Mega Blue Traveler. From here you can teleport to other islands.",
-        [2] = "Others who seek to master math congregate here.",
-        [3] = "We even have a merchant who peddles accessories.",
+        [1] = "Welcome to the main hub of Mega Blue Traveler. I am Rama the Keeper of these lands.",
+        [2] = "Those who seek to master math may seek respite here.",
+        [3] = "If you wish to purchase accessories, speak with my sister Llama anon.",
         [4] = "Proceed to the portal in the middle of the plaza when you are ready to move on." 
+    },
+    ["Llama"] = {
+        [1] = "Oi bruv! what's ol' dis then?",
+        [2] = "What I got is wot you want!",
+        [3] = "'and me yor bees and honey (money) and av a butcher's hook (a look)."
     },
 }
 

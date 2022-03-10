@@ -1,15 +1,14 @@
---bring in services and local variables
+--bring in services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
---local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local DialogModule = require(ReplicatedStorage.DialogModule)
 local Player = game:GetService("Players").LocalPlayer
---all NPCs should be in island 1 otherwise tweak this
+--all NPCs should be in island 1 otherwise change this eventually
 local NPCs = game.Workspace.Island_1.NPCs
---declare remoteevents
+--declare remote events
 local ChallengeEvent = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild('ChallengeEvent')
-
---
+    
+--GUI variables
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
 local YesNoFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("YesNoFrame")
 local InputButton =  DialogFrame:WaitForChild("Input")
@@ -58,6 +57,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         Tween.Completed:Connect(function()
             local YesButtonClickConnection
             local NoButtonClickConnection
+            local LastInputButtonClickConnection
 
             YesButtonClickConnection = YesButton.MouseButton1Click:Connect(function()
                 --end gradual text
@@ -82,6 +82,9 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 })
                 DialogTween:Play()
                 YesNoTween:Play()
+                
+                --need to tween out yes no frame if dialog is exhausted through input button
+                
                 --fire the event to transport player to the game
                 ProximityPrompt.Enabled = true
                 DialogOpen = false
@@ -137,12 +140,18 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
             DialogTween:Cancel()
             DialogTween = nil
         end
-        --setup and play tween
+        --tween the dialog frame out when dialog is exhausted.
         local Tween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
             Position = UDim2.new(0, 0, 2, 0)
         })
         DialogTween = Tween
         DialogTween:Play()
+
+        --tween YesNoFrame disconnect 
+        local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+            Position = UDim2.new(0, 0, 2, 0)
+        })
+        YesNoTween:Play()
 
         ProximityPrompt.Enabled = true
         DialogOpen = false
@@ -151,7 +160,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     end
 end
 
---in future use context action service space bar. human computer interaction! future feature.
+--in future use context action service space bar also consider mobile. human computer interaction! future feature.
 InputButton.MouseButton1Click:Connect(function()
     if GradualTextInProgress then
         return
