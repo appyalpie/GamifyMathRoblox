@@ -1090,6 +1090,7 @@ GameUtilities.Win_Sequence_Player = function(Player_Game_Cards, NPC_Game_Cards, 
 	-- add title for beating tommy two decks
 	if CurrentGameInfo._opponentName == "Tommy Two Decks" then
 		TitleModule.AddTitleToUser(CurrentGameInfo.currentPlayer, 3)
+	end
 end
 
 GameUtilities.Select_Card = function(card, model, NPC_Game_Cards, CurrentGameInfo)
