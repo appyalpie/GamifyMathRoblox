@@ -85,10 +85,7 @@ game.Players.PlayerAdded:Connect(function(player)
         else
             print("Error: " .. errorMessage)
         end
-
-        if player.Name == "appyalpie" then
-            IDs = {0, 4}
-        end
+        
         -- This is the format that is stored on the server to avoid using dataStore calls
         local onlinePlayerEntry = {
             userId = player.UserId;
