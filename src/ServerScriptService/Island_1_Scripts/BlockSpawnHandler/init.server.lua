@@ -3,9 +3,11 @@
 --]]
 
 local CollectionService = game:GetService("CollectionService") -- for tags
+local ServerScriptService = game:GetService("ServerScriptService") -- for getting GameStatsUtilties
 
 local CollisionUtilities = require(script:WaitForChild("CollisionUtilities")) -- module to handle collision VFX and logic
 local MathBlocksInfo = require(script:WaitForChild("MathBlocksInfo")) -- Information on Math_Blocks Game Settings
+local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities) -- Incrementing game stats
 
 --[[
     CollectionService Tag Added Signals
@@ -18,10 +20,13 @@ local DIVIDE_BLOCK_TAGGED_SIGNAL = CollectionService:GetInstanceAddedSignal(Math
 ADD_BLOCK_TAGGED_SIGNAL:Connect(function(newAddBlock)
     --print("ADD BLOCK HAS BEEN ADDED")
     newAddBlock.Touched:Connect(function(objectHit)
+        -- check if there's a player touch, if the block already doesn't have their name stored, store their userId for statistics usage.
+        if objectHit.Parent:FindFirstChildWhichIsA("Humanoid") and newAddBlock:GetAttribute("lastTouchedBy") ~= game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId then
+            newAddBlock:SetAttribute("lastTouchedBy", game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId)
+        end
         if not newAddBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then -- newAddBlock has attribute "Touched" (Boolean) for debounce
             if objectHit:IsA("Part") then -- TODO: better logic for models + logic for if objectHit is combinable
                 if objectHit:GetAttribute("value") ~= nil then
-
                     objectHit:SetAttribute("Touched", true) -- prevent further touches
                     newAddBlock:SetAttribute("Touched", true)
                     CollisionUtilities.additionCollisionProcessing(newAddBlock, objectHit) -- collision processing
@@ -33,6 +38,10 @@ end)
 SUBTRACT_BLOCK_TAGGED_SIGNAL:Connect(function(newSubtractBlock)
     --print("SUBTRACT BLOCK HAS BEEN ADDED")
     newSubtractBlock.Touched:Connect(function(objectHit)
+        -- check if there's a player touch, if the block already doesn't have their name stored, store their name.
+        if objectHit.Parent:FindFirstChildWhichIsA("Humanoid") and newSubtractBlock:GetAttribute("lastTouchedBy") ~= game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId then
+            newSubtractBlock:SetAttribute("lastTouchedBy", game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId)
+        end
         if not newSubtractBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
             if objectHit:IsA("Part") then
                 if objectHit:GetAttribute("value") ~= nil then
@@ -47,6 +56,9 @@ end)
 MULTIPLY_BLOCK_TAGGED_SIGNAL:Connect(function(newMultiplyBlock)
     --print("MULTIPLY BLOCK HAS BEEN ADDED")
     newMultiplyBlock.Touched:Connect(function(objectHit)
+        if objectHit.Parent:FindFirstChildWhichIsA("Humanoid") and newMultiplyBlock:GetAttribute("lastTouchedBy") ~= game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId then
+            newMultiplyBlock:SetAttribute("lastTouchedBy", game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId)
+        end
         if not newMultiplyBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
             if objectHit:IsA("Part") then
                 if objectHit:GetAttribute("value") ~= nil then
@@ -61,6 +73,9 @@ end)
 DIVIDE_BLOCK_TAGGED_SIGNAL:Connect(function(newDivideBlock)
     --print("DIVIDE BLOCK HAS BEEN ADDED")
     newDivideBlock.Touched:Connect(function(objectHit)
+        if objectHit.Parent:FindFirstChildWhichIsA("Humanoid") and newDivideBlock:GetAttribute("lastTouchedBy") ~= game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId then
+            newDivideBlock:SetAttribute("lastTouchedBy", game.Players:GetPlayerFromCharacter(objectHit.Parent).UserId)
+        end
         if not newDivideBlock:GetAttribute("Touched") and not objectHit:GetAttribute("Touched") then
             if objectHit:IsA("Part") then
                 if objectHit:GetAttribute("value") ~= nil then

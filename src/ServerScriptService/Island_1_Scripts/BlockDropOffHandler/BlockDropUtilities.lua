@@ -1,8 +1,10 @@
 local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 local MathBlocksInfo = require(script.Parent.Parent:WaitForChild("BlockSpawnHandler"):WaitForChild("MathBlocksInfo"))
 local Timer = require(ServerScriptService.Utilities:WaitForChild("Timer"))
+local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 --[[
     
 --]]
@@ -15,6 +17,8 @@ local BLOCK_DROP_PROCESSING_WAIT_DURATION = .3
 
 local BLOCK_DROP_CORRECT_TEXT = "Accepted Value"
 local BLOCK_DROP_REJECT_TEXT = "REJECTED"
+
+local CORRECT_ANSWER_XP = 50
 
 local BlockDropUtilities = {}
 
@@ -47,6 +51,8 @@ end
 function BlockDropUtilities.correctAnswerServicing(block, operator)
     block.Anchored = true
     block.CanTouch = false
+
+    GameStatsUtilities.incrementXP(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), CORRECT_ANSWER_XP)
 
     local blockDrop
     local blockDoor
