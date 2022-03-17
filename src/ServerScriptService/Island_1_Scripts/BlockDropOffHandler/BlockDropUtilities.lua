@@ -19,6 +19,7 @@ local BLOCK_DROP_CORRECT_TEXT = "Accepted Value"
 local BLOCK_DROP_REJECT_TEXT = "REJECTED"
 
 local CORRECT_ANSWER_XP = 50
+local CORRECT_ANSWER_CURRENCY = 5
 
 local BlockDropUtilities = {}
 
@@ -53,6 +54,7 @@ function BlockDropUtilities.correctAnswerServicing(block, operator)
     block.CanTouch = false
 
     GameStatsUtilities.incrementXP(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), CORRECT_ANSWER_XP)
+    GameStatsUtilities.incrementCurrency(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), CORRECT_ANSWER_CURRENCY)
 
     local blockDrop
     local blockDoor
