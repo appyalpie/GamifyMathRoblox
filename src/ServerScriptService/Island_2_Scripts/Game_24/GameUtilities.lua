@@ -200,14 +200,14 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			energyBall1.Position = newCard._cardObject.PrimaryPart.Position
 			energyBall1.Parent = game.Workspace
 			local positionOfSplit1 = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition,
-				4, indexOfRemovedCard, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3, CurrentGameInfo._orientation) --???
+				4, indexOfRemovedCard, #(CurrentGameInfo._cardFolder:GetChildren())+3, CurrentGameInfo._orientation) --???
 			Debris:AddItem(energyBall1, 3)
 
 			local energyBall2 = Energyball:Clone()
 			energyBall2.Position = newCard._cardObject.PrimaryPart.Position
 			energyBall2.Parent = game.Workspace
 			local positionOfSplit2 = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition,
-				4, indexOfRemovedCard + 1, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3, CurrentGameInfo._orientation)
+				4, indexOfRemovedCard + 1, #(CurrentGameInfo._cardFolder:GetChildren())+3, CurrentGameInfo._orientation)
 			Debris:AddItem(energyBall2, 3)
 
 			energyBall1.Sounds.Magical:Play()
@@ -279,8 +279,8 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 					splitCard1._cardObject.Base_Card.SurfaceGui.TextLabel.TextTransparency = 1
 					splitCard2._cardObject.Base_Card.SurfaceGui.TextLabel.TextTransparency = 1
 
-					splitCard1._cardObject.Parent = model.CardFolder
-					splitCard2._cardObject.Parent = model.CardFolder
+					splitCard1._cardObject.Parent = CurrentGameInfo._cardFolder
+					splitCard2._cardObject.Parent = CurrentGameInfo._cardFolder
 
 					local splitCard1Tween = TweenService:Create(splitCard1._cardObject.Base_Card, GameInfo.SplitCardTweenInfo, {Transparency = 0})
 					local splitCard2Tween = TweenService:Create(splitCard2._cardObject.Base_Card, GameInfo.SplitCardTweenInfo, {Transparency = 0})
@@ -491,7 +491,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 						combinedCard:UpdateGUI()
 						GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
 						combinedCardObject.PrimaryPart.Position = targetCFrame.Position 
-						combinedCardObject.Parent = model.CardFolder
+						combinedCardObject.Parent = CurrentGameInfo._cardFolder
 					end)
 					energyBall1.Sounds.Air_Woosh_Long:Play()
 					energyBall2.Sounds.Air_Woosh_Long:Play()
@@ -1351,6 +1351,176 @@ GameUtilities.IncrementStats = function(difficulty, solution, player, npcBeaten)
 		GameStatsUtilities.incrementGame24Wins(player)
 		GameStatsUtilities.saveLastSolution(player, solution) -- save win solution
 	end
+end
+
+GameUtilities.Win_Sequence_Competitive = function(winningPlayerCurrentGameInfo, losingPlayerCurrentGameInfo, winningPlayerGame_Cards, losingPlayerGame_Cards, finishedWinSequenceEvent)
+	------ Victory and Defeat GUI for each player ------
+	VictoryEventRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer)
+	DefeatEventRE:FireClient(losingPlayerCurrentGameInfo.currentPlayer)
+
+	------ Losing Player Loses Their Cards and Their Camera is Reset
+	CameraMoveToRE:FireClient(losingPlayerCurrentGameInfo.currentPlayer, losingPlayerCurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+	if losingPlayerGame_Cards then
+		for _, v in pairs(losingPlayerGame_Cards) do
+			GameUtilities.Hide_Operators(v)
+			v._cardObject.Base_Card.ClickDetector:Destroy()
+
+			local explosionCore = Explosion_Core:Clone()
+			explosionCore.Parent = losingPlayerCurrentGameInfo.ancestorModel.Cleanup
+			Debris:AddItem(explosionCore, 2)
+			explosionCore.Position = v._cardObject.Base_Card.Position
+			explosionCore.Dirt:Emit(50)
+			explosionCore.Explosion_Random:Emit(50)
+			explosionCore.Heat:Emit(50)
+			explosionCore.Shockwave:Emit(50)
+			explosionCore.Sounds.Explosion_sound_effect:Play()
+			v._cardObject:Destroy()
+		end
+		table.clear(losingPlayerGame_Cards)
+		losingPlayerGame_Cards = nil -- allow cleanup
+	end
+
+	------ Get equation from last card ------
+	local winningCard = winningPlayerGame_Cards[1]
+	local winningCardTable = winningCard._cardTable
+	local winningSequence = {}
+	local winningString = CardObject.getSequence(winningCardTable)
+	--print(winningString)
+
+	------ GameStats Changes ------ TODO: change to dynamic with difficulty, by default all are easy
+	GameUtilities.IncrementStats("easy", winningString, winningPlayerCurrentGameInfo.currentPlayer, nil)
+
+	------ Construct winning sequence (list of chars of winnningString) ------
+	local startIndex = 1
+	while startIndex <= string.len(winningString) do
+		local character = string.sub(winningString, startIndex, startIndex)
+		if tonumber(character) ~= nil then
+			local startOfNumber = startIndex
+			local endOfNumber = startIndex
+			while tonumber(string.sub(winningString, startIndex + 1, startIndex + 1)) ~= nil do
+				startIndex = startIndex + 1
+				endOfNumber = startIndex
+			end
+			table.insert(winningSequence, tonumber(string.sub(winningString, startOfNumber, endOfNumber)))
+		else
+			table.insert(winningSequence, character)
+		end
+		startIndex = startIndex + 1
+	end
+
+	------ Setup WinSequenceFolder Connection To Reposition Objects Upon Insertion ------
+	local winSequenceTable = {}
+	local winSequenceFolderConnection = winningPlayerCurrentGameInfo._winSequenceFolder.ChildAdded:Connect(function()
+		local iterator = 0
+		for _, v in pairs(winSequenceTable) do
+			local newPosition = GameUtilities.Get_Starting_Position(winningPlayerCurrentGameInfo._originalOriginPosition + GameInfo.WinningSequenceOffsetGoal,
+			 GameInfo.GAP_SIZE, iterator, #winningPlayerCurrentGameInfo._winSequenceFolder:GetChildren(), winningPlayerCurrentGameInfo._orientation)
+
+			local positionTween = TweenService:Create(v, GameInfo.WinningSequenceTweenInfo, {Position = newPosition})
+			positionTween:Play()
+
+			iterator = iterator + 1
+		end
+	end)
+
+	------ Camera Set To Follow the Winning Card + Sound Effect Play ------
+	CameraFollowRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer, winningCard._cardObject.Base_Card)
+	winningCard._cardObject.Base_Card.Sounds.Electric_Sound_Loop:Play()
+
+	------ Setup Beam to Board Cards Effect + Board Card Clone, Turn and Move Effect ------
+	local boardCardCloneTable = {}
+	local attachment1 = Instance.new("Attachment")
+	attachment1.Name = "Attachment1"
+	attachment1.Parent = winningCard._cardObject.PrimaryPart
+	for _, v in pairs(winningPlayerCurrentGameInfo.ancestorModel.BoardCards:GetChildren()) do
+		local boardCardClone = v:Clone()
+		boardCardClone.Transparency = 1
+		boardCardClone.Parent = winningPlayerCurrentGameInfo.ancestorModel.Cleanup
+		table.insert(boardCardCloneTable, boardCardClone)
+
+		local attachment0 = Instance.new("Attachment")
+		attachment0.Name = "Attachment0"
+		attachment0.Parent = boardCardClone
+
+		local newBeam = Instance.new("Beam")
+		newBeam.Attachment0 = attachment0
+		newBeam.Attachment1 = attachment1
+		newBeam.FaceCamera = true
+		newBeam.Texture = GameInfo.WinningCardBeamTexture
+		newBeam.Width0 = 6
+		newBeam.Width1 = 6
+		newBeam.Transparency = NumberSequence.new{
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(1, 0)
+		}
+		newBeam.Parent = attachment0
+
+		local boardCloneTween = TweenService:Create(boardCardClone, GameInfo.BoardCardTweenInfo, {Position = boardCardClone.Position + Vector3.new(-1,0,0), 
+			Transparency = .5, Orientation = Vector3.new(0, winningPlayerCurrentGameInfo._orientationDegrees, 0)})
+		boardCloneTween:Play()
+	end
+
+	------ Setup Winning Card Flying Up Effect ------
+	local winningCardTween = TweenService:Create(winningCard._cardObject.PrimaryPart, GameInfo.WinningCardTweenInfo, 
+		{Position = winningCard._cardObject.PrimaryPart.Position + GameInfo.WinningCardOffsetGoal})
+	
+	winningCardTween.Completed:Connect(function()
+		------ Camera Resets to Default and FOV increases ------
+		CameraMoveToRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer, winningPlayerCurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+		CameraSetFOVRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer, GameInfo.FOVWinning, GameInfo.FOVSetTime)
+		------ Win Sequence Part and Board Card Show Sequence Effect ------
+		for i, v in ipairs(winningSequence) do
+			if type(winningSequence[i]) ~= "number" then
+				local newPart = GameInfo.LookUpTable[winningSequence[i]]:Clone()
+				newPart.Position = winningPlayerCurrentGameInfo.ancestorModel.Center.Position
+				GameUtilities.Set_Orientation(newPart, winningPlayerCurrentGameInfo._orientationDegrees + 180)
+				table.insert(winSequenceTable, newPart)
+				newPart.Parent = winningPlayerCurrentGameInfo._winSequenceFolder
+
+				newPart.Sounds.Swoosh_1:Play()
+			else
+				for _, v in pairs(boardCardCloneTable) do
+					if v:GetAttribute("value") == winningSequence[i] then
+						table.insert(winSequenceTable, v)
+						v.Parent = winningPlayerCurrentGameInfo._winSequenceFolder
+						table.remove(boardCardCloneTable, table.find(boardCardCloneTable, v))
+						break
+					end
+				end
+			end
+			wait(.1) --TODO: Config
+		end
+		winSequenceFolderConnection:Disconnect()
+
+		wait(2) --TODO: Config
+
+		------ Equation Flies Back to Board Effect ------
+		for _, v in pairs(winSequenceTable) do
+			local squeezeTween = TweenService:Create(v, GameInfo.WinningSequenceSqueezeTweenInfo, {Size = Vector3.new(.5, .5, .5), Transparency = 1})
+			local squeezeTweenConnection
+			squeezeTweenConnection = squeezeTween.Completed:Connect(function()
+				v:Destroy()
+				squeezeTweenConnection:Disconnect()
+
+				local energyBall = Energyball:Clone()
+				energyBall.Position = v.Position
+				energyBall.Parent = winningPlayerCurrentGameInfo.ancestorModel.Cleanup
+				local energyBallTween = TweenService:Create(energyBall, GameInfo.WinningSequenceEnergyBallTweenInfo, {Position = winningPlayerCurrentGameInfo.ancestorModel.Center.Position})
+				energyBallTween.Completed:Connect(function()
+					energyBall:Destroy()
+					if winningPlayerCurrentGameInfo._winSequencePlaying == true then
+						finishedWinSequenceEvent:Fire()
+						winningPlayerCurrentGameInfo._winSequencePlaying = false
+					end
+				end)
+				energyBall.Sounds.Air_Woosh_Long.Volume = 0.05
+				energyBall.Sounds.Air_Woosh_Long:Play()
+				energyBallTween:Play()
+			end)
+			squeezeTween:Play()
+		end
+	end)
+	winningCardTween:Play()
 end
 
 return GameUtilities

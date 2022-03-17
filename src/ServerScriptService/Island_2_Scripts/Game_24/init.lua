@@ -26,6 +26,8 @@ local MusicEvent = game.ReplicatedStorage:WaitForChild("MusicEvent")
 local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Card_Model")
 
 local NPC_Challenger_Arenas = game.Workspace.Island_2.NPC_Challenger_Arenas
+local Competitive_Arenas = game.Workspace.Island_2.Competitive_Arenas
+local Competitive_Arenas_Manager = {{},{},{},{},{}}
 
 local Game_24 = {}
 
@@ -134,6 +136,7 @@ function Game_24.initialize(promptObject, player)
 
 	-- Make cards reposition when a new card is added
 	local CardFolder = ancestorModel.CardFolder
+	CurrentGameInfo._cardFolder = CardFolder
 	local gapSize = 4 --TODO: change to dynamic
 	--local originalOriginPosition = ancestorModel:GetAttribute("origin_position") -- TODO: change to dynamic
 	local originalOriginPosition = (Vector3.new(math.sin(CurrentGameInfo._orientation - (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation - (math.pi / 2))) * GameInfo.ORIGIN_POSITION_OFFSET) 
@@ -357,6 +360,7 @@ function Game_24.initializeNPC(promptObject, player)
 	-- Make cards reposition when a new card is added
 	local PlayerCardFolder = ancestorModelArena.CardFolder
 	local AI_CardFolder = ancestorModelArena.AI_CardFolder
+	CurrentGameInfo._cardFolder = PlayerCardFolder
 
 	local gapSize = 4
 	local originalOriginPosition = (Vector3.new(math.sin(CurrentGameInfo._playerOrientation - (math.pi / 2)), 0, 
@@ -473,6 +477,296 @@ function Game_24.initializeNPC(promptObject, player)
 	end
 
 	GameUtilities.NPC_Action_Initialization(cardPulled[5], NPC_Game_Cards, CurrentGameInfo)
+end
+
+local function CleanupCompetitive(arena_index)
+	------ Disconnect cardAdded to folder connection and reset movement and camera controls for both players ------
+	for _, v in pairs(Competitive_Arenas_Manager[arena_index]) do
+		---- Clean Up and Destroy Cards and Operators (if any) ----
+		if v.Game_Cards then
+			for _, c in pairs(v.Game_Cards) do
+				GameUtilities.Hide_Operators(c)
+				c._cardObject:Destroy()
+			end
+		end
+		table.clear(v.Game_Cards)
+		v.Game_Cards = nil
+
+		if v.cardAddedConnection then
+			v.cardAddedConnection:Disconnect()
+		end
+
+		if v.currentPlayer then
+			---- Reset Movement ----
+			UnlockMovementRE:FireClient(v.currentPlayer)
+
+			---- Reset Player Camera Controls ----
+			CameraSetFOVRE:FireClient(v.currentPlayer, 70)
+			CameraResetRE:FireClient(v.currentPlayer)
+		end
+	end
+	---- Reset promptObjects (2) ----
+	for _, v in pairs(Competitive_Arenas_Manager[arena_index]) do
+		if v.promptObject then
+			v.promptObject.Enabled = true
+		end
+	end
+	---- Remove Both Players From Table For That Arena ----
+	table.clear(Competitive_Arenas_Manager[arena_index])
+	Competitive_Arenas_Manager[arena_index] = {}
+end
+
+local function CleanupPreCompetitive(promptObject, player, CurrentGameInfo)
+	table.remove(Competitive_Arenas_Manager[CurrentGameInfo._arena_index], table.find(Competitive_Arenas_Manager[CurrentGameInfo._arena_index], CurrentGameInfo)) -- remove player from that arena
+	print(Competitive_Arenas_Manager)
+	-- enable promptObject
+	promptObject.Enabled = true
+
+	-- Reenable Player Movement Controls
+	UnlockMovementRE:FireClient(player)
+
+	-- Reenable Player Camera Controls
+	CameraSetFOVRE:FireClient(player, 70)
+	CameraResetRE:FireClient(player)
+end
+
+function Game_24.preInitializationCompetitive(promptObject, player)
+	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model") -- Got Competitive_Arena
+	local terminalPart = promptObject.Parent.Parent
+
+	-- Disable proximityPrompt (one user at a time) and set user who is playing
+	promptObject.Enabled = false
+
+	local CurrentGameInfo = {}
+	CurrentGameInfo.currentPlayer = player
+	CurrentGameInfo.promptObject = promptObject
+	CurrentGameInfo._terminalPart = terminalPart
+	CurrentGameInfo._arena_index = ancestorModel:GetAttribute("arena_index")
+	table.insert(Competitive_Arenas_Manager[CurrentGameInfo._arena_index], CurrentGameInfo)
+
+	-- Tie cleanup events to death and leave
+	local playerHumanoidDiedConnection
+	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
+		CleanupPreCompetitive(promptObject, player, CurrentGameInfo)
+		playerHumanoidDiedConnection:Disconnect()
+	end)
+	local playerLeaveConnection
+	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
+		if removed == player then
+			CleanupPreCompetitive(promptObject, player, CurrentGameInfo)
+			playerLeaveConnection:Disconnect()
+		end
+	end)
+
+	CurrentGameInfo._playerHumanoidDiedConnection = playerHumanoidDiedConnection
+	CurrentGameInfo._playerLeaveConnection = playerLeaveConnection
+
+	-- Lock player movements
+	LockMovementRE:FireClient(player)
+
+	-- Initialize Some Game Information for the player
+	CurrentGameInfo.ancestorModel = ancestorModel
+	CurrentGameInfo._winSequencePlaying = false
+	CurrentGameInfo._orientation = math.rad(terminalPart.Orientation.Y)
+	CurrentGameInfo._orientationDegrees = terminalPart.Orientation.Y
+	CurrentGameInfo._defaultCameraCFrame = CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.CameraXZOffset) + terminalPart.Position + Vector3.new(0, GameInfo.CameraYOffset, 0)) * 
+		CFrame.Angles(0, CurrentGameInfo._orientation + (math.pi / 2), 0) * -- Prevent Euler "Gimbal Lock"
+		CFrame.Angles(-math.pi / 12, 0, 0)
+
+	-- More Player specific information
+	if terminalPart.Name == "Player1TerminalPart" then
+		CurrentGameInfo._winSequenceFolder = CurrentGameInfo.ancestorModel.Player1WinSequenceFolder
+	else
+		CurrentGameInfo._winSequenceFolder = CurrentGameInfo.ancestorModel.Player2WinSequenceFolder
+	end	
+	
+	-- Move player to position
+	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
+	+ terminalPart.Position
+
+	print(Competitive_Arenas_Manager)
+	if #Competitive_Arenas_Manager[CurrentGameInfo._arena_index] == 2 then -- 2 players are in the arena detected
+		Game_24.initializeCompetitive(CurrentGameInfo._arena_index)
+	end
+end
+
+--[[
+	Need information about all players that are currently queued
+]]
+function Game_24.initializeCompetitive(arena_index)
+	print("Starting 24 Game Competititve Mode")
+	------ Disconnect Old Death and Leave Cleanup and Initialize New ------
+	for _, v in pairs(Competitive_Arenas_Manager[arena_index]) do
+		v._playerHumanoidDiedConnection:Disconnect()
+		v._playerHumanoidDiedConnection = v.currentPlayer.Character:WaitForChild("Humanoid").Died:Connect(function()
+			CleanupCompetitive(arena_index)
+			v._playerHumanoidDiedConnection:Disconnect()
+		end)
+		v._playerLeaveConnection:Disconnect()
+		v._playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
+			if removed == v.currentPlayer then
+				CleanupPreCompetitive(arena_index)
+				v._playerLeaveConnection:Disconnect()
+			end
+		end)
+	end
+
+	------ Move Camera for Both Players ------
+	for _, v in pairs(Competitive_Arenas_Manager[arena_index]) do
+		CameraMoveToRE:FireClient(v.currentPlayer, v._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+		CameraSetFOVRE:FireClient(v.currentPlayer, GameInfo.FOV, GameInfo.FOVSetTime)
+	end
+
+	-- TODO: Pull a random question, category based on difficulty
+	------ defaulting to easy for now, later implement some sort of difficulty picking system ------
+	local cardPulled = CardList["easy"][math.random(1, #CardList["easy"])]
+
+	------ Some Variable Setup ------
+	local ancestorModel = Competitive_Arenas_Manager[arena_index][1].ancestorModel
+	local player1CurrentGameInfo
+	local player2CurrentGameInfo
+	if Competitive_Arenas_Manager[arena_index][1]._terminalPart.Name == "Player1TerminalPart" then
+		player1CurrentGameInfo = Competitive_Arenas_Manager[arena_index][1]
+		player2CurrentGameInfo = Competitive_Arenas_Manager[arena_index][2]
+	else
+		player1CurrentGameInfo = Competitive_Arenas_Manager[arena_index][2]
+		player2CurrentGameInfo = Competitive_Arenas_Manager[arena_index][1]
+	end
+	local player1Game_Cards = {}
+	local player2Game_Cards = {}
+	player1CurrentGameInfo.Game_Cards = player1Game_Cards
+	player2CurrentGameInfo.Game_Cards = player2Game_Cards
+
+	------ Form Pulled Card to Board ------
+	local BoardCards = ancestorModel.BoardCards
+	GameUtilities.Board_Initialization(BoardCards, cardPulled)
+
+	------ Player 1 Card Folder Connection ------
+	player1CurrentGameInfo._cardFolder = ancestorModel.Player1CardFolder -- define to currentGameInfo -- Card Reposition when added to folder
+
+	local player1OriginalOriginPosition = (Vector3.new(math.sin(player1CurrentGameInfo._orientation - (math.pi / 2)), 0, math.cos(player1CurrentGameInfo._orientation - (math.pi / 2))) * GameInfo.ORIGIN_POSITION_OFFSET) 
+		+ ancestorModel.Player1TerminalPart.Position - Vector3.new(0, 1.5, 0)
+	player1CurrentGameInfo._originalOriginPosition = player1OriginalOriginPosition
+
+	local player1CardAddedConnection
+	player1CurrentGameInfo.cardFolderConnect = player1CurrentGameInfo._cardFolder.ChildAdded:Connect(function()
+		local iterator = 0
+		for _, v in pairs(player1Game_Cards) do
+			v._startingPosition = GameUtilities.Get_Starting_Position(player1OriginalOriginPosition, GameInfo.GAP_SIZE, iterator, 
+			#player1CurrentGameInfo._cardFolder:GetChildren(), player1CurrentGameInfo._orientation)
+
+			local positionTween = TweenService:Create(v._cardObject.PrimaryPart, GameInfo.PositionTweenInfo, {Position = v._startingPosition })
+			positionTween:Play()
+			
+			iterator = iterator + 1
+		end
+		if #player1CurrentGameInfo._cardFolder:GetChildren() == 1 then -- check if winning condition is met
+			for _, v in pairs(player1Game_Cards) do
+				if v.calculateValue(v._cardTable) == 24 then
+					print("PLAYER 1 WINS!")
+					player1CurrentGameInfo.cardFolderConnect:Disconnect()
+					player2CurrentGameInfo.cardFolderConnect:Disconnect()
+					player1CurrentGameInfo._winSequencePlaying = true
+					player2CurrentGameInfo._winSequencePlaying = true
+					v._cardObject.Base_Card.ClickDetector:Destroy()
+
+					local finishedWinSequenceEvent = Instance.new("BindableEvent")
+					finishedWinSequenceEvent.Event:Connect(function()
+						CleanupCompetitive(arena_index)
+					end)
+
+					GameUtilities.Win_Sequence_Competitive(player1CurrentGameInfo, player2CurrentGameInfo, player1Game_Cards, player2Game_Cards, finishedWinSequenceEvent)
+					return
+				end
+			end
+		end
+	end)
+
+	------ Player 2 Card Folder Connection ------
+	player2CurrentGameInfo._cardFolder = ancestorModel.Player2CardFolder
+
+	local player2OriginalOriginPosition = (Vector3.new(math.sin(player2CurrentGameInfo._orientation - (math.pi / 2)), 0, math.cos(player2CurrentGameInfo._orientation - (math.pi / 2))) * GameInfo.ORIGIN_POSITION_OFFSET) 
+		+ ancestorModel.Player2TerminalPart.Position - Vector3.new(0, 1.5, 0)
+	player2CurrentGameInfo._originalOriginPosition = player2OriginalOriginPosition
+
+	local player2CardAddedConnection
+	player2CurrentGameInfo.cardFolderConnect = player2CurrentGameInfo._cardFolder.ChildAdded:Connect(function()
+		local iterator = 0
+		for _, v in pairs(player2Game_Cards) do
+			v._startingPosition = GameUtilities.Get_Starting_Position(player2OriginalOriginPosition, GameInfo.GAP_SIZE, iterator, 
+			#player2CurrentGameInfo._cardFolder:GetChildren(), player2CurrentGameInfo._orientation)
+
+			local positionTween = TweenService:Create(v._cardObject.PrimaryPart, GameInfo.PositionTweenInfo, {Position = v._startingPosition })
+			positionTween:Play()
+			
+			iterator = iterator + 1
+		end
+		if #player2CurrentGameInfo._cardFolder:GetChildren() == 1 then -- check if winning condition is met
+			for _, v in pairs(player2Game_Cards) do
+				if v.calculateValue(v._cardTable) == 24 then
+					print("PLAYER 2 WINS!")
+					player1CurrentGameInfo.cardFolderConnect:Disconnect()
+					player2CurrentGameInfo.cardFolderConnect:Disconnect()
+					player1CurrentGameInfo._winSequencePlaying = true
+					player2CurrentGameInfo._winSequencePlaying = true
+					v._cardObject.Base_Card.ClickDetector:Destroy()
+
+					local finishedWinSequenceEvent = Instance.new("BindableEvent")
+					finishedWinSequenceEvent.Event:Connect(function()
+						CleanupCompetitive(arena_index)
+					end)
+
+					GameUtilities.Win_Sequence_Competitive(player2CurrentGameInfo, player1CurrentGameInfo, player2Game_Cards, player1Game_Cards, finishedWinSequenceEvent)
+					return
+				end
+			end
+		end
+	end)
+
+	------ Spawn Cards For Player 1 ------ TODO: animation and vfx, maybe some camera work
+	local numberOfCards = 4
+	for i = 1, numberOfCards do
+		---- Create New Card ----
+		local newBaseCard = Level1_Card_Model:Clone()
+		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, player1CurrentGameInfo._orientationDegrees)
+		---- Add To Game_Cards List ----
+		local newCardObject = CardObject.new()
+		table.insert(player1Game_Cards, newCardObject)
+		newCardObject._cardTable[2] = cardPulled[i]
+		newCardObject._cardObject = newBaseCard
+		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
+		---- Change Parent ----
+		newBaseCard.Parent = player1CurrentGameInfo._cardFolder
+		---- Adjust Display ----
+		newCardObject:UpdateGUI()
+	end
+
+	------ Spawn Cards For Player 2 ------
+	for i = 1, numberOfCards do
+		---- Create New Card ----
+		local newBaseCard = Level1_Card_Model:Clone()
+		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, player2CurrentGameInfo._orientationDegrees)
+		---- Add To Game_Cards List ----
+		local newCardObject = CardObject.new()
+		table.insert(player2Game_Cards, newCardObject)
+		newCardObject._cardTable[2] = cardPulled[i]
+		newCardObject._cardObject = newBaseCard
+		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
+		---- Change Parent ----
+		newBaseCard.Parent = player2CurrentGameInfo._cardFolder
+		---- Adjust Display ----
+		newCardObject:UpdateGUI()
+	end
+	
+	------ Make Cards Selectable ------
+	for _, v in pairs(player1Game_Cards) do
+		GameUtilities.Card_Functionality(v, ancestorModel, player1Game_Cards, player1CurrentGameInfo)
+	end
+
+	for _, v in pairs(player2Game_Cards) do
+		GameUtilities.Card_Functionality(v, ancestorModel, player2Game_Cards, player2CurrentGameInfo)
+	end
 end
 
 return Game_24

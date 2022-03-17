@@ -5,6 +5,8 @@ local Game_24_Folder = ServerStorage.Island_2.Game_24
 
 local GameInfo = {}
 
+GameInfo.GAP_SIZE = 4
+
 GameInfo.ORIGIN_POSITION_OFFSET = 9
 GameInfo.MOVE_POSITION_OFFSET = 3
 
