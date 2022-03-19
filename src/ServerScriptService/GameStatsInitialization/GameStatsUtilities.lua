@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
 
+
 local GameStatsUtilities = {}
 
 local playerGameStats = {}
@@ -102,6 +103,5 @@ GameStatsUtilities.saveLastSolution = function(player, solution)
     end
     table.insert(playerGameStats[player.UserId]["Game24Last5Solutions"], 1, solution)
 end
-
 
 return GameStatsUtilities
