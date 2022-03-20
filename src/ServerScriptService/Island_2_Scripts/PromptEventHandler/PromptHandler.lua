@@ -17,6 +17,8 @@ function PromptHandler.onPromptTriggered(promptObject, player)
 		]]
 		print("Got Request")
 		Game_24.preInitializationCompetitive(promptObject, player)
+	elseif ancestorModel and ancestorModel.Name == "24_Pedistal_Timed" then
+		Game_24.initializeTimed(promptObject, player)
 	end
 end
 

@@ -3,12 +3,13 @@ local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local CardObject = require(script.Parent.CardObject)
 local OperatorSetObject = require(script.Parent.OperatorSetObject)
 
 local GameInfo = require(script.Parent.Parent.GameInfo)
---local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
+local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
 local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
@@ -31,6 +32,8 @@ local Energyball = ServerStorage.Island_2.Game_24:WaitForChild("Energyball")
 local Fireball = ServerStorage.Island_2.Game_24:WaitForChild("Fireball")
 local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
 local Explosion_Core = ServerStorage.Island_2.Game_24:WaitForChild("Explosion_Core")
+
+local Solution_Display = ServerStorage.Island_2.Game_24:WaitForChild("Solution_Display")
 
 ------ Title Binding Remote Events ------
 local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
@@ -64,6 +67,25 @@ GameUtilities.Get_Starting_Position = function(center, gap, index, numberPresent
 	local offset = Vector3.new(math.sin(theta) * gap, 0,  math.cos(theta) * gap)
 	local origin = center + (Vector3.new((.5) * (numberPresent - 1), 0, (.5) * (numberPresent - 1)) * offset)
 	return origin - (Vector3.new(index, 0, index) * offset)
+end
+
+GameUtilities.Get_New_Cards = function(cardPulled, Game_Cards, CurrentGameInfo)
+	local numberOfCards = 4
+	for i = 1, numberOfCards do
+		---- Create New Card ----
+		local newBaseCard = Level1_Card_Model:Clone()
+		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, CurrentGameInfo._orientationDegrees)
+		---- Add To Game_Cards List ----
+		local newCardObject = CardObject.new()
+		table.insert(Game_Cards, newCardObject)
+		newCardObject._cardTable[2] = cardPulled[i]
+		newCardObject._cardObject = newBaseCard
+		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
+		---- Change Parent ----
+		newBaseCard.Parent = CurrentGameInfo._cardFolder
+		---- Adjust Display ----
+		newCardObject:UpdateGUI()
+	end
 end
 
 --returns a cloned card based on what depth is passed in
@@ -1521,6 +1543,285 @@ GameUtilities.Win_Sequence_Competitive = function(winningPlayerCurrentGameInfo, 
 		end
 	end)
 	winningCardTween:Play()
+end
+
+GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+	--[[
+		1. Save the winning card to CurrentGameInfo
+		2. Small visual effects
+		3. finishedSequenceEventFire
+	]]
+	local winningCard = Game_Cards[1]
+	local winningCardTable = winningCard._cardTable
+	local winningString = CardObject.getSequence(winningCardTable)
+	table.insert(CurrentGameInfo._foundSolutions, winningString)
+
+	------ Turn Winning Card into Ball and Orbit ------
+	------ Create the Ball ------
+	local newSolutionDisplay = Solution_Display:Clone()
+	table.insert(CurrentGameInfo._solutionDisplays, newSolutionDisplay)
+	newSolutionDisplay:SetPrimaryPartCFrame(CFrame.new(winningCard._cardObject.PrimaryPart.Position))
+	newSolutionDisplay.Parent = CurrentGameInfo.ancestorModel.Cleanup
+
+	local winTweenInfo = TweenInfo.new(.5)
+	local winCardSqueezeTween = TweenService:Create(winningCard._cardObject.PrimaryPart, winTweenInfo, 
+		{Orientation = winningCard._cardObject.PrimaryPart.Orientation + Vector3.new(math.random(-60,60),math.random(-60,60),math.random(-60,60)),
+		Transparency = .8, Size = Vector3.new(.1, .5, .3)}) -- TODO: Configure to GameInfo?
+	winCardSqueezeTween.Completed:Connect(function()
+		------ Attach the Display to a Ring Slot ------
+		-- weld the model
+		for _, v in pairs(newSolutionDisplay:GetDescendants()) do
+			if v ~= newSolutionDisplay.PrimaryPart and v:IsA("BasePart") then
+				local weld = Instance.new("WeldConstraint")
+				weld.Parent = v
+				weld.Part0 = newSolutionDisplay.PrimaryPart
+				weld.Part1 = v
+				v.Anchored = false
+				v.Massless = true
+			end
+		end
+
+		------ Select a Slot ------
+		local slot
+		if #CurrentGameInfo._foundSolutions > 12 then
+			------ Special Slot ------
+			print("Reached Special Slot")
+		elseif #CurrentGameInfo._foundSolutions % 2 == 0 then
+			------ Ring 2 ------
+			print("Ring2")
+			for _, v in pairs (CurrentGameInfo._ring2Slots) do
+				if v:GetAttribute("occupied") == true then
+					continue
+				else
+					slot = v
+					v:SetAttribute("occupied", true)
+					break
+				end
+			end
+		else
+			------ Ring 1 ------
+			print("Ring1")
+			for _, v in pairs (CurrentGameInfo._ring1Slots) do
+				if v:GetAttribute("occupied") == true then
+					continue
+				else
+					slot = v
+					v:SetAttribute("occupied", true)
+					break
+				end
+			end
+		end
+		------ Move To Slot ------
+		local time = .4
+		local moveDisplayTween
+		local runserviceHeartbeatConnection
+		CurrentGameInfo._runserviceHeartbeatConnection = runserviceHeartbeatConnection
+		runserviceHeartbeatConnection = RunService.Heartbeat:Connect(function()
+			if CurrentGameInfo._timer == nil or CurrentGameInfo._timer:isRunning() == false then
+				runserviceHeartbeatConnection:Disconnect()
+			end
+			if SphereUtilities.getDistance(newSolutionDisplay.PrimaryPart.Position, slot.Position) < 2 then
+				------ Weld ------
+				print("Welding")
+				if moveDisplayTween then 
+					moveDisplayTween:Cancel() 
+				end
+				newSolutionDisplay.PrimaryPart.Anchored = false
+				newSolutionDisplay.PrimaryPart.Massless = true
+				newSolutionDisplay.PrimaryPart.CFrame = CFrame.new(slot.Position)
+				local displayWeld = Instance.new("WeldConstraint")
+				displayWeld.Parent = newSolutionDisplay.PrimaryPart
+				displayWeld.Name = "RingWeldConstraint"
+				displayWeld.Part0 = newSolutionDisplay.PrimaryPart
+				displayWeld.Part1 = slot
+				runserviceHeartbeatConnection:Disconnect()
+				------ Fire Finished ------
+				finishedWinSequenceEvent:Fire()
+			else
+				------ Move ------
+				print("Fire Move")
+				local moveTweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+				local moveDisplayTween = TweenService:Create(newSolutionDisplay.PrimaryPart, moveTweenInfo, 
+					{CFrame = CFrame.new(slot.Position)})
+				moveDisplayTween:Play()
+			end
+		end)
+	end)
+	wait(0.1)
+	winCardSqueezeTween:Play()
+end
+
+GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInfo)
+	------ Cleanup and Destroy Cards and Operators (if any) ------
+	if Game_Cards then
+		for _, v in pairs(Game_Cards) do
+			GameUtilities.Hide_Operators(v)
+			v._cardObject:Destroy()
+		end
+
+		table.clear(Game_Cards)
+		Game_Cards = nil -- allow cleanup
+	end
+	--[[
+		1. Get All Saved Completed 24 Sequences
+		2. VFX for spitting out equations -- need to calculate potential range which may host
+		3. Spawn 24 Game Fairies that showcase the equations
+	]]
+	
+	------ Generate Range ------
+	local systemTheta = math.rad(CurrentGameInfo.ancestorModel.PromptPart.Orientation.Y) - math.pi/2
+	-- For Testing, Drawing Boundaries --
+	-- for _, v in pairs(GameInfo.SolutionsXRange) do
+	-- 	for _, c in pairs(GameInfo.SolutionsZRange) do
+	-- 		local boundaryPart = Instance.new("Part")
+	-- 		boundaryPart.Anchored = true
+	-- 		boundaryPart.BrickColor = BrickColor.new("Neon green")
+	-- 		boundaryPart.Size = Vector3.new(1,1,1)
+	-- 		local radius = math.sqrt(v^2 + c^2)
+	-- 		local theta = math.atan2(v, c)
+	-- 		boundaryPart.Position = Vector3.new(math.sin(theta+systemTheta)*radius, 0, math.cos(theta+systemTheta)*radius) + 
+	-- 		CurrentGameInfo.ancestorModel.PromptPart.Position
+	-- 		boundaryPart.Parent = CurrentGameInfo.ancestorModel.Cleanup
+	-- 	end
+	-- end
+
+	local solutionPoints = {}
+	for i, v in ipairs(CurrentGameInfo._solutionDisplays) do
+		local verifiedXZPoint
+		while verifiedXZPoint == nil do
+			------ Generate Position ------
+			local randomXZPoint = {math.random(GameInfo.SolutionsXRange[1], GameInfo.SolutionsXRange[2]), 
+				math.random(GameInfo.SolutionsZRange[1], GameInfo.SolutionsZRange[2])}
+			------ Verify Point ------
+			local verified = true
+			for _, v in pairs(solutionPoints) do
+				local distance = math.sqrt((v[1] - randomXZPoint[1])^2 + (v[2] - randomXZPoint[2])^2)
+				if distance <= GameInfo.SolutionMinimumDistance then
+					verified = false
+					break
+				end
+			end
+			if not verified then continue end
+			verifiedXZPoint = randomXZPoint
+			table.insert(solutionPoints, verifiedXZPoint)
+		end
+		------ Initialize Solution Display Position ------
+		local radius = math.sqrt(verifiedXZPoint[1]^2 + verifiedXZPoint[2]^2)
+		local theta = math.atan2(verifiedXZPoint[1], verifiedXZPoint[2])
+		local newPositionOffset = Vector3.new(math.sin(theta+systemTheta)*radius,0, math.cos(theta+systemTheta)*radius)
+		------ Unweld and Anchor Display ------
+		if v.PrimaryPart:FindFirstChild("RingWeldConstraint") then
+			v.PrimaryPart.RingWeldConstraint:Destroy()
+		end
+		if CurrentGameInfo._runserviceHeartbeatConnection then
+			CurrentGameInfo._runserviceHeartbeatConnection:Disconnect()
+		end
+		v.PrimaryPart.Anchored = true
+		------ Arcing Movement ------
+		local targetPosition = newPositionOffset + CurrentGameInfo.ancestorModel.PromptPart.Position
+		local basePhi = SphereUtilities.getXY(v.PrimaryPart.Position, targetPosition)
+		local baseTheta = SphereUtilities.getXZ(v.PrimaryPart.Position, targetPosition)
+		local baseDistance = SphereUtilities.getDistance(v.PrimaryPart.Position, targetPosition)
+		local baseDistanceValue = Instance.new("NumberValue")
+		baseDistanceValue.Value = baseDistance
+		baseDistanceValue.Parent = v
+		local phiIncrement = math.random(1,3) * .01
+		local thetaIncrement = math.random(1,3) * -.01
+		local baseCounter = 0
+		local baseDistanceValueTween = TweenService:Create(baseDistanceValue, GameInfo.SolutionArcTweenInfo, {Value = 0})
+		baseDistanceValue:GetPropertyChangedSignal("Value"):Connect(function()
+			v:SetPrimaryPartCFrame(CFrame.new(SphereUtilities.sphereToRect2(
+				baseDistanceValue.Value, basePhi + (phiIncrement * baseCounter), baseTheta + (thetaIncrement * baseCounter), targetPosition)))
+			baseCounter = baseCounter + 1
+		end)
+		baseDistanceValueTween.Completed:Connect(function()
+			------ Initialize Solution Display Effects ------
+			v.Ambient.ParticleFloating.Enabled = true
+			v.Base.RingEmission0.Enabled = true
+			v.Base.RingEmission1.Enabled = true
+			v.Center.Smaller.Particles.RingEmission0.Enabled = true
+			v.Center.Smaller.Particles.RingEmission1.Enabled = true
+			-- v.Center.Smaller.Particles.SmallRingEmission0.Enabled = false
+			-- v.Center.Smaller.Particles.SmallRingEmission0.Enabled = false
+			v.Center.Transparency = .85
+			v.Center.Smaller.Transparency = .7
+
+			------ Initialize Solution Display Hitbox ------
+			local screenTouchPart = v.ScreenTouchPart
+			local screenGui = v.Screen.SurfaceGui
+
+			local frameStart = UDim2.new(0,0,0,0)
+			screenGui.Border.Size = frameStart
+			screenGui.Fill.Size = frameStart
+			screenGui.TextLabel.TextTransparency = 1
+
+			screenGui.Enabled = true
+
+			screenTouchPart.Touched:Connect(function(otherPart)
+				GameUtilities.Solution_Display_Touched(otherPart, screenGui)
+			end)
+			screenTouchPart.TouchEnded:Connect(function(otherPart)
+				GameUtilities.Solution_Display_Touch_Ended(otherPart, screenGui)
+			end)
+		end)
+		baseDistanceValueTween:Play()
+		------ Parent and Table Insert ------
+		-- newSolutionDisplay.Parent = CurrentGameInfo.ancestorModel.Cleanup
+		-- table.insert(solutionPoints, {verifiedXZPoint[1], verifiedXZPoint[2]})
+		-- counter = counter + 1
+		local cleanupCoroutine = coroutine.wrap(function()
+			------ Display Death Animation ------
+			wait(GameInfo.DisplayDuration)
+			v.ScreenTouchPart:Destroy()
+			for _, e in pairs(v:GetDescendants()) do
+				if e:IsA("ParticleEmitter") then
+					e.Enabled = false
+				end
+			end
+			TweenUtilities.Fade(v.Center, 1, 1, 0)
+			TweenUtilities.Fade(v.Center.Smaller, 1, 1, 0)
+			Debris:AddItem(v, 4)
+		end)
+		cleanupCoroutine()
+		wait(1)
+	end
+end
+
+GameUtilities.Solution_Display_Touched = function(otherPart, screenGui)
+	if otherPart.Name == "HumanoidRootPart" then
+		local border = screenGui.Border
+		local fill = screenGui.Fill
+		local TextLabel = screenGui.TextLabel
+
+		local frameMid = UDim2.new(0, 0, 1, 0)
+		local frameEnd = UDim2.new(1, 0, 1, 0)
+		local fillEnd = UDim2.new(0.9, 0, 0.85, 0)
+		TweenUtilities.UITweenSize(border, frameMid, 0.25, 0)
+		TweenUtilities.UITweenSize(fill, frameMid, 0.25, 0)
+
+		TweenUtilities.UITweenFadeText(TextLabel, 0, 0.25, 0.25)
+
+		TweenUtilities.UITweenSize(border, frameEnd, 0.25, 0.25)
+		TweenUtilities.UITweenSize(fill, fillEnd, 0.25, 0.5)
+	end
+end
+
+GameUtilities.Solution_Display_Touch_Ended = function(otherPart, screenGui)
+	if otherPart.Name == "HumanoidRootPart" then
+		local border = screenGui.Border
+		local fill = screenGui.Fill
+		local TextLabel = screenGui.TextLabel
+
+		local frameStart = UDim2.new(0, 0, 0, 0)
+		local frameMid = UDim2.new(0, 0, 1, 0)
+		TweenUtilities.UITweenFadeText(TextLabel, 1, 0.25, 0)
+
+		TweenUtilities.UITweenSize(border, frameMid, 0.25, 0)
+		TweenUtilities.UITweenSize(fill, frameMid, 0.25, 0)
+
+		TweenUtilities.UITweenSize(border, frameStart, 0.25, 0)
+		TweenUtilities.UITweenSize(fill, frameStart, 0.25, 0)
+	end
 end
 
 return GameUtilities

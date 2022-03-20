@@ -1,13 +1,16 @@
+------ Services ------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerStorage = game:GetService("ServerStorage")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 ------ ModuleScripts / Objects ------
 local GameUtilities = require(script:WaitForChild("GameUtilities"))
 local GameInfo = require(script.Parent.GameInfo)
 local CardList = require(script.CardList)
 local CardObject = require(script.CardObject)
+local Timer = require(ServerScriptService.Utilities:WaitForChild("Timer"))
 
 ------ Title Binding Remote Events ------
 local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideShowNameAndTitleEvent')
@@ -27,7 +30,7 @@ local Level1_Card_Model = ServerStorage.Island_2.Game_24:WaitForChild("Level1_Ca
 
 local NPC_Challenger_Arenas = game.Workspace.Island_2.NPC_Challenger_Arenas
 local Competitive_Arenas = game.Workspace.Island_2.Competitive_Arenas
-local Competitive_Arenas_Manager = {{},{},{},{},{}}
+local Competitive_Arenas_Manager = {{},{},{},{},{}} -- TODO: Change to dynamic?
 
 local Game_24 = {}
 
@@ -201,6 +204,252 @@ function Game_24.initialize(promptObject, player)
 	for _, v in pairs(Game_Cards) do
 		GameUtilities.Card_Functionality(v, ancestorModel, Game_Cards, CurrentGameInfo)
 	end
+end
+
+local function CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
+	------ Cleanup and Destroy Cards and Operators (if any) ------
+	if Game_Cards then
+		for _, v in pairs(Game_Cards) do
+			GameUtilities.Hide_Operators(v)
+			v._cardObject:Destroy()
+		end
+
+		table.clear(Game_Cards)
+		Game_Cards = nil -- allow cleanup
+	end
+	------ Reset promptObject ------
+	promptObject.Enabled = true
+	------ Sanity Check for cardFolderConnect Cleanup ------
+	if CurrentGameInfo.cardFolderConnect then
+		CurrentGameInfo.cardFolderConnect:Disconnect()
+	end
+	------ Timer Reset ------
+	CurrentGameInfo._timer = nil
+
+	------ Cleanup Ring Constraints and Movers ------
+	CurrentGameInfo.ancestorModel.HoldingPatternRings.Ring1.Center.Anchored = true
+	for _, v in pairs(CurrentGameInfo.ancestorModel.HoldingPatternRings.Ring1.Center:GetChildren()) do
+		if v:IsA("WeldConstraint") then
+			v.Part1.Anchored = true
+			v.Part0.Anchored = true
+		end
+		v:Destroy()
+	end
+	CurrentGameInfo.ancestorModel.HoldingPatternRings.Ring2.Center.Anchored = true
+	for _, v in pairs(CurrentGameInfo.ancestorModel.HoldingPatternRings.Ring2.Center:GetChildren()) do
+		if v:IsA("WeldConstraint") then
+			v.Part1.Anchored = true
+			v.Part0.Anchored = true
+		end
+		v:Destroy()
+	end
+	
+	------ Reset Occupied Attribute ------
+	for _, v in pairs(CurrentGameInfo.ancestorModel.HoldingPatternRings:GetDescendants()) do
+		if v:IsA("BasePart") and v.Name ~= "Center" then
+			v:SetAttribute("occupied", false)
+		end
+	end
+
+	------ Reset Player Movement Controls ------
+	UnlockMovementRE:FireClient(player)
+	------ Reset Player Camera Controls ------
+	CameraSetFOVRE:FireClient(player, 70)
+	CameraResetRE:FireClient(player)
+end
+
+local function StartNextRound(player, ancestorModel, Game_Cards, CurrentGameInfo)
+	------ Cleanup and Destroy Cards and Operators (if any) ------
+	if Game_Cards then
+		for i, v in pairs(Game_Cards) do
+			GameUtilities.Hide_Operators(v)
+			v._cardObject:Destroy()
+			Game_Cards[i] = nil
+		end
+	end
+	--Game_Cards = {}
+	------ Lock and Move Player Camera to Position + Set FOV ------
+	CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+	CameraSetFOVRE:FireClient(player, GameInfo.FOV, GameInfo.FOVSetTime)
+	------ Initialize a Random Card ------
+	local difficulty = ancestorModel:GetAttribute("difficulty")
+	CurrentGameInfo._difficulty = difficulty
+	local cardPulled = CardList[difficulty][math.random(1, #CardList[difficulty])]
+	------ Form New Card to Board ------
+	local BoardCards = ancestorModel.BoardCards
+	GameUtilities.Board_Initialization(BoardCards, cardPulled)
+	------ Get Cards ------
+	GameUtilities.Get_New_Cards(cardPulled, Game_Cards, CurrentGameInfo)
+	------ Make Cards Selectable ------
+	for _, v in pairs(Game_Cards) do
+		GameUtilities.Card_Functionality(v, ancestorModel, Game_Cards, CurrentGameInfo)
+	end
+end
+
+local function initializeRingPatterns(ancestorModel, CurrentGameInfo)
+	local Ring1 = ancestorModel.HoldingPatternRings.Ring1
+	local Ring2 = ancestorModel.HoldingPatternRings.Ring2
+	for _, v in pairs(Ring1:GetChildren()) do
+		if v:IsA("BasePart") and v.Name ~= "Center" then
+			local weld = Instance.new("WeldConstraint")
+			weld.Parent = Ring1.Center
+			weld.Part0 = Ring1.Center
+			weld.Part1 = v
+			v.Anchored = false
+			table.insert(CurrentGameInfo._ring1Slots, v) -- Each Slot Part also has an attribute "occupied"
+		end
+	end
+	for _, v in pairs(Ring2:GetChildren()) do
+		if v:IsA("BasePart") and v.Name ~= "Center" then
+			local weld = Instance.new("WeldConstraint")
+			weld.Parent = Ring2.Center
+			weld.Part0 = Ring2.Center
+			weld.Part1 = v
+			v.Anchored = false
+			table.insert(CurrentGameInfo._ring2Slots, v)
+		end
+	end
+	local bodyPosition1 = Instance.new("BodyPosition")
+	bodyPosition1.Position = Ring1.Center.Position
+	bodyPosition1.Parent = Ring1.Center
+	local bodyPosition2 = Instance.new("BodyPosition")
+	bodyPosition2.Position = Ring2.Center.Position
+	bodyPosition2.Parent = Ring2.Center
+
+	local bodyAngularVelocity1 = Instance.new("BodyAngularVelocity")
+	bodyAngularVelocity1.AngularVelocity = Vector3.new(.25,.31,.42)
+	bodyAngularVelocity1.Parent = Ring1.Center
+	local bodyAngularVelocity2 = Instance.new("BodyAngularVelocity")
+	bodyAngularVelocity2.AngularVelocity = Vector3.new(-.26,-.33,-.41)
+	bodyAngularVelocity2.Parent = Ring2.Center
+
+	Ring1.Center.Anchored = false
+	Ring2.Center.Anchored = false
+end
+
+function Game_24.initializeTimed(promptObject, player)
+	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
+
+	------ Lock Player Movements ------
+	LockMovementRE:FireClient(player)
+	------ Disable proximityPrompt ------
+	promptObject.Enabled = false
+	------ Initialize CurrentGameInformation ------
+	local CurrentGameInfo = {}
+	CurrentGameInfo.currentPlayer = player
+	CurrentGameInfo.ancestorModel = ancestorModel
+	CurrentGameInfo._winSequencePlaying = false
+	CurrentGameInfo._orientation = math.rad(ancestorModel.PromptPart.Orientation.Y)
+	CurrentGameInfo._orientationDegrees = ancestorModel.PromptPart.Orientation.Y
+	CurrentGameInfo._defaultCameraCFrame = CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.CameraXZOffset) + ancestorModel.PromptPart.Position + Vector3.new(0, GameInfo.CameraYOffset, 0)) * 
+		CFrame.Angles(0, CurrentGameInfo._orientation + (math.pi / 2), 0) * -- Prevent Euler "Gimbal Lock"
+		CFrame.Angles(-math.pi / 12, 0, 0)
+
+	CurrentGameInfo._foundSolutions = {}
+	CurrentGameInfo._solutionDisplays = {}
+	CurrentGameInfo._ring1Slots = {}
+	CurrentGameInfo._ring2Slots = {}
+
+	local Game_Cards = {}
+	------ Initialize Timer ------
+	local newTimer = Timer.new()
+	newTimer.finished:Connect(function()
+		GameUtilities.Timer_Finished_Single_Player(Game_Cards, CurrentGameInfo)
+		CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
+	end)
+	CurrentGameInfo._timer = newTimer
+	CurrentGameInfo._timerPart = ancestorModel.TimerPart
+	------ Start Timer ------
+	newTimer:start(GameInfo.SinglePlayerTimedDuration, CurrentGameInfo._timerPart)
+
+	------ Lock and Move Player Camera to Position + Set FOV ------
+	CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+	CameraSetFOVRE:FireClient(player, GameInfo.FOV, GameInfo.FOVSetTime)
+	------ Move player to position ------
+	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModel.PromptPart.Position
+	------ Tie Cleanup to Death and Leave Event ------
+	local playerHumanoidDiedConnection
+	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
+		if CurrentGameInfo._winSequencePlaying == true then -- If a win sequence is playing, then a cleanup will happen later
+			playerHumanoidDiedConnection:Disconnect()
+			return
+		end
+		CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
+		playerHumanoidDiedConnection:Disconnect()
+	end)
+	local playerLeaveConnection
+	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
+		if removed == player then
+			if CurrentGameInfo._winSequencePlaying == true then
+				playerLeaveConnection:Disconnect()
+				return
+			end
+			CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
+			playerLeaveConnection:Disconnect()
+		end
+	end)
+	------ Initialize a Random Card ------
+	local difficulty = ancestorModel:GetAttribute("difficulty")
+	CurrentGameInfo._difficulty = difficulty
+	local cardPulled = CardList[difficulty][math.random(1, #CardList[difficulty])]
+	------ Form New Card to Board ------
+	local BoardCards = ancestorModel.BoardCards
+	GameUtilities.Board_Initialization(BoardCards, cardPulled)
+	------ Card Reposition on Add to Folder ------
+	local CardFolder = ancestorModel.CardFolder
+	CurrentGameInfo._cardFolder = CardFolder
+	local originalOriginPosition = (Vector3.new(math.sin(CurrentGameInfo._orientation - (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation - (math.pi / 2))) * GameInfo.ORIGIN_POSITION_OFFSET) 
+		+ ancestorModel.PromptPart.Position - Vector3.new(0, 1.5, 0)
+
+	CurrentGameInfo._originalOriginPosition = originalOriginPosition
+	local cardAddedConnection
+	CurrentGameInfo.cardFolderConnect = cardAddedConnection
+	cardAddedConnection = CardFolder.ChildAdded:Connect(function()
+		local iterator = 0
+		for _, v in pairs(Game_Cards) do
+			v._startingPosition = GameUtilities.Get_Starting_Position(originalOriginPosition, GameInfo.GAP_SIZE, iterator, #CardFolder:GetChildren(), CurrentGameInfo._orientation)
+
+			local positionTween = TweenService:Create(v._cardObject.PrimaryPart, GameInfo.PositionTweenInfo, {Position = v._startingPosition })
+			positionTween:Play()
+			
+			iterator = iterator + 1
+		end
+		------ 24 Success ------
+		if #CardFolder:GetChildren() == 1 then --TODO: Move from children number to a more static and changeable number
+			for _, v in pairs(Game_Cards) do
+				if v.calculateValue(v._cardTable) == 24 then
+					print("24 Card Created! No Other Cards Left")
+					--cardAddedConnection:Disconnect()
+					CurrentGameInfo._winSequencePlaying = true
+					v._cardObject.Base_Card.ClickDetector:Destroy()
+
+					local finishedWinSequenceEvent = Instance.new("BindableEvent")
+					finishedWinSequenceEvent.Event:Connect(function()
+						if CurrentGameInfo._timer:isRunning() then
+							print("Starting Next Round")
+							CurrentGameInfo._winSequencePlaying = false
+							StartNextRound(player, ancestorModel, Game_Cards, CurrentGameInfo)
+						else
+							return
+						end
+					end)
+
+					GameUtilities.Win_Sequence_Timed_Single_Player(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+					return
+				end
+			end
+		end
+	end)
+	------ Get Cards ------
+	GameUtilities.Get_New_Cards(cardPulled, Game_Cards, CurrentGameInfo)
+	------ Make Cards Selectable ------
+	for _, v in pairs(Game_Cards) do
+		GameUtilities.Card_Functionality(v, ancestorModel, Game_Cards, CurrentGameInfo)
+	end
+	------ Ring Initialization ------
+	initializeRingPatterns(ancestorModel, CurrentGameInfo)
 end
 
 local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo)
@@ -725,39 +974,10 @@ function Game_24.initializeCompetitive(arena_index)
 	end)
 
 	------ Spawn Cards For Player 1 ------ TODO: animation and vfx, maybe some camera work
-	local numberOfCards = 4
-	for i = 1, numberOfCards do
-		---- Create New Card ----
-		local newBaseCard = Level1_Card_Model:Clone()
-		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, player1CurrentGameInfo._orientationDegrees)
-		---- Add To Game_Cards List ----
-		local newCardObject = CardObject.new()
-		table.insert(player1Game_Cards, newCardObject)
-		newCardObject._cardTable[2] = cardPulled[i]
-		newCardObject._cardObject = newBaseCard
-		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
-		---- Change Parent ----
-		newBaseCard.Parent = player1CurrentGameInfo._cardFolder
-		---- Adjust Display ----
-		newCardObject:UpdateGUI()
-	end
+	GameUtilities.Get_New_Cards(cardPulled, player1Game_Cards, player1CurrentGameInfo)
 
 	------ Spawn Cards For Player 2 ------
-	for i = 1, numberOfCards do
-		---- Create New Card ----
-		local newBaseCard = Level1_Card_Model:Clone()
-		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, player2CurrentGameInfo._orientationDegrees)
-		---- Add To Game_Cards List ----
-		local newCardObject = CardObject.new()
-		table.insert(player2Game_Cards, newCardObject)
-		newCardObject._cardTable[2] = cardPulled[i]
-		newCardObject._cardObject = newBaseCard
-		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
-		---- Change Parent ----
-		newBaseCard.Parent = player2CurrentGameInfo._cardFolder
-		---- Adjust Display ----
-		newCardObject:UpdateGUI()
-	end
+	GameUtilities.Get_New_Cards(cardPulled, player2Game_Cards, player2CurrentGameInfo)
 	
 	------ Make Cards Selectable ------
 	for _, v in pairs(player1Game_Cards) do

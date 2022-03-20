@@ -83,6 +83,15 @@ GameInfo.SinglePlayerCurrencyTable = {
     hard = 20
 }
 
+------ Timer Information ------
+---- Single Player
+GameInfo.SinglePlayerTimedDuration = 90 -- half a minute for testing
+GameInfo.SolutionsXRange = {-10, 10}
+GameInfo.SolutionsZRange = {2, 20}
+GameInfo.SolutionMinimumDistance = 3
+GameInfo.SolutionArcTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+GameInfo.DisplayDuration = 10
+
 --GameInfo.CombineYDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
 --GameInfo.CombineXZDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 
