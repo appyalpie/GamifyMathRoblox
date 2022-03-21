@@ -7,8 +7,8 @@ local CollectionService = game:GetService("CollectionService")
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 local MathBlocksInfo = require(script.Parent.MathBlocksInfo)
 
-local MATH_BLOCK_COMBINBATION_XP_GAIN = 10
-local MATH_BLOCK_COMBINATION_CURRENCY_GAIN = 1
+local MATH_BLOCK_COMBINBATION_XP_GAIN = MathBlocksInfo.CombinationRewardTable["XP"]
+local MATH_BLOCK_COMBINATION_CURRENCY_GAIN = MathBlocksInfo.CombinationRewardTable["Currency"]
 
 local CollisionUtilities = {}
 
@@ -198,14 +198,14 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
     -- add XP to the player
     -- if the userIds for both blocks are the same, just add XP once
     if block_1:GetAttribute("lastTouchedBy") == block_2:GetAttribute("lastTouchedBy") then
-        GameStatsUtilities.incrementXP(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MATH_BLOCK_COMBINBATION_XP_GAIN)
-        GameStatsUtilities.incrementCurrency(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MATH_BLOCK_COMBINATION_CURRENCY_GAIN)
+        GameStatsUtilities.incrementXP(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MathBlocksInfo.CombinationRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MathBlocksInfo.CombinationRewardTable["Currency"])
     else
     -- otherwise increment each block's lastTouchedBy player XP
-        GameStatsUtilities.incrementXP(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MATH_BLOCK_COMBINBATION_XP_GAIN)
-        GameStatsUtilities.incrementCurrency(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MATH_BLOCK_COMBINATION_CURRENCY_GAIN)
-        GameStatsUtilities.incrementXP(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")), MATH_BLOCK_COMBINBATION_XP_GAIN)
-        GameStatsUtilities.incrementCurrency(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")), MATH_BLOCK_COMBINATION_CURRENCY_GAIN)
+        GameStatsUtilities.incrementXP(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MathBlocksInfo.CombinationRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")), MathBlocksInfo.CombinationRewardTable["Currency"])
+        GameStatsUtilities.incrementXP(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")), MathBlocksInfo.CombinationRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")), MathBlocksInfo.CombinationRewardTable["Currency"])
     end
 
     if operator == MathBlocksInfo.ADD_BLOCK_TAG then

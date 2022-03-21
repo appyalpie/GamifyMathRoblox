@@ -18,9 +18,6 @@ local BLOCK_DROP_PROCESSING_WAIT_DURATION = .3
 local BLOCK_DROP_CORRECT_TEXT = "Accepted Value"
 local BLOCK_DROP_REJECT_TEXT = "REJECTED"
 
-local CORRECT_ANSWER_XP = 50
-local CORRECT_ANSWER_CURRENCY = 5
-
 local BlockDropUtilities = {}
 
 -- TODO: Move setScreenGuis to a more general gui manipulation module
@@ -53,8 +50,8 @@ function BlockDropUtilities.correctAnswerServicing(block, operator)
     block.Anchored = true
     block.CanTouch = false
 
-    GameStatsUtilities.incrementXP(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), CORRECT_ANSWER_XP)
-    GameStatsUtilities.incrementCurrency(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), CORRECT_ANSWER_CURRENCY)
+    GameStatsUtilities.incrementXP(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), MathBlocksInfo.BlockDropRewardTable["XP"])
+    GameStatsUtilities.incrementCurrency(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), MathBlocksInfo.BlockDropRewardTable["Currency"])
 
     local blockDrop
     local blockDoor
