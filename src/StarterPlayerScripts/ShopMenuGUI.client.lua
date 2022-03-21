@@ -1,11 +1,15 @@
-local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChild("functions"))
+local InvFunctions = require(script.Parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local ShopGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("ShopContainer")
-local AccessoryList = ShopGUI:WaitForChild("ShopContainer"):WaitForChild("ShopScreen")
+local ShopGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui"):WaitForChild("ShopContainer")
+local AccessoryList = ShopGUI:WaitForChild("ShopScreen")
 local Acctemplate = ReplicatedStorage:WaitForChild("Accessories"):WaitForChild("ShopTemplate")
-local GetCurrencyEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents")
-local SpendCurrencyEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents"):WaitForChild("SpendCurrencyEvent")
+
+local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents")
+local GetCurrencyEvent = InventoryEvents:WaitForChild("GetCurrencyEvent")
+local SpendCurrencyEvent = InventoryEvents:WaitForChild("SpendCurrencyEvent")
+local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",1)
+
 local ShopMessage = ShopGUI:WaitForChild("ShopMessage")
 
 
@@ -79,7 +83,7 @@ local function Populate(AccTable)
         end
     end
 end
-Populate()
+AccesoryTableEvent.OnClientEvent:Connect(Populate)
 
 
 ShopGUI.BuyButton.Activated:Connect(function()
@@ -90,6 +94,8 @@ if Selected ~= nil then
         if Currency >= Selected.Cost and Currency ~= nil then
             SpendCurrencyEvent:FireServer(Selected.Cost)
             Selected.ImageColor3 = Color3.fromRGB(161,161,161)
+            InvFunctions.AddItem(Selected)
+            Selected.bool = true
             Selected = nil
         end
     end
@@ -103,4 +109,4 @@ end)
 local function setCurrency(PlayerMoney)
     Currency = PlayerMoney
 end
-GetCurrencyEvent.onClientEvent(setCurrency)
+GetCurrencyEvent.onClientEvent:Connect(setCurrency)
