@@ -15,6 +15,8 @@ local GetPlayerSavedInventoryEvent = InventoryEvents:WaitForChild("InventoryStor
 local SendServerEquipped = InventoryEvents:WaitForChild("SendEquippedToServer",1)
 local SendToServer = InventoryEvents:WaitForChild("InventorySave",1)
 
+local ColorEvent = InventoryEvents:WaitForChild("ColorEvent")
+
 local AccessoryTab = InventoryGUI:WaitForChild("ALabel")
 local TitleTab = InventoryGUI:WaitForChild("TLabel")
 local BadgeTab = InventoryGUI:WaitForChild("ZLabel")
@@ -179,4 +181,16 @@ TitleList.Visible = false
 BadgeList.Visible = true
 AccessoryList.Visible = false
 end)
+
+local function ShopTrigger(ItemName)
+    local Button
+    for key, value in pairs (AccessoryList:GetChildren()) do
+        if value.Name == ItemName then
+        Button = value
+            ChangeColor(Button,1)
+        end
+    end
+end
+
+ColorEvent.onClientEvent:Connect(ShopTrigger)
 

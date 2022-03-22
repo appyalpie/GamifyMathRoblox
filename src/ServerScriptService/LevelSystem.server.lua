@@ -9,7 +9,8 @@ Players.PlayerAdded:Connect(function(player)
     local XP = PlayerStats["XP"]
     LevelSystem.SetLevelEntry(player,XP)
 
-    LevelSystem.SetLevelUpdate(player,(XP))
+    -- test code for changing XP value in non-game place enviorment 
+    --LevelSystem.SetLevelUpdate(player,(XP+3000))
 
     PlayerStats["XP"].Changed:Connect(LevelSystem.SetLevelUpdate(player,XP))
 

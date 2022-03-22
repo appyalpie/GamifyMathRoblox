@@ -45,7 +45,6 @@ LevelSystem.SetLevelEntry = function(Player,XP)
         end
         TotalXP = TotalXP + nextLevel
     end
-
     LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
     LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = TotalXP
     LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel

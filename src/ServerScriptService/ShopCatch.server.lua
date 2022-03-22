@@ -6,7 +6,7 @@ local SpendCurrencyEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitFo
 
 local function SendCurrency(player)
     local PlayerCurrency = GameStats.getPlayerData(player)["Currency"]
-    GetCurrencyEvent.FireClient(player,PlayerCurrency)
+    GetCurrencyEvent:FireClient(player,PlayerCurrency)
 end
 local function SpendCurrency(player,Cost)
     local PlayerCurrency = GameStats.getPlayerData(player)["Currency"]

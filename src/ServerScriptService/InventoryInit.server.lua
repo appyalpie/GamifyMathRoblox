@@ -19,59 +19,14 @@ local addAccTable = remoteEvent.AddAccesoryTableEvent
 local SaveTable = remoteEvent.InventorySave
 local remoteFunctionEquip = remoteEvent:FindFirstChild("SendEquippedToServer")
 
+local ColorEvent = remoteEvent:WaitForChild("ColorEvent")
+
 
 local InvTable = {
     
 }
 
-
--- is intended to add to the Physical accessory to the Player Character
--- this can be changed once Accessories are changed
---[[local function equipAccessory(player,Accesory)
-    local character = player.character
-    if Accesory ~= nil and character ~= nil then
-        if character:FindFirstChild(player.Name.."equipped" + Accesory.Type)  then
-            character[player.Name.."equipped" + Accesory.Type]:Destroy() 
-        end
-        if character.HumanoidRootPart:FindFirstChild("attachmentCharacter") then
-            character.HumanoidRootPart:FindFirstChild("attachmentCharacter"):Destroy()
-        end
-
-        Accesory.Name = player.Name.."equipped" + Accesory.Type
-        Accesory:SetPrimaryPart(character.HumanoidRootPart.CFrame)
-
-        local modelSize = Accesory.PrimaryPart.Size
-
-        local attachmentCharacter = Instance.new("Attachment")
-        attachmentCharacter.Visible = false
-        attachmentCharacter.Name = "attachmentCharacter"
-        attachmentCharacter.Parent = character.HumanoidRootPart
-        attachmentCharacter.Position = Vector3.new(0,0,0) + modelSize
-
-        local attachmentAccessory = Instance.new("Attachment")
-        attachmentAccessory.Visible = false
-        attachmentAccessory.Parent = Accesory.PrimaryPart
-        
-
-        local alignPosition = Instance.new("AlignPosition")
-        alignPosition.MaxForce = 25000
-        alignPosition.Attachment0 = attachmentAccessory
-        alignPosition.Attachment1 = attachmentCharacter
-        alignPosition.Responsiveness = 25
-        alignPosition.Parent = Accesory
-
-        local alignOrientation = Instance.new("AlignOrientation")
-        alignOrientation.Attachment0 = attachmentAccessory
-        alignOrientation.Attachment1 = attachmentCharacter
-        alignOrientation.Parent = Accesory
-
-        
-        Accesory.Parent = character
-        end
-
-end]]
  -- creates the Equipped Folder inside of player with string locations
-
 Players.PlayerAdded:Connect(function(player)
     local savedInventoryClient  = Instance.new("Folder")
     savedInventoryClient.Name = "AccessoryInventory"
@@ -118,6 +73,8 @@ Players.PlayerAdded:Connect(function(player)
     -- creates an index on the server using the player.UserId as a key stores the saved Inventory set of strings
     table.insert(InvTable, player.UserId, savedInventory)
     -- passes player and accessory table
+    -- wait is here so all client scripts can finish loading in otherwise they don't fire shop GUI sometimes
+    wait(1)
     addAccTable:FireClient(player,AccessoryList) 
 
     if success then
@@ -205,3 +162,8 @@ end
 remoteFunctionEquip.OnServerInvoke = EquipToPlayer
 
 SaveTable.OnServerEvent:Connect(GetTable) 
+
+local function ClientColor(player,ItemName)
+    ColorEvent:FireClient(player,ItemName)
+end
+ColorEvent.onServerEvent:Connect(ClientColor)
