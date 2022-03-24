@@ -34,6 +34,7 @@ local Competitive_Arenas_Manager = {{},{},{},{},{}} -- TODO: Change to dynamic?
 
 local Game_24 = {}
 
+------ Single Player ------
 local function Cleanup(promptObject, player, Game_Cards, CurrentGameInfo)
 	if Game_Cards then
 		-- clean up and destroy cards and operators if any
@@ -206,6 +207,7 @@ function Game_24.initialize(promptObject, player)
 	end
 end
 
+------ Single Player Timed ------
 local function CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
 	------ Cleanup and Destroy Cards and Operators (if any) ------
 	if Game_Cards then
@@ -278,6 +280,7 @@ local function StartNextRound(player, ancestorModel, Game_Cards, CurrentGameInfo
 	------ Form New Card to Board ------
 	local BoardCards = ancestorModel.BoardCards
 	GameUtilities.Board_Initialization(BoardCards, cardPulled)
+	GameUtilities.Board_Initialization_VFX(BoardCards, ancestorModel.BoardModel)
 	------ Get Cards ------
 	GameUtilities.Get_New_Cards(cardPulled, Game_Cards, CurrentGameInfo)
 	------ Make Cards Selectable ------
@@ -361,7 +364,7 @@ function Game_24.initializeTimed(promptObject, player)
 	CurrentGameInfo._timer = newTimer
 	CurrentGameInfo._timerPart = ancestorModel.TimerPart
 	------ Start Timer ------
-	newTimer:start(GameInfo.SinglePlayerTimedDuration, CurrentGameInfo._timerPart)
+	newTimer:start_LRBar(GameInfo.SinglePlayerTimedDuration, CurrentGameInfo._timerPart.SurfaceGui)
 
 	------ Lock and Move Player Camera to Position + Set FOV ------
 	CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
@@ -397,6 +400,7 @@ function Game_24.initializeTimed(promptObject, player)
 	------ Form New Card to Board ------
 	local BoardCards = ancestorModel.BoardCards
 	GameUtilities.Board_Initialization(BoardCards, cardPulled)
+	GameUtilities.Board_Initialization_VFX(BoardCards, ancestorModel.BoardModel)
 	------ Card Reposition on Add to Folder ------
 	local CardFolder = ancestorModel.CardFolder
 	CurrentGameInfo._cardFolder = CardFolder
@@ -452,6 +456,7 @@ function Game_24.initializeTimed(promptObject, player)
 	initializeRingPatterns(ancestorModel, CurrentGameInfo)
 end
 
+------ NPC Challenger ------
 local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Cards, CurrentGameInfo)
 	if Player_Game_Cards then
 		for _, v in pairs(Player_Game_Cards) do
@@ -728,6 +733,7 @@ function Game_24.initializeNPC(promptObject, player)
 	GameUtilities.NPC_Action_Initialization(cardPulled[5], NPC_Game_Cards, CurrentGameInfo)
 end
 
+------ Competitive ------
 local function CleanupCompetitive(arena_index)
 	------ Disconnect cardAdded to folder connection and reset movement and camera controls for both players ------
 	for _, v in pairs(Competitive_Arenas_Manager[arena_index]) do
@@ -840,9 +846,6 @@ function Game_24.preInitializationCompetitive(promptObject, player)
 	end
 end
 
---[[
-	Need information about all players that are currently queued
-]]
 function Game_24.initializeCompetitive(arena_index)
 	print("Starting 24 Game Competititve Mode")
 	------ Disconnect Old Death and Leave Cleanup and Initialize New ------

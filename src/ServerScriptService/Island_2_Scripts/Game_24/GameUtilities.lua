@@ -81,6 +81,9 @@ GameUtilities.Get_New_Cards = function(cardPulled, Game_Cards, CurrentGameInfo)
 		newCardObject._cardTable[2] = cardPulled[i]
 		newCardObject._cardObject = newBaseCard
 		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
+		---- Change Position ----
+		newBaseCard.PrimaryPart.Position = GameInfo.CARD_INIT_OFFSET +
+			GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition, GameInfo.GAP_SIZE, i - 1, numberOfCards, CurrentGameInfo._orientation)
 		---- Change Parent ----
 		newBaseCard.Parent = CurrentGameInfo._cardFolder
 		---- Adjust Display ----
@@ -91,6 +94,10 @@ end
 --returns a cloned card based on what depth is passed in
 GameUtilities.Get_Card_Clone_From_Depth = function(depth)
     return Card_Model_Table[depth]:Clone()
+end
+
+GameUtilities.Color_Code_Text_By_Depth = function(cardTable)
+	return
 end
 
 GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
@@ -105,15 +112,35 @@ GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
 end
 
 -- Note: Assumes WeldConstraints are created
-GameUtilities.Board_Initialization_VFX = function(BoardModel)
+GameUtilities.Board_Initialization_VFX = function(BoardCards, BoardModel)
 	------ Arm Movement ------
 	local Core = BoardModel.Board.Core
 	local coreSpinTween = TweenService:Create(Core, GameInfo.BoardSpinTweenInfo, 
-		{CFrame = Core.CFrame * CFrame.Angles(math.pi/2, 0, 0)})
+		{CFrame = Core.CFrame * CFrame.Angles(-math.pi/2, 0, 0)})
 	coreSpinTween:Play()
 	
 	------ Particle Emitter Effects ------
+	for _, v in pairs(BoardCards:GetChildren()) do
+		local particleCoroutine = coroutine.wrap(function()
+			v.ParticleAttachment.Circle.Enabled = true
+			v.ParticleAttachment.MagicCenter.Enabled = true
+			wait(GameInfo.BoardSpinTweenInfo.Time)
+			v.ParticleAttachment.Circle.Enabled = false
+			v.ParticleAttachment.MagicCenter.Enabled = false
+		end)
+		particleCoroutine()
+	end
 
+	------ Sound Effects ------
+	local soundCoroutine = coroutine.wrap(function()
+		Core.Sounds.Slide:Play()
+		Core.Sounds.Magical_Swirling_Tone_1:Play()
+		Core.Sounds.Rocks_3:Play()
+		wait(GameInfo.BoardSpinTweenInfo.Time)
+		Core.Sounds.Slide:Stop()
+		Core.Sounds.Slide_Stop:Play()
+	end)
+	soundCoroutine()
 end
 
 GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGameInfo)
@@ -1579,6 +1606,7 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 		{Orientation = winningCard._cardObject.PrimaryPart.Orientation + Vector3.new(math.random(-60,60),math.random(-60,60),math.random(-60,60)),
 		Transparency = .8, Size = Vector3.new(.1, .5, .3)}) -- TODO: Configure to GameInfo?
 	winCardSqueezeTween.Completed:Connect(function()
+		winningCard._cardObject:Destroy()
 		------ Attach the Display to a Ring Slot ------
 		-- weld the model
 		for _, v in pairs(newSolutionDisplay:GetDescendants()) do
@@ -1759,14 +1787,19 @@ GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInf
 
 			------ Initialize Solution Display Hitbox ------
 			local screenTouchPart = v.ScreenTouchPart
-			local screenGui = v.Screen.SurfaceGui
+			local screen = v.Screen
+			GameUtilities.Set_Orientation(screen, CurrentGameInfo._orientationDegrees - 90)
 
+			local screenGui = screen.SurfaceGui
 			local frameStart = UDim2.new(0,0,0,0)
 			screenGui.Border.Size = frameStart
 			screenGui.Fill.Size = frameStart
 			screenGui.TextLabel.TextTransparency = 1
 
 			screenGui.Enabled = true
+
+			------ Initialize Display Text ------
+			screenGui.TextLabel.Text = 
 
 			screenTouchPart.Touched:Connect(function(otherPart)
 				GameUtilities.Solution_Display_Touched(otherPart, screenGui)
@@ -1800,6 +1833,16 @@ end
 
 GameUtilities.Solution_Display_Touched = function(otherPart, screenGui)
 	if otherPart.Name == "HumanoidRootPart" then
+		------ Orientate ------
+		local screen = screenGui.Parent
+		if screen:FindFirstChild("WeldConstraint") then -- if welded get rid of weld
+			screen.Anchored = true
+			screen:FindFirstChild("WeldConstraint"):Destroy()
+		end
+		local ScreenCFrameTween = TweenService:Create(screen, GameInfo.ScreenTweenInfo, 
+			{CFrame = CFrame.new(screen.Position, Vector3.new(otherPart.Position.X, screen.Position.Y, otherPart.Position.Z))})
+		ScreenCFrameTween:Play()
+		------ ScreenGui Popup Animation ------
 		local border = screenGui.Border
 		local fill = screenGui.Fill
 		local TextLabel = screenGui.TextLabel
