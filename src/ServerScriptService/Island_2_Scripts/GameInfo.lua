@@ -83,6 +83,8 @@ GameInfo.SinglePlayerCurrencyTable = {
     hard = 20
 }
 
+GameInfo.BoardSpinTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+
 ------ Timer Information ------
 ---- Single Player
 GameInfo.SinglePlayerTimedDuration = 90 -- half a minute for testing

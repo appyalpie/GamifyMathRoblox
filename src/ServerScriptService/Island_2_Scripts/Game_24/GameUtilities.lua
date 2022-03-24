@@ -93,7 +93,6 @@ GameUtilities.Get_Card_Clone_From_Depth = function(depth)
     return Card_Model_Table[depth]:Clone()
 end
 
---TODO: add VFX
 GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
     local counter = 1
     for _, v in pairs(BoardCards:GetDescendants()) do
@@ -103,6 +102,18 @@ GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
 			counter = counter + 1
 		end
 	end
+end
+
+-- Note: Assumes WeldConstraints are created
+GameUtilities.Board_Initialization_VFX = function(BoardModel)
+	------ Arm Movement ------
+	local Core = BoardModel.Board.Core
+	local coreSpinTween = TweenService:Create(Core, GameInfo.BoardSpinTweenInfo, 
+		{CFrame = Core.CFrame * CFrame.Angles(math.pi/2, 0, 0)})
+	coreSpinTween:Play()
+	
+	------ Particle Emitter Effects ------
+
 end
 
 GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGameInfo)
