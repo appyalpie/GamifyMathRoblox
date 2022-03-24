@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
+local LevelSystem = require(script.Parent.Parent.Utilities.LevelSystem)
 
 
 local GameStatsUtilities = {}
@@ -49,6 +50,7 @@ end
 -----Overall Game------
 GameStatsUtilities.incrementXP = function(player, amount)
     playerGameStats[player.UserId]["XP"] = playerGameStats[player.UserId]["XP"] + amount
+    LevelSystem.SetLevelUpdate(player,playerGameStats[player.UserId]["XP"])
 end
 
 GameStatsUtilities.incrementCurrency = function(player, amount)

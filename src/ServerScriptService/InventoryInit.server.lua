@@ -68,7 +68,7 @@ Players.PlayerAdded:Connect(function(player)
     end
     print(savedInventory)
     
-    savedInventory = {} -- ONCE SHOP GUI IS SET UP DELETE THIS LINE
+    savedInventory = {} -- ONCE SHOP GUI IS SET UP DELETE THIS LINE this resets savedInventory at the start everytime
 
     -- creates an index on the server using the player.UserId as a key stores the saved Inventory set of strings
     table.insert(InvTable, player.UserId, savedInventory)

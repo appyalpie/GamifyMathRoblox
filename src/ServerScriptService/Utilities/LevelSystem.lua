@@ -91,8 +91,13 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
     end
 end
 
+--for leaderboard display
 LevelSystem.DisplayLevel = function(Player)
     return  LevelSystem.PlayerXPList[Player.UserId]["Level"]
+end
+--returns a value between 0-1 for bar tracking
+LevelSystem.DisplayProgression = function(Player,XP)
+    return ((XP - LevelSystem.PlayerXPList[Player.UserId]["totalXP"]) / LevelSystem.PlayerXPList[Player.UserId]["nextLevel"])
 end
 
 LevelSystem.Reset = function(Player)
@@ -101,6 +106,7 @@ LevelSystem.Reset = function(Player)
     LevelSystem.PlayerXPList[Player.UserId]["Level"] = 0
 end
 
+-- Both Level system Rewards and the VFX can occur from this function
 LevelSystem.TriggerCelebration = function(Player)
     print(Player.Name .. " has leveled up")
     --[[

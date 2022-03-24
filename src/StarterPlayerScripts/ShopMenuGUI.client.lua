@@ -64,11 +64,13 @@ local function addToFrame(AccessoryString)
             Selected = newtemplate
         else
             ShopMessage.Text = "That Accessory is not available"
-            wait(1)
+            wait(5)
             ShopMessage.Text = ""
         end
-        print(newtemplate.Name .. " is selected")
-        print(Selected.Name .. " Consistancy Check")
+        ShopMessage.Text = newtemplate.AccessoryName.Text .. " is selected"
+        wait(1)
+        ShopMessage.Text = "The Cost of " .. newtemplate.AccessoryName.Text  .. " is : " .. newtemplate.Cost.Value .. " credits" -- change this to whatever currency name we want to use
+   
     end)
 
 
@@ -82,6 +84,7 @@ local function Populate(AccTable)
             end
         end
     end
+    ShopMessage.Text = "Please select an accessory to purchase"
 end
 AccesoryTableEvent.OnClientEvent:Connect(Populate)
 
