@@ -4,7 +4,8 @@
 local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI"):WaitForChild("InventoryScreen")
+local MenuGui = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui")
+local InventoryGUI = MenuGui:WaitForChild("InventoryScreen")
 local AccessoryList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("AFrame")
 local TitleList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("TFrame")
 local BadgeList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("ZFrame")
@@ -14,6 +15,7 @@ local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",
 local GetPlayerSavedInventoryEvent = InventoryEvents:WaitForChild("InventoryStore",1)
 local SendServerEquipped = InventoryEvents:WaitForChild("SendEquippedToServer",1)
 local SendToServer = InventoryEvents:WaitForChild("InventorySave",1)
+local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
 local ColorEvent = InventoryEvents:WaitForChild("ColorEvent")
 
@@ -141,7 +143,7 @@ InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
 end)
 
 InventoryGUI:WaitForChild("ExitButton").Activated:Connect(function()
-    InventoryGUI.Parent.Enabled = false
+    GuiUtilities.TweenCurrentFrameOut(InventoryGUI)
 end)
 
 --fires Script on event passing player and AccessoryTable to target function

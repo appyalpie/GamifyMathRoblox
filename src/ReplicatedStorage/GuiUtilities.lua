@@ -19,4 +19,24 @@ GuiUtilities.TweenOtherActiveFramesOut = function(frames)
     end
 end
 
+GuiUtilities.TweenCurrentFrameOut = function(CurrentFrame)
+    if CurrentFrame:GetAttribute("isActive") and CurrentFrame:GetAttribute("isActive") == true then
+    local tween = TweenService:Create(CurrentFrame, tweenInfo, {Position = UDim2.new(0.5, 0, 1.5, 0)})
+            tween:Play()
+            local finishedTweenConnection
+            finishedTweenConnection = tween.Completed:Connect(function()
+                finishedTweenConnection:Disconnect()
+                CurrentFrame:SetAttribute("isActive", false)
+                CurrentFrame.Position = UDim2.new(0.5, 0, -0.5, 0)
+            end)
+        end
+end
+
+GuiUtilities.TweenInCurrentFrame = function(currentFrame)
+    if CurrentFrame:GetAttribute("isActive") and CurrentFrame:GetAttribute("isActive") == false then
+        local tween = TweenService:Create(CurrentFrame, tweenInfo,{Position = UDim2.new(0.5, 0, 0.5, 0)})
+        tween:Play()
+    end
+end
+
 return GuiUtilities

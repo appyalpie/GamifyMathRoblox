@@ -5,6 +5,7 @@ local Player = game:GetService("Players").LocalPlayer
 local ShopGUI = Player:WaitForChild("PlayerGui",1):WaitForChild("UniqueOpenGui",1):WaitForChild("MenuGui",1):WaitForChild("ShopContainer",1)
 local AccessoryList = ShopGUI:WaitForChild("ShopScreen",1)
 local Acctemplate = ReplicatedStorage:WaitForChild("Accessories",1):WaitForChild("ShopTemplate",1)
+local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
 local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
 local GetCurrencyEvent = InventoryEvents:WaitForChild("GetCurrencyEvent",1)
