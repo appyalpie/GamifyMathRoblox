@@ -89,12 +89,12 @@ GameInfo.BoardSpinTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.E
 
 ------ Timer Information ------
 ---- Single Player
-GameInfo.SinglePlayerTimedDuration = 15 -- half a minute for testing
+GameInfo.SinglePlayerTimedDuration = 30 -- half a minute for testing
 GameInfo.SolutionsXRange = {-10, 10}
 GameInfo.SolutionsZRange = {2, 20}
 GameInfo.SolutionMinimumDistance = 3
 GameInfo.SolutionArcTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
-GameInfo.DisplayDuration = 60
+GameInfo.DisplayDuration = 25
 GameInfo.ScreenTweenInfo = TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 --GameInfo.CombineYDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)

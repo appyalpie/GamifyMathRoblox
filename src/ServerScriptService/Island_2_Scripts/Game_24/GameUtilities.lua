@@ -96,10 +96,6 @@ GameUtilities.Get_Card_Clone_From_Depth = function(depth)
     return Card_Model_Table[depth]:Clone()
 end
 
-GameUtilities.Color_Code_Text_By_Depth = function(cardTable)
-	return
-end
-
 GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
     local counter = 1
     for _, v in pairs(BoardCards:GetDescendants()) do
@@ -1600,6 +1596,8 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 	table.insert(CurrentGameInfo._solutionDisplays, newSolutionDisplay)
 	newSolutionDisplay:SetPrimaryPartCFrame(CFrame.new(winningCard._cardObject.PrimaryPart.Position))
 	newSolutionDisplay.Parent = CurrentGameInfo.ancestorModel.Cleanup
+	------ Initialize Display Text ------
+	newSolutionDisplay:WaitForChild("Screen"):WaitForChild("SurfaceGui").TextLabel.Text = CardObject.getColoredSequenceWithDepth(winningCardTable, 1)
 
 	local winTweenInfo = TweenInfo.new(.5)
 	local winCardSqueezeTween = TweenService:Create(winningCard._cardObject.PrimaryPart, winTweenInfo, 
@@ -1624,10 +1622,11 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 		local slot
 		if #CurrentGameInfo._foundSolutions > 12 then
 			------ Special Slot ------
-			print("Reached Special Slot")
+			--print("Reached Special Slot")
+			slot = CurrentGameInfo._ring1Slots[1]
 		elseif #CurrentGameInfo._foundSolutions % 2 == 0 then
 			------ Ring 2 ------
-			print("Ring2")
+			--print("Ring2")
 			for _, v in pairs (CurrentGameInfo._ring2Slots) do
 				if v:GetAttribute("occupied") == true then
 					continue
@@ -1639,7 +1638,7 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 			end
 		else
 			------ Ring 1 ------
-			print("Ring1")
+			--print("Ring1")
 			for _, v in pairs (CurrentGameInfo._ring1Slots) do
 				if v:GetAttribute("occupied") == true then
 					continue
@@ -1661,7 +1660,7 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 			end
 			if SphereUtilities.getDistance(newSolutionDisplay.PrimaryPart.Position, slot.Position) < 2 then
 				------ Weld ------
-				print("Welding")
+				--print("Welding")
 				if moveDisplayTween then 
 					moveDisplayTween:Cancel() 
 				end
@@ -1678,7 +1677,7 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 				finishedWinSequenceEvent:Fire()
 			else
 				------ Move ------
-				print("Fire Move")
+				--print("Fire Move")
 				local moveTweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
 				local moveDisplayTween = TweenService:Create(newSolutionDisplay.PrimaryPart, moveTweenInfo, 
 					{CFrame = CFrame.new(slot.Position)})
@@ -1700,6 +1699,11 @@ GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInf
 
 		table.clear(Game_Cards)
 		Game_Cards = nil -- allow cleanup
+	end
+
+	------ Increment Stats + Save Solutions ------
+	for _, v in pairs(CurrentGameInfo._foundSolutions) do
+		GameUtilities.IncrementStats(CurrentGameInfo._difficulty, v, CurrentGameInfo.currentPlayer, nil)
 	end
 	--[[
 		1. Get All Saved Completed 24 Sequences
@@ -1798,9 +1802,6 @@ GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInf
 
 			screenGui.Enabled = true
 
-			------ Initialize Display Text ------
-			screenGui.TextLabel.Text = 
-
 			screenTouchPart.Touched:Connect(function(otherPart)
 				GameUtilities.Solution_Display_Touched(otherPart, screenGui)
 			end)
@@ -1817,13 +1818,17 @@ GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInf
 			------ Display Death Animation ------
 			wait(GameInfo.DisplayDuration)
 			v.ScreenTouchPart:Destroy()
+			v.Screen:Destroy()
 			for _, e in pairs(v:GetDescendants()) do
 				if e:IsA("ParticleEmitter") then
 					e.Enabled = false
 				end
 			end
-			TweenUtilities.Fade(v.Center, 1, 1, 0)
-			TweenUtilities.Fade(v.Center.Smaller, 1, 1, 0)
+			TweenUtilities.Fade(v.Center, 3, 1, 0)
+			TweenUtilities.Fade(v.Center.Smaller, 3, 1, 0)
+			v.Center.Flangers.Enabled = true
+			wait(4)
+			v.Center.Flangers.Enabled = false
 			Debris:AddItem(v, 4)
 		end)
 		cleanupCoroutine()
