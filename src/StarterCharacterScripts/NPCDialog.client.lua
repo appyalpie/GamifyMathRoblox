@@ -7,7 +7,7 @@ local Player = game:GetService("Players").LocalPlayer
 local NPCs = game.Workspace.Island_1.NPCs
 --declare remote events
 local ChallengeEvent = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild('ChallengeEvent')
-    
+
 --GUI variables
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
 local YesNoFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("YesNoFrame")
@@ -16,7 +16,6 @@ local YesButton = YesNoFrame.YesButton
 local NoButton = YesNoFrame.NoButton
 --this is the NPC name label in the dialog frame maybe not correct
 local NPCName = DialogFrame:WaitForChild("NPCName")
-
 
 --triggers and counts
 local DialogOpen = false
@@ -43,6 +42,10 @@ local function GradualText(Text)
 
     GradualTextInProgress = false
 end
+--fast text
+local function FastText(Text)
+    DialogFrame.DialogText.Text = Text
+end
 
 --handle dialog given proximity prompt. bring in dialog associated with individual NPC base on dialog module script
 local function OnDialog(Dialog, Index, ProximityPrompt)
@@ -57,7 +60,6 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         Tween.Completed:Connect(function()
             local YesButtonClickConnection
             local NoButtonClickConnection
-            local LastInputButtonClickConnection
 
             YesButtonClickConnection = YesButton.MouseButton1Click:Connect(function()
                 --end gradual text
@@ -92,7 +94,6 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 Player.Character.HumanoidRootPart.Anchored = false
 
                 ChallengeEvent:FireServer(ProximityPrompt)
-
             end)
 
             --handle the no button behavior. 
@@ -131,9 +132,9 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     end
     
     if Dialog[Index] then
-        --display dialog text at the page spot
-        GradualText(Dialog[Index])
-    
+        --display dialog text in the frame
+        FastText(Dialog[Index])
+
     else
         --if the tween exists then cancel
         if DialogTween then
@@ -160,15 +161,17 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     end
 end
 
---in future use context action service space bar also consider mobile. human computer interaction! future feature.
+--in future use context action service space bar. Hhuman computer interaction! future feature.
 InputButton.MouseButton1Click:Connect(function()
+    local Dialog = DialogModule[NPCName.Value] 
     if GradualTextInProgress then
         return
     end
-
-    local Dialog = DialogModule[NPCName.Value] 
+    
+    Dialog = DialogModule[NPCName.Value] 
     DialogIndex += 1
     OnDialog(Dialog, DialogIndex, NPCs[NPCName.Value].HumanoidRootPart.ProximityPrompt)
+  
 end)
 
 --loop through npcs in NPCs directory
