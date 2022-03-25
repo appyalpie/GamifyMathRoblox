@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
  
 local AddTitlesEvent = ReplicatedStorage:WaitForChild("AddTitlesEvent")
@@ -10,7 +9,7 @@ local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('Pla
 local ActivateTitleButtonEvent = ReplicatedStorage:WaitForChild("ActivateTitleButtonEvent")
 
 local Player = Players.LocalPlayer
-local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI"):WaitForChild("InventoryScreen")
+local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui"):WaitForChild("InventoryScreen"):WaitForChild("TabContainer")
 local TitleList = InventoryGUI:WaitForChild("TFrame")
 
 local overheadTitle = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadTitle")
