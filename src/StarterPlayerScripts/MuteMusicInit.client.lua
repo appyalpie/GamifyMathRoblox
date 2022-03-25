@@ -2,7 +2,14 @@
 -- note: WaitForChild MUST be used to find UI elements from PlayerGui due to load times
 local muteMusicButton = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PersistentUI"):FindFirstChild("MuteMusic",1)
 local InventoryButton = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PersistentUI"):FindFirstChild("Inventory",1)
-local InventoryGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI",1)
+--Added Code From InventoryGUI 2.0
+local MenuGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui")
+local InventoryGUI = MenuGui:WaitForChild("InventoryScreen")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
+
+--if more Buttons for menus are used in Persistant GUI a similar form should be used
+local OtherGUIinv = {MenuGui:WaitForChild("OptionsMenu");MenuGui:WaitForChild("ShopContainer");MenuGui:WaitForChild("InventoryScreen")}
 
 muteMusicButton.Activated:Connect(function()
     -- Fetch the SoundGroup that music is stored under
@@ -20,7 +27,6 @@ muteMusicButton.Activated:Connect(function()
 end)
 
 InventoryButton.Activated:Connect(function()
-    if InventoryGui.Enabled == false then
-        InventoryGui.Enabled = true
-    end
+    GuiUtilities.TweenOtherActiveFramesOut(OtherGUIinv)
+    GuiUtilities.TweenInCurrentFrame(InventoryGUI)
 end)

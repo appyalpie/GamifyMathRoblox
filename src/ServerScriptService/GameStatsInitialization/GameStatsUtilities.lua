@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
+local LevelSystem = require(script.Parent.Parent.Utilities.LevelSystem)
 
 local GameStatsUtilities = {}
 
@@ -47,29 +48,42 @@ end
 
 -----Overall Game------
 GameStatsUtilities.incrementXP = function(player, amount)
-    playerGameStats[player.UserId]["XP"] = playerGameStats[player.UserId]["XP"] + amount
+    if player then
+        playerGameStats[player.UserId]["XP"] = playerGameStats[player.UserId]["XP"] + amount
+        LevelSystem.SetLevelUpdate(player,playerGameStats[player.UserId]["XP"]) 
+    end
 end
 
 GameStatsUtilities.incrementCurrency = function(player, amount)
-    playerGameStats[player.UserId]["Currency"] = playerGameStats[player.UserId]["Currency"] + amount
+    if player then
+        playerGameStats[player.UserId]["Currency"] = playerGameStats[player.UserId]["Currency"] + amount
+    end
 end
 
 -----Math Blocks------
 
 GameStatsUtilities.incrementAddBlocksCombined = function(player)
-    playerGameStats[player.UserId]["AddBlocksCombined"] = playerGameStats[player.UserId]["AddBlocksCombined"] + 1
+    if player then
+        playerGameStats[player.UserId]["AddBlocksCombined"] = playerGameStats[player.UserId]["AddBlocksCombined"] + 1
+    end
 end
 
 GameStatsUtilities.incrementSubtractBlocksCombined = function(player)
-    playerGameStats[player.UserId]["SubtractBlocksCombined"] = playerGameStats[player.UserId]["SubtractBlocksCombined"] + 1
+    if player then
+        playerGameStats[player.UserId]["SubtractBlocksCombined"] = playerGameStats[player.UserId]["SubtractBlocksCombined"] + 1
+    end
 end
 
 GameStatsUtilities.incrementMultiplyBlocksCombined = function(player)
-    playerGameStats[player.UserId]["MultiplyBlocksCombined"] = playerGameStats[player.UserId]["MultiplyBlocksCombined"] + 1
+    if player then
+        playerGameStats[player.UserId]["MultiplyBlocksCombined"] = playerGameStats[player.UserId]["MultiplyBlocksCombined"] + 1
+    end
 end
 
 GameStatsUtilities.incrementDivideBlocksCombined = function(player)
-    playerGameStats[player.UserId]["DivideBlocksCombined"] = playerGameStats[player.UserId]["DivideBlocksCombined"] + 1
+    if player then
+        playerGameStats[player.UserId]["DivideBlocksCombined"] = playerGameStats[player.UserId]["DivideBlocksCombined"] + 1
+    end
 end
 
 -----24 Game------
@@ -102,6 +116,5 @@ GameStatsUtilities.saveLastSolution = function(player, solution)
     end
     table.insert(playerGameStats[player.UserId]["Game24Last5Solutions"], 1, solution)
 end
-
 
 return GameStatsUtilities
