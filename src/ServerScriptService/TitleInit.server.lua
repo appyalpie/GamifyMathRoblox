@@ -141,7 +141,3 @@ local function onShowTitlesEvent(player, title)
 end
 
 ShowTitlesEvent.OnServerEvent:Connect(onShowTitlesEvent)
-
-
-    
-
