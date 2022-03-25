@@ -2,7 +2,11 @@
 -- note: WaitForChild MUST be used to find UI elements from PlayerGui due to load times
 local muteMusicButton = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PersistentUI"):FindFirstChild("MuteMusic",1)
 local InventoryButton = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("PersistentUI"):FindFirstChild("Inventory",1)
+local MenuGui = game:GetService("Players").LocalPlayer:WaitFroChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui")
 local InventoryGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("InventoryGUI",1)
+
+
+local OtherGUIinv = 
 
 muteMusicButton.Activated:Connect(function()
     -- Fetch the SoundGroup that music is stored under
