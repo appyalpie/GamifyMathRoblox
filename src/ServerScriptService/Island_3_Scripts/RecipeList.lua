@@ -35,8 +35,8 @@ RecipeList.CheckForRecipeConflicts = function()
             local recipe1 = RecipeList[recipe1Index]
             local recipe2 = RecipeList[recipe2Index]
 
-            local recipe1Multiplier
-            local recipe2Multiplier
+            local recipe1Multiplier = recipe2["Ingredient3"]
+            local recipe2Multiplier = recipe1["Ingredient3"]
 
             if recipe1["Ingredient3"] ~= 0 and recipe2["Ingredient3"] ~= 0 then
                 
