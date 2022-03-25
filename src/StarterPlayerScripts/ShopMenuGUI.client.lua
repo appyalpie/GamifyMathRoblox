@@ -1,8 +1,8 @@
-print("Shop script started")
 local InvFunctions = require(script.Parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local ShopGUI = Player:WaitForChild("PlayerGui",1):WaitForChild("UniqueOpenGui",1):WaitForChild("MenuGui",1):WaitForChild("ShopContainer",1)
+local MenuGui = Player:WaitForChild("PlayerGui",1):WaitForChild("UniqueOpenGui",1):WaitForChild("MenuGui",1)
+local ShopGUI = MenuGui:WaitForChild("ShopContainer",1)
 local AccessoryList = ShopGUI:WaitForChild("ShopScreen",1)
 local Acctemplate = ReplicatedStorage:WaitForChild("Accessories",1):WaitForChild("ShopTemplate",1)
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
@@ -16,7 +16,7 @@ local OpenShopEvent = InventoryEvents:WaitForChild("OpenShopEvent")
 
 local ShopMessage = ShopGUI:WaitForChild("ShopMessage",1)
 
-
+local otherFrames = {MenuGui:WaitForChild("OptionsMenu");MenuGui:WaitForChild("PortalMenu");MenuGui:WaitForChild("InventoryScreen")}
 
 local EquippedConnections = {}
 local ButtonList = {}
@@ -114,17 +114,20 @@ else
     ShopMessage.Text = ""
 end
 end)
+
 local function setCurrency(PlayerMoney)
     Currency = PlayerMoney
 end
 GetCurrencyEvent.onClientEvent:Connect(setCurrency)
 
-local function openShop()
-    ShopGUI.Visible = true -- replace with tween IN
+local function OpenShop()
+    GuiUtilities.TweenOtherActiveFramesOut(otherFrames)
+    GuiUtilities.TweenInCurrentFrame(ShopGUI)
 end
 
 ShopGUI.ExitButton.Activated:Connect(function()
-    ShopGUI.Visible = false -- replace with tween OUT
+    GuiUtilities.TweenCurrentFrameOut(ShopGUI)
 end)
 -- open shop event was created if the Shop event is server fired otherwise interaction will need to be added to fire the same function
-OpenShopEvent.onClientEvent:Connect(openShop)
+
+OpenShopEvent.onClientEvent:Connect(OpenShop)
