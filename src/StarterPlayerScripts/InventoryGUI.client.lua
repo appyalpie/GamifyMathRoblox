@@ -1,27 +1,27 @@
-
-
-
-local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChild("functions"))
+--services used
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
+--UFX elements 
 local MenuGui = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui")
 local InventoryGUI = MenuGui:WaitForChild("InventoryScreen")
 local AccessoryList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("AFrame")
 local TitleList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("TFrame")
 local BadgeList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("ZFrame")
 local Acctemplate = ReplicatedStorage:WaitForChild("Accessories"):WaitForChild("Template")
+local AccessoryTab = InventoryGUI:WaitForChild("ALabel")
+local TitleTab = InventoryGUI:WaitForChild("TLabel")
+local BadgeTab = InventoryGUI:WaitForChild("ZLabel")
+--Remote Events to be Used
 local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents",5):WaitForChild("InventoryEvents",5)
 local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",1)
 local GetPlayerSavedInventoryEvent = InventoryEvents:WaitForChild("InventoryStore",1)
 local SendServerEquipped = InventoryEvents:WaitForChild("SendEquippedToServer",1)
 local SendToServer = InventoryEvents:WaitForChild("InventorySave",1)
-local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
-
 local ColorEvent = InventoryEvents:WaitForChild("ColorEvent")
+--Module Scripts to be used
+local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
+local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChild("functions"))
 
-local AccessoryTab = InventoryGUI:WaitForChild("ALabel")
-local TitleTab = InventoryGUI:WaitForChild("TLabel")
-local BadgeTab = InventoryGUI:WaitForChild("ZLabel")
 
 local EquippedConnections = {} -- for button activations
 local ButtonList = {} -- modifies image Buttons
@@ -193,6 +193,5 @@ local function ShopTrigger(ItemName)
         end
     end
 end
-
 ColorEvent.onClientEvent:Connect(ShopTrigger)
 

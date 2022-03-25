@@ -11,7 +11,7 @@ end
 local function SpendCurrency(player,Cost)
     local PlayerCurrency = GameStats.getPlayerData(player)["Currency"]
     PlayerCurrency = PlayerCurrency - Cost
-    GameStats.getPlayerData(player)["Currency"] = PlayerCurrency
+    GameStats.getPlayerData(player)["Currency"] = PlayerCurrency 
 end
 
 local function OpenShop(player)

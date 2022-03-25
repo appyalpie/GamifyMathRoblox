@@ -22,7 +22,7 @@ local EquippedConnections = {}
 local ButtonList = {}
 local AccesoryTable = {}
 
-local Selected
+local Selected -- pointer to a specific Accessory image Button
 local Currency
 local function CheckForFire()
     local i =  0
@@ -36,6 +36,7 @@ local function CheckForFire()
     end
     return true
 end
+--Similar to Inventoies addToFrame only diffrence is this registers the cost of Accessories
 local function addToFrame(AccessoryString)
     local newtemplate = Acctemplate:Clone()
     newtemplate.Name = AccessoryString.Name
@@ -61,7 +62,10 @@ local function addToFrame(AccessoryString)
         newtemplate.ImageColor3 = Color3.fromRGB(68,172,94)
     end
     ButtonList[#ButtonList + 1] = newtemplate
-    EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function() 
+    EquippedConnections[#EquippedConnections + 1] = newtemplate.Activated:Connect(function()
+        if table.find(InvFunctions["InvData"], newtemplate.Name) then -- checks to make sure if it is already owned again
+            bool = true
+        end 
         if bool == false then    
             Selected = newtemplate
         else
@@ -72,7 +76,7 @@ local function addToFrame(AccessoryString)
         ShopMessage.Text = newtemplate.AccessoryName.Text .. " is selected"
         wait(1)
         ShopMessage.Text = "The Cost of " .. newtemplate.AccessoryName.Text  .. " is : " .. newtemplate.Cost.Value .. " credits" -- change this to whatever currency name we want to use
-   
+        
     end)
 
 
@@ -98,6 +102,7 @@ ShopGUI.BuyButton.Activated:Connect(function()
 if Selected ~= nil then
     if not table.find(InvFunctions["InvData"], Selected.Name) then 
         GetCurrencyEvent:FireServer()
+        ShopGUI.BuyButton.Active = false -- to prevent repeated purcahse attempts
         wait(2)
         if Currency >= Selected.Cost.Value and Currency ~= nil then
             SpendCurrencyEvent:FireServer(Selected.Cost.Value)
@@ -106,6 +111,7 @@ if Selected ~= nil then
             InventoryColorChanger()
             Selected = nil
         end
+        ShopGUI.BuyButton.Active = true -- brings button back
     end
 
 else

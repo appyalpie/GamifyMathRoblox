@@ -18,9 +18,8 @@ GuiUtilities.TweenOtherActiveFramesOut = function(frames)
         end
     end
 end
-
+--Accepts single Frames rather then table the next 2 functions
 GuiUtilities.TweenCurrentFrameOut = function(CurrentFrame)
-    
     if CurrentFrame:GetAttribute("isActive") == true then
     local tween = TweenService:Create(CurrentFrame, tweenInfo, {Position = UDim2.new(0.5, 0, 1.5, 0)})
             tween:Play()

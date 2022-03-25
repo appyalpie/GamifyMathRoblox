@@ -21,11 +21,7 @@ local remoteFunctionEquip = remoteEvent:FindFirstChild("SendEquippedToServer")
 
 local ColorEvent = remoteEvent:WaitForChild("ColorEvent")
 
-
-local InvTable = {
-    
-}
-
+local InvTable = {}
  -- creates the Equipped Folder inside of player with string locations
 Players.PlayerAdded:Connect(function(player)
     local savedInventoryClient  = Instance.new("Folder")
@@ -67,8 +63,8 @@ Players.PlayerAdded:Connect(function(player)
         success = false
     end
     print(savedInventory)
-    
-    savedInventory = {} -- ONCE SHOP GUI IS SET UP DELETE THIS LINE this resets savedInventory at the start everytime
+    --disabled for shop
+    --savedInventory = {} -- ONCE SHOP GUI IS SET UP DELETE THIS LINE this resets savedInventory at the start everytime
 
     -- creates an index on the server using the player.UserId as a key stores the saved Inventory set of strings
     table.insert(InvTable, player.UserId, savedInventory)
@@ -143,7 +139,6 @@ function EquipToPlayer(player, ToBeEquipped, Type)
             end
         end
     end
-    
    -- clones Accessory to player character
     for key in pairs(loadout) do
         if loadout[key].Name == Type then
@@ -166,4 +161,5 @@ SaveTable.OnServerEvent:Connect(GetTable)
 local function ClientColor(player,ItemName)
     ColorEvent:FireClient(player,ItemName)
 end
-ColorEvent.onServerEvent:Connect(ClientColor)
+ColorEvent.onServerEvent:Connect(ClientColor) 
+-- change color function can be improved to properly showcase Equipped and non-equipped

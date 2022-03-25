@@ -13,6 +13,7 @@ LevelSystem.SetLevelEntry = function(Player,XP)
     local TotalXP = LevelSystem.PlayerXPList[Player.UserId]["totalXP"]
     local loopLevel =  LevelSystem.PlayerXPList[Player.UserId]["Level"]
     local XPCounter = XP
+    --Determines the XP required for each interation 
     while(XPCounter >= nextLevel) do
         if loopLevel < 9 then
             XPCounter = XPCounter - nextLevel
