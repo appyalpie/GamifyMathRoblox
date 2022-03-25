@@ -19,6 +19,7 @@ local lockObject = game.Workspace.Island_3.test_zone.Table:WaitForChild("PlayerL
 local cameraObject = game.Workspace.Island_3.test_zone.Table:WaitForChild("TableCameraLocation")
 
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts:WaitForChild("PotionUtilities"))
+local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
 
 local TABLE_OFFSET = Vector3.new(3.5, 1.5, -3.5)
 
@@ -29,12 +30,16 @@ function PotionCreation.initialize(player, promptObject)
 
     promptObject.Enabled = false;
 
+    RecipeList.CheckForRecipeConflicts()
+
     CameraMoveToRE:FireClient(player, cameraObject, 1)
     PotionPromptActivatedRE:FireClient(player)
     player.Character:PivotTo(lockObject:GetPivot())
     LockMovementRE:FireClient(player)
     PlayerSideHideNameAndTitleRE:FireClient(player)
+
     wait(5)
+
     UnlockMovementRE:FireClient(player)
     PlayerSideShowNameAndTitleRE:FireClient(player)
     CameraResetRE:FireClient(player)
@@ -55,6 +60,8 @@ local function onCombinationButtonActivated(player, selectedIngredients)
     else
         MissingIngredientRE:FireClient(player)
     end
+
+    
 end
 
 CombinationButtonActivatedRE.OnServerEvent:Connect(onCombinationButtonActivated)
