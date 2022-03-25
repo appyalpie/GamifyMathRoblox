@@ -188,4 +188,14 @@ MathBlocksInfo.AttachmentInfo = {
     Position = Vector3.new(2,0,2)
 }
 
+MathBlocksInfo.CombinationRewardTable = {
+    XP = 10,
+    Currency = 1
+}
+
+MathBlocksInfo.BlockDropRewardTable = {
+    XP = 50,
+    Currency = 5
+}
+
 return MathBlocksInfo
