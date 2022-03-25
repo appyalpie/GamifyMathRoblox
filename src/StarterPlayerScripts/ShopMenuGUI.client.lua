@@ -11,6 +11,7 @@ local GetCurrencyEvent = InventoryEvents:WaitForChild("GetCurrencyEvent",1)
 local SpendCurrencyEvent = InventoryEvents:WaitForChild("SpendCurrencyEvent",1)
 local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",1)
 local ColorEvent = InventoryEvents:WaitForChild("ColorEvent")
+local OpenShopEvent = InventoryEvents:WaitForChild("OpenShopEvent")
 
 local ShopMessage = ShopGUI:WaitForChild("ShopMessage",1)
 
@@ -117,3 +118,12 @@ local function setCurrency(PlayerMoney)
 end
 GetCurrencyEvent.onClientEvent:Connect(setCurrency)
 
+local function openShop()
+    ShopGUI.Visible = true -- replace with tween IN
+end
+
+ShopGUI.ExitButton.Activated:Connect(function()
+    ShopGUI.Visible = false -- replace with tween OUT
+end)
+-- open shop event was created if the Shop event is server fired otherwise interaction will need to be added to fire the same function
+OpenShopEvent.onClientEvent:Connect(openShop)
