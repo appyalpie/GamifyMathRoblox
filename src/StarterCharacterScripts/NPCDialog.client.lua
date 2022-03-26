@@ -17,6 +17,8 @@ local NoButton = YesNoFrame.NoButton
 --this is the NPC name label in the dialog frame maybe not correct
 local NPCName = DialogFrame:WaitForChild("NPCName")
 
+local OpenShopEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents"):WaitForChild("OpenShopEvent")
+
 --triggers and counts
 local DialogOpen = false
 local DialogTween = nil
@@ -171,6 +173,9 @@ InputButton.MouseButton1Click:Connect(function()
     Dialog = DialogModule[NPCName.Value] 
     DialogIndex += 1
     OnDialog(Dialog, DialogIndex, NPCs[NPCName.Value].HumanoidRootPart.ProximityPrompt)
+    if DialogIndex == 0 and NPCName.Value == "Llama" then
+        OpenShopEvent:FireServer()
+    end
   
 end)
 
