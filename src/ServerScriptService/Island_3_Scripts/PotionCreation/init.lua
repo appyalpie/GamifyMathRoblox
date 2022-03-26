@@ -47,6 +47,7 @@ function PotionCreation.initialize(player, promptObject)
     promptObject.Enabled = true;
 end
 
+-- TODO: only one reward object in players backpack
 local function onCombinationButtonActivated(player, selectedIngredients)
     local playerIngredients = PotionUtilities.GetPlayerIngredients(player)
 
@@ -54,8 +55,21 @@ local function onCombinationButtonActivated(player, selectedIngredients)
     if selectedIngredients["Ingredient1"] <= playerIngredients["Ingredient1"] and
        selectedIngredients["Ingredient2"] <= playerIngredients["Ingredient2"] and
        selectedIngredients["Ingredient3"] <= playerIngredients["Ingredient3"] then
+        
+    for _, recipe in pairs(RecipeList) do 
+        if type(recipe) == "table" then
+            local returnedValue = RecipeList.CheckForEquivalency(selectedIngredients, recipe)
+            if returnedValue ~= nil then
+                PotionUtilities.DecrementIngredients(player, selectedIngredients)
+                local rewardObject = returnedValue["RewardObject"]:Clone()
 
-        PotionUtilities.DecrementIngredients(player, selectedIngredients)
+                -- This line of code assigns the reward object to the players backpack
+                -- There is no controlling if it is in your inventory more then once atm
+                rewardObject.Parent = player:WaitForChild("Backpack")
+            end
+        end
+    end
+
 
     else
         MissingIngredientRE:FireClient(player)
