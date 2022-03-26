@@ -8,33 +8,10 @@ local DataStoreService = game:GetService("DataStoreService")
 local TitleDataStore = DataStoreService:GetDataStore("TitleDataStore")
 local CurrentTitleDataStore = DataStoreService:GetDataStore("CurrentTitleDataStore")
 
-if not(game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')) then
-    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'AddTitlesEvent'
-end
 
-if not(game.ReplicatedStorage:FindFirstChild('ShowTitlesEvent')) then
-    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'ShowTitlesEvent'
-end
-
-if not(game.ReplicatedStorage:FindFirstChild('InitTitlesEvent')) then
-    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'InitTitlesEvent'
-end
-
-if not(game.ReplicatedStorage:FindFirstChild('ActivateTitleButtonEvent')) then
-    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'ActivateTitleButtonEvent'
-end
-
-if not(game.ReplicatedStorage:FindFirstChild('PlayerSideHideNameAndTitleEvent')) then
-    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'PlayerSideHideNameAndTitleEvent'
-end
-
-if not(game.ReplicatedStorage:FindFirstChild('PlayerSideShowNameAndTitleEvent')) then
-    Instance.new("RemoteEvent", game.ReplicatedStorage).Name = 'PlayerSideShowNameAndTitleEvent'
-end
-
-local ShowTitlesEvent = game.ReplicatedStorage:FindFirstChild('ShowTitlesEvent')
-local InitTitlesEvent = game.ReplicatedStorage:FindFirstChild('InitTitlesEvent')
-local ActivateTitleButtonEvent = game.ReplicatedStorage:FindFirstChild('ActivateTitleButtonEvent')
+local ShowTitlesEvent = ReplicatedStorage.RemoteEvents.Titles:FindFirstChild('ShowTitlesEvent')
+local InitTitlesEvent = ReplicatedStorage.RemoteEvents.Titles:FindFirstChild('InitTitlesEvent')
+local ActivateTitleButtonEvent = ReplicatedStorage.RemoteEvents.Titles:FindFirstChild('ActivateTitleButtonEvent')
 
 
 local overheadTitleClone
@@ -164,7 +141,3 @@ local function onShowTitlesEvent(player, title)
 end
 
 ShowTitlesEvent.OnServerEvent:Connect(onShowTitlesEvent)
-
-
-    
-
