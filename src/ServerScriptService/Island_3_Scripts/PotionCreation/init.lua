@@ -18,7 +18,7 @@ local MissingIngredientRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild
 local lockObject = game.Workspace.Island_3.test_zone.Table:WaitForChild("PlayerLockLocation")
 local cameraObject = game.Workspace.Island_3.test_zone.Table:WaitForChild("TableCameraLocation")
 
-local PotionUtilities = require(ServerScriptService.Island_3_Scripts:WaitForChild("PotionUtilities"))
+local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
 
 local TABLE_OFFSET = Vector3.new(3.5, 1.5, -3.5)

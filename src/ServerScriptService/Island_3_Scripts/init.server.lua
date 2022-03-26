@@ -1,13 +1,15 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 
 local PlayerIngredientStore = DataStoreService:GetDataStore("PlayerIngredientInventory")
 
-local PotionUtilities = require(script.PotionUtilities)
+local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
+local IngredientSpawnUtilities = require(ServerScriptService.Island_3_Scripts.IngredientSpawns:WaitForChild("IngredientSpawnUtilities"))
 
---local InitPlayerInventoryEvent = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("GetPlayerInventoryEvent")
---local AddIngredientEvent = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("AddIngredientEvent")
+--Initiate block spawning on the islands
+IngredientSpawnUtilities.initialize()
 
 Players.PlayerAdded:Connect(function(player)
     local success, returnedValue = pcall(function()

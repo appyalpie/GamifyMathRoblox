@@ -1,6 +1,5 @@
 local liquidsAndMore = {}
 local TweenService = game:GetService("TweenService")
-local Liquid = game.Workspace.Island_3.test_zone.Beaker.Liquid
 
 for _,v in pairs(game.Workspace.Island_3.test_zone:GetDescendants()) do
     if v.Name == "Liquid" then

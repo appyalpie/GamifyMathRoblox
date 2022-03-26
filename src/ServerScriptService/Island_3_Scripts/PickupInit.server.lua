@@ -1,34 +1,46 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
+local Workspace = game:GetService("Workspace")
 
-local redIngredient = ServerStorage.Island_3.ingredients:WaitForChild("red")
-local greenIngredient = ServerStorage.Island_3.ingredients:WaitForChild("green")
-local blueIngredient = ServerStorage.Island_3.ingredients:WaitForChild("blue")
+local Ingredient1ServerPart = ServerStorage.Island_3.ingredients.spawns:WaitForChild("Ingredient1")
+local Ingredient2ServerPart = ServerStorage.Island_3.ingredients.spawns:WaitForChild("Ingredient2")
+local Ingredient3ServerPart = ServerStorage.Island_3.ingredients.spawns:WaitForChild("Ingredient3")
 
-local PotionUtilities = require(ServerScriptService.Island_3_Scripts:WaitForChild("PotionUtilities"))
+local Ingredient1SpawnNode = Workspace.Island_3.test_zone.ingredients:WaitForChild("Ingredient1Spawn")
+local Ingredient2SpawnNode = Workspace.Island_3.test_zone.ingredients:WaitForChild("Ingredient2Spawn")
+local Ingredient3SpawnNode = Workspace.Island_3.test_zone.ingredients:WaitForChild("Ingredient3Spawn")
 
-for _,part in pairs(workspace.Island_3.test_zone.ingredients:GetDescendants()) do
-    if part:IsA("BasePart") then
-        -- what happens for red block
-        if part.Name == "red" then 
-            part.Touched:Connect(function(objectHit)
-                PotionUtilities.IncrementIngredient1(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
-                part:Destroy()
-            end)
-        end
+--local PotionUtilities = require(ServerScriptService.Island_3_Scripts:WaitForChild("PotionUtilities"))
+local IngredientSpawns = require(ServerScriptService.Island_3_Scripts:WaitForChild("IngredientSpawns"))
 
-        if part.Name == "blue" then 
-            part.Touched:Connect(function(objectHit)
-                PotionUtilities.IncrementIngredient2(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
-                part:Destroy()
-            end)
-        end
+IngredientSpawns.Initialize()
 
-        if part.Name == "green" then 
-            part.Touched:Connect(function(objectHit)
-                PotionUtilities.IncrementIngredient3(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
-                part:Destroy()
-            end)
-        end
+
+--[[Ingredient1ServerPart.Touched:Connect(function(objectHit)
+    PotionUtilities.IncrementIngredient1(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
+    Ingredient1ServerPart:Destroy()
+end)
+
+Ingredient2ServerPart.Touched:Connect(function(objectHit)
+    PotionUtilities.IncrementIngredient1(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
+    Ingredient1ServerPart:Destroy()
+end)
+
+Ingredient3ServerPart.Touched:Connect(function(objectHit)
+    PotionUtilities.IncrementIngredient1(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
+    Ingredient1ServerPart:Destroy()
+end)
+
+while(true) do
+    if not Ingredient1SpawnNode:FindFirstChildWhichIsA("Part") then
+        print("in the if")
+        local Ingredient1Clone = Ingredient1ServerPart:Clone()
+        Ingredient1Clone.Parent = Ingredient1SpawnNode
+        Ingredient1Clone.Touched:Connect(function(objectHit)
+            PotionUtilities.IncrementIngredient1(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
+            Ingredient1Clone:Destroy()
+        end)
     end
-end
+end]]--
+
+
