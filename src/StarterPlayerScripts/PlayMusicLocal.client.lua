@@ -32,18 +32,19 @@ local function CreateMusic(musicId, volume)
 
 
         --Play the new sound, set the lastSound = this one so we don't replay sounds
-    
+
         sound:Play()
-        if musicId == "rbxassetid://9042916394" then
+        --this checks to see if it's the transition from island 2
+        if musicId == "rbxassetid://9203228470" then
             sound.Looped = false
             repeat wait() until sound.IsPaused == true
-            sound.SoundId = "rbxassetid://9042922451"
+            sound.SoundId = "rbxassetid://9203199666"
             sound.Looped = true
             sound.Volume = 0.5
             sound:Play()
             battleSound = sound
             return
-        elseif musicId == "rbxassetid://9042934109" then
+        elseif musicId == "rbxassetid://9203212455" then
             sound.Volume = 0.55
             battleSound = sound
             return
