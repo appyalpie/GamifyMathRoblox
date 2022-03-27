@@ -3,11 +3,11 @@ local LevelSystem = {}
 
 LevelSystem.SetLevelEntry = function(Player,XP)
     -- next level XP required
-    LevelSystem.PlayerXPList[Player.UserId] = {nextLevel = 100,
+    LevelSystem.PlayerXPList[Player.UserId] = {["nextLevel"] = 100,
     -- cumalative XP for reduced update processing use
-    totalXP = 0,
+    ["totalXP"] = 0,
     -- cumalative level for reduced update processing use
-    Level = 0}
+    ["Level"] = 0}
 
     local nextLevel = LevelSystem.PlayerXPList[Player.UserId]["nextLevel"]
     local TotalXP = LevelSystem.PlayerXPList[Player.UserId]["totalXP"]
@@ -15,6 +15,7 @@ LevelSystem.SetLevelEntry = function(Player,XP)
     local XPCounter = XP
     --Determines the XP required for each interation 
     while(XPCounter >= nextLevel) do
+        TotalXP = TotalXP + nextLevel
         if loopLevel < 9 then
             XPCounter = XPCounter - nextLevel
             nextLevel = math.floor(nextLevel*1.2)
@@ -44,7 +45,7 @@ LevelSystem.SetLevelEntry = function(Player,XP)
         if ((XPCounter - nextLevel) < 0) then
             break
         end
-        TotalXP = TotalXP + nextLevel
+        
     end
     LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
     LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = TotalXP
@@ -54,12 +55,13 @@ LevelSystem.SetLevelEntry = function(Player,XP)
 end
 
 LevelSystem.SetLevelUpdate = function(Player, XP)
+    
     local nextLevel = LevelSystem.PlayerXPList[Player.UserId]["nextLevel"]    
     local loopLevel = LevelSystem.PlayerXPList[Player.UserId]["Level"]
-    
     XPCounter = XP
     XPCounter = XPCounter - LevelSystem.PlayerXPList[Player.UserId]["totalXP"] 
     while(XPCounter >= nextLevel) do
+        LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = LevelSystem.PlayerXPList[Player.UserId]["totalXP"] + nextLevel
         if loopLevel <= 10 then
             XPCounter = XPCounter - nextLevel
             nextLevel = math.floor(nextLevel*1.2)
@@ -88,7 +90,7 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             end
             loopLevel = loopLevel + 1
         end 
-            LevelSystem.TriggerCelebration(Player)
+        LevelSystem.TriggerCelebration(Player)
     end
 end
 
