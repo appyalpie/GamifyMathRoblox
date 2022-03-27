@@ -110,6 +110,7 @@ MainHubPortal.ProximityPrompt.Triggered:Connect(function(player)
 end)
 
 ------ Get Player Data and set Player GUI when character is in ------
+local Character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local playerData = PlayerStatsRF:InvokeServer()
 print("Got Player Data")
 

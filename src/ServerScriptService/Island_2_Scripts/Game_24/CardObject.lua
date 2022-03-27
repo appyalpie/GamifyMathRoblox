@@ -18,6 +18,14 @@ local operatorTranslations = {
     divide = "/"
 }
 
+local ColorHexDepthTable = { -- [1] = Top level node
+    "#eb4034", -- Red
+    "#eded2b", -- Yellow
+    "#2bed31", -- Green
+    "#2ee7ff", -- Teal
+    "#423ade" -- Indigo
+}
+
 function Card.new()
 	local self
 	self = setmetatable({}, Card)
@@ -135,6 +143,17 @@ end
 function Card.getSequence(value)
     if type(value[2]) == "table" and type(value[3]) == "table" then
         return "(" .. Card.getSequence(value[2]) .. operatorTranslations[tostring(value[1])] .. Card.getSequence(value[3]) .. ")"
+    end
+    return tostring(value[2])
+end
+
+function Card.getColoredSequenceWithDepth(value, depth)
+    if type(value[2]) == "table" and type(value[3]) == "table" then
+        return '<font color="'.. ColorHexDepthTable[depth] .. '">' .. 
+            Card.getColoredSequenceWithDepth(value[2], depth + 1) .. 
+            operatorTranslations[tostring(value[1])] .. 
+            Card.getColoredSequenceWithDepth(value[3], depth + 1) ..
+            "</font>"
     end
     return tostring(value[2])
 end

@@ -185,8 +185,8 @@ for _, v in pairs(NPCs:GetChildren()) do
     local ProximityPrompt = HumanoidRootPart:FindFirstChild("ProximityPrompt")
 
     if HumanoidRootPart and ProximityPrompt then
-        ProximityPrompt.ObjectText = v.Name
-        ProximityPrompt.ActionText = "Chat with " .. v.Name
+        --ProximityPrompt.ObjectText = v.Name
+        --ProximityPrompt.ActionText = "Chat with " .. v.Name
         
         local Dialog = DialogModule[v.Name]
         ProximityPrompt.Triggered:Connect(function()
