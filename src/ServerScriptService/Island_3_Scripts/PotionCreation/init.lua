@@ -14,23 +14,31 @@ local CameraSetFOVRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild(
 local PotionPromptActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PotionPromptActivatedEvent")
 local CombinationButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombinationButtonActivatedEvent")
 local MissingIngredientRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("MissingIngredientsEvent")
+local InvalidRecipeRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("InvalidRecipeEvent")
+local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombineMenuFinishedEvent")
+local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
 
-local lockObject = game.Workspace.Island_3.test_zone.Table:WaitForChild("PlayerLockLocation")
-local cameraObject = game.Workspace.Island_3.test_zone.Table:WaitForChild("TableCameraLocation")
+local lockObject = game.Workspace.Island_3.Islands.PotionCreationTables.CombinationTable.Table:WaitForChild("PlayerLockLocation")
+local cameraObject = game.Workspace.Island_3.Islands.PotionCreationTables.CombinationTable.Table:WaitForChild("TableCameraLocation")
 
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
 
-local TABLE_OFFSET = Vector3.new(3.5, 1.5, -3.5)
+local AddTextToRecipeReferenceRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("AddTextToRecipeReferenceEvent")
+
+
+local potionPrompt
 
 PotionCreation = {}
 
 function PotionCreation.initialize(player, promptObject)
     player.Character:WaitForChild("HumanoidRootPart").Position = lockObject.Position
 
+    potionPrompt = promptObject
     promptObject.Enabled = false;
 
-    RecipeList.CheckForRecipeConflicts()
+    --Enable to check for recipe conflicts when the prompt is hit
+    --RecipeList.CheckForRecipeConflicts()
 
     CameraMoveToRE:FireClient(player, cameraObject, 1)
     PotionPromptActivatedRE:FireClient(player)
@@ -38,13 +46,6 @@ function PotionCreation.initialize(player, promptObject)
     LockMovementRE:FireClient(player)
     PlayerSideHideNameAndTitleRE:FireClient(player)
 
-    wait(5)
-
-    UnlockMovementRE:FireClient(player)
-    PlayerSideShowNameAndTitleRE:FireClient(player)
-    CameraResetRE:FireClient(player)
-
-    promptObject.Enabled = true;
 end
 
 -- TODO: only one reward object in players backpack
@@ -56,28 +57,49 @@ local function onCombinationButtonActivated(player, selectedIngredients)
        selectedIngredients["Ingredient2"] <= playerIngredients["Ingredient2"] and
        selectedIngredients["Ingredient3"] <= playerIngredients["Ingredient3"] then
         
-    for _, recipe in pairs(RecipeList) do 
-        if type(recipe) == "table" then
-            local returnedValue = RecipeList.CheckForEquivalency(selectedIngredients, recipe)
-            if returnedValue ~= nil then
-                PotionUtilities.DecrementIngredients(player, selectedIngredients)
-                local rewardObject = returnedValue["RewardObject"]:Clone()
+        for _, recipe in pairs(RecipeList) do 
+            if type(recipe) == "table" then
+                local returnedValue = RecipeList.CheckForEquivalency(selectedIngredients, recipe)
+                if returnedValue ~= nil then
+                    PotionUtilities.DecrementIngredients(player, selectedIngredients)
+                    local rewardObject = returnedValue["RewardObject"]:Clone()
 
-                -- This line of code assigns the reward object to the players backpack
-                -- There is no controlling if it is in your inventory more then once atm
-                rewardObject.Parent = player:WaitForChild("Backpack")
+                    AddTextToRecipeReferenceRE:FireClient(player, recipe)
+
+                    -- This line of code assigns the reward object to the players backpack
+                    -- There is no controlling if it is in your inventory more then once atm
+                    rewardObject.Parent = player:WaitForChild("Backpack")
+
+                    UnlockMovementRE:FireClient(player)
+                    PlayerSideShowNameAndTitleRE:FireClient(player)
+                    CameraResetRE:FireClient(player)
+                
+                    potionPrompt.Enabled = true;
+                    CombineMenuFinishedRE:FireClient(player)
+                    return
+                end
             end
         end
-    end
-
-
     else
         MissingIngredientRE:FireClient(player)
+        return
     end
 
-    
+    InvalidRecipeRE:FireClient(player)
+
 end
 
 CombinationButtonActivatedRE.OnServerEvent:Connect(onCombinationButtonActivated)
+
+local function onExitButtonActivatedEvent(player)
+    UnlockMovementRE:FireClient(player)
+    PlayerSideShowNameAndTitleRE:FireClient(player)
+    CameraResetRE:FireClient(player)
+
+    potionPrompt.Enabled = true;
+    CombineMenuFinishedRE:FireClient(player)
+end
+
+ExitButtonActivatedRE.OnServerEvent:Connect(onExitButtonActivatedEvent)
 
 return PotionCreation

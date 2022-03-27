@@ -1,0 +1,4 @@
+{
+    "Name": "CombineMenuFinishedEvent",
+    "ClassName": "RemoteEvent"
+}

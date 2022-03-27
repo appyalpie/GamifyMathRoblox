@@ -6,6 +6,9 @@ local Player = Players.LocalPlayer
 local PotionPromptActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PotionPromptActivatedEvent")
 local CombinationButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombinationButtonActivatedEvent")
 local MissingIngredientRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("MissingIngredientsEvent")
+local InvalidRecipeRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("InvalidRecipeEvent")
+local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombineMenuFinishedEvent")
+local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
 
 local IngredientGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 
@@ -17,6 +20,7 @@ local AddToPotionFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Island3G
 local AddIngredientsFrame = AddToPotionFrame:WaitForChild("AddIngredientsFrame")
 
 local CombineButton = AddToPotionFrame:WaitForChild("CombineButton")
+local ExitButton = AddToPotionFrame:WaitForChild("ExitButton")
 
 local AddIngredient1SubFrame = AddIngredientsFrame:WaitForChild("Ingredient1Subframe")
 local AddIngredient2SubFrame = AddIngredientsFrame:WaitForChild("Ingredient2Subframe")
@@ -126,6 +130,12 @@ CombineButton.Activated:Connect(function()
     CombinationButtonActivatedRE:FireServer(selectedIngredients)
 end)
 
+------ Exit Button Functionality ------
+ExitButton.Activated:Connect(function()
+    ExitButtonActivatedRE:FireServer()
+end)
+
+------ Tween in the potion combination GUI ------
 local function onPotionPromptActivatedEvent()
     AddToPotionFrame.Visible = true
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
@@ -137,12 +147,38 @@ end
 
 PotionPromptActivatedRE.OnClientEvent:Connect(onPotionPromptActivatedEvent)
 
+------ Error handling for if you don't have enough ingredients ------
 local function onMissingIngredientEvent()
-    CombineButton.Text = "Missing some ingredients for this combination!"
+    CombineButton.Text = "You don't have enough Ingredients for this combination!"
+    CombineButton.TextColor3 = Color3.new(1,0,0)
+    wait(4)
+    CombineButton.Text = "Combine!"
+    CombineButton.TextColor3 = Color3.new(0,0,0)
+end
+
+MissingIngredientRE.OnClientEvent:Connect(onMissingIngredientEvent)
+
+------ Error handling if the combination entered is not a recipe ------
+local function onInvalidRecipeEvent()
+    CombineButton.Text = "Wrong recipe!"
     CombineButton.TextColor3 = Color3.new(1,0,0)
     wait(2)
     CombineButton.Text = "Combine!"
     CombineButton.TextColor3 = Color3.new(0,0,0)
 end
 
-MissingIngredientRE.OnClientEvent:Connect(onMissingIngredientEvent)
+InvalidRecipeRE.OnClientEvent:Connect(onInvalidRecipeEvent)
+
+------ Called when the player is finished with the combine screen ------
+local function onCombineMenuFinishedEvent()
+    local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
+    local goalPosition = {}
+    goalPosition.Position = UDim2.new(1,0,0.355,0)
+    local tweenOut = TweenService:Create(AddToPotionFrame ,twinfo, goalPosition)
+    tweenOut:Play()
+    tweenOut.Completed:Connect(function()
+        AddToPotionFrame.Visible = false
+    end)
+end
+
+CombineMenuFinishedRE.OnClientEvent:Connect(onCombineMenuFinishedEvent)
