@@ -90,6 +90,8 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             end
             loopLevel = loopLevel + 1
         end 
+        LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
+        LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel
         LevelSystem.TriggerCelebration(Player)
     end
 end
