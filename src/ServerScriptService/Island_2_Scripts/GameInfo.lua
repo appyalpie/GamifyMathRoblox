@@ -5,8 +5,12 @@ local Game_24_Folder = ServerStorage.Island_2.Game_24
 
 local GameInfo = {}
 
+GameInfo.GAP_SIZE = 4
+
 GameInfo.ORIGIN_POSITION_OFFSET = 9
 GameInfo.MOVE_POSITION_OFFSET = 3
+
+GameInfo.CARD_INIT_OFFSET = Vector3.new(0,5,0)
 
 GameInfo.PositionTweenInfo = TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 
@@ -80,6 +84,18 @@ GameInfo.SinglePlayerCurrencyTable = {
     medium = 15,
     hard = 20
 }
+
+GameInfo.BoardSpinTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+
+------ Timer Information ------
+---- Single Player
+GameInfo.SinglePlayerTimedDuration = 30 -- half a minute for testing
+GameInfo.SolutionsXRange = {-10, 10}
+GameInfo.SolutionsZRange = {2, 20}
+GameInfo.SolutionMinimumDistance = 3
+GameInfo.SolutionArcTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+GameInfo.DisplayDuration = 25
+GameInfo.ScreenTweenInfo = TweenInfo.new(.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 --GameInfo.CombineYDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
 --GameInfo.CombineXZDirectionTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Back, Enum.EasingDirection.In)
