@@ -46,7 +46,7 @@ local DialogModule = {
         [4] = "24 is a card game where you are dealt 4 cards with number values.",
         [5] = "Your objective is to combine them all to create 24",
         [6] = "Click on a card and select a math operator (addition, subtraction, multiplication, and division). Then click on the card you want to combine. Repeat until you've made 24!",
-        [7] = "You will find games of varying difficulty. Green pedestals are the easiest, followed by yellow for medium, and red for hard",
+        [7] = "You will find games of varying difficulty. Green pedestals are the easiest, followed by yellow for medium, and red for hard.",
         [8] = "Players can play alone at pedestals or against other island denizens.",
         [9] = "Lastly, when you are ready for a real challenge. Seek out Tommy Two Decks in the Club. ",
     },

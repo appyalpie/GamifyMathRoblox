@@ -70,7 +70,7 @@ function Game_24.initialize(promptObject, player)
 	PlayerSideHideNameAndTitleEvent:FireClient(player)
 
 	-- play transition song (player, assetId, volume)
-	MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.45)
+	MusicEvent:FireClient(player,"rbxassetid://9203228470", 0.45)
 
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
@@ -300,10 +300,10 @@ function Game_24.initializeNPC(promptObject, player)
 	--check to see if we're fighing tommy
 	if CurrentGameInfo.currentOpponent.Name == "Tommy Two Decks" then
 		--play drum and bass
-		MusicEvent:FireClient(player,"rbxassetid://9042934109", 0.9)
+		MusicEvent:FireClient(player,"rbxassetid://9203212455", 0.9)
 	else
 		-- play transition song (player, assetId, volume)
-		MusicEvent:FireClient(player,"rbxassetid://9042916394", 0.5)
+		MusicEvent:FireClient(player,"rbxassetid://9203228470", 0.5)
 	end
 
     local Game_Cards = {}

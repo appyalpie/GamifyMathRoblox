@@ -6,7 +6,7 @@ local RecipeList = {
         Ingredient1 = 1,
         Ingredient2 = 1,
         Ingredient3 = 1,
-        RewardObject = ServerStorage.Island_3.ingredients:WaitForChild("result")
+        RewardObject = ServerStorage.Island_3.ingredients:WaitForChild("GrowPotion")
     },
 
     [2] = {
@@ -14,7 +14,7 @@ local RecipeList = {
         Ingredient1 = 0,
         Ingredient2 = 0,
         Ingredient3 = 16,
-        RewardObject = nil
+        RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ShrinkPotion")
     },
 
     [3] = {
@@ -22,7 +22,7 @@ local RecipeList = {
         Ingredient1 = 2,
         Ingredient2 = 0,
         Ingredient3 = 14,
-        RewardObject = nil
+        RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ExplosivePotion")
     }
     --explosion, grow, shrink
 }

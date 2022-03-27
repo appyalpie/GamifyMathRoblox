@@ -1,20 +1,20 @@
 local InvFunctions = require(script.Parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local MenuGui = Player:WaitForChild("PlayerGui",1):WaitForChild("UniqueOpenGui",1):WaitForChild("MenuGui",1)
-local ShopGUI = MenuGui:WaitForChild("ShopContainer",1)
-local AccessoryList = ShopGUI:WaitForChild("ShopScreen",1)
-local Acctemplate = ReplicatedStorage:WaitForChild("Accessories",1):WaitForChild("ShopTemplate",1)
+local MenuGui = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui")
+local ShopGUI = MenuGui:WaitForChild("ShopContainer")
+local AccessoryList = ShopGUI:WaitForChild("ShopScreen")
+local Acctemplate = ReplicatedStorage:WaitForChild("Accessories"):WaitForChild("ShopTemplate")
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
-local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
-local GetCurrencyEvent = InventoryEvents:WaitForChild("GetCurrencyEvent",1)
-local SpendCurrencyEvent = InventoryEvents:WaitForChild("SpendCurrencyEvent",1)
-local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",1)
+local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents")
+local GetCurrencyEvent = InventoryEvents:WaitForChild("GetCurrencyEvent")
+local SpendCurrencyEvent = InventoryEvents:WaitForChild("SpendCurrencyEvent")
+local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent")
 local ColorEvent = InventoryEvents:WaitForChild("ColorEvent")
 local OpenShopEvent = InventoryEvents:WaitForChild("OpenShopEvent")
 
-local ShopMessage = ShopGUI:WaitForChild("ShopMessage",1)
+local ShopMessage = ShopGUI:WaitForChild("ShopMessage")
 
 local otherFrames = {MenuGui:WaitForChild("OptionsMenu");MenuGui:WaitForChild("PortalMenu");MenuGui:WaitForChild("InventoryScreen")}
 
