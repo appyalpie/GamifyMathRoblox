@@ -480,7 +480,8 @@ local function CleanupNPC(promptObject, player, Player_Game_Cards, NPC_Game_Card
 	promptObject.Enabled = true
 
 	-- move the opponent back
-	CurrentGameInfo.currentOpponent.HumanoidRootPart.CFrame = CFrame.new(CurrentGameInfo._npcOldPosition) * CFrame.Angles(0, math.rad(CurrentGameInfo._npcOldOrientation.Y), 0)
+	--CurrentGameInfo.currentOpponent.HumanoidRootPart.CFrame
+	CurrentGameInfo.currentOpponent:SetPrimaryPartCFrame(CFrame.new(CurrentGameInfo._npcOldPosition) * CFrame.Angles(0, math.rad(CurrentGameInfo._npcOldOrientation.Y), 0))
 
 	-- reset currentGameInfo
 	-- clean up folderAdded connection
@@ -576,9 +577,10 @@ function Game_24.initializeNPC(promptObject, player)
 	CurrentGameInfo._npcOldOrientation = ancestorModel.HumanoidRootPart.Orientation
 
 	-- Move opponent to position
-	ancestorModel.HumanoidRootPart.CFrame = CFrame.new((Vector3.new(math.sin(CurrentGameInfo._npcOrientation + (math.pi / 2)), 0, 
+	--ancestorModel.HumanoidRootPart.CFrame
+	ancestorModel:SetPrimaryPartCFrame(CFrame.new((Vector3.new(math.sin(CurrentGameInfo._npcOrientation + (math.pi / 2)), 0, 
 		math.cos(CurrentGameInfo._npcOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModelArena.NPCTerminalPart.Position)
-		* CFrame.Angles(0, math.rad(ancestorModelArena.NPCTerminalPart.Orientation.Y + 90), 0)
+		* CFrame.Angles(0, math.rad(ancestorModelArena.NPCTerminalPart.Orientation.Y + 90), 0))
 
 	-- Tie cleanup events to death and leave
 	local playerHumanoidDiedConnection
@@ -816,6 +818,20 @@ function Game_24.preInitializationCompetitive(promptObject, player)
 	CurrentGameInfo._playerHumanoidDiedConnection = playerHumanoidDiedConnection
 	CurrentGameInfo._playerLeaveConnection = playerLeaveConnection
 
+	------ Connect Exit Button ------
+	local exitButton = terminalPart.ExitButton
+	local clickDetector = exitButton.ClickDetector
+	local exitButtonClickDetectorConnection
+	CurrentGameInfo._exitButtonConnection = exitButtonClickDetectorConnection
+	CurrentGameInfo._exitButton = exitButton
+	exitButtonClickDetectorConnection = clickDetector.MouseClick:Connect(function()
+		if player ~= CurrentGameInfo.currentPlayer then return end
+		CleanupPreCompetitive(promptObject, player, CurrentGameInfo)
+		exitButtonClickDetectorConnection:Disconnect()
+		exitButton.BrickColor = BrickColor.new("Institutional white")
+	end)
+	exitButton.BrickColor = BrickColor.new("Really red")
+
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
 
@@ -870,12 +886,14 @@ function Game_24.initializeCompetitive(arena_index)
 		CameraSetFOVRE:FireClient(v.currentPlayer, GameInfo.FOV, GameInfo.FOVSetTime)
 	end
 
-	-- TODO: Pull a random question, category based on difficulty
-	------ defaulting to easy for now, later implement some sort of difficulty picking system ------
-	local cardPulled = CardList["easy"][math.random(1, #CardList["easy"])]
+	
 
 	------ Some Variable Setup ------
 	local ancestorModel = Competitive_Arenas_Manager[arena_index][1].ancestorModel
+	-- TODO: Pull a random question, category based on difficulty
+	------ defaulting to ancestorModel for now, later implement some sort of difficulty picking system ------
+	local difficulty = ancestorModel:GetAttribute("difficulty")
+	local cardPulled = CardList[difficulty][math.random(1, #CardList[difficulty])]
 	local player1CurrentGameInfo
 	local player2CurrentGameInfo
 	if Competitive_Arenas_Manager[arena_index][1]._terminalPart.Name == "Player1TerminalPart" then
@@ -889,6 +907,16 @@ function Game_24.initializeCompetitive(arena_index)
 	local player2Game_Cards = {}
 	player1CurrentGameInfo.Game_Cards = player1Game_Cards
 	player2CurrentGameInfo.Game_Cards = player2Game_Cards
+
+	------ Disconnect Exit Buttons ------
+	if player1CurrentGameInfo._exitButtonConnection then
+		player1CurrentGameInfo._exitButtonConnection:Disconnect()
+		player1CurrentGameInfo._exitButton.BrickColor = BrickColor.new("Institutional white")
+	end
+	if player2CurrentGameInfo._exitButtonConnection then
+		player2CurrentGameInfo._exitButtonConnection:Disconnect()
+		player2CurrentGameInfo._exitButton.BrickColor = BrickColor.new("Institutional white")
+	end
 
 	------ Form Pulled Card to Board ------
 	local BoardCards = ancestorModel.BoardCards
