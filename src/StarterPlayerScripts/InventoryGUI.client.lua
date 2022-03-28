@@ -25,7 +25,7 @@ local InvFunctions = require(script.parent:WaitForChild("Inventory"):WaitForChil
 
 local EquippedConnections = {} -- for button activations
 local ButtonList = {} -- modifies image Buttons
-AccesoryTable = {}
+local AccesoryTable = {}
 
 local function CheckForFire()
     local i =  0
@@ -57,9 +57,14 @@ local function addToFrame(AccessoryString, Type)
     local newtemplate = Acctemplate:Clone()
     newtemplate.Name = AccessoryString.Name
     newtemplate.AccessoryName.Text = AccessoryString.Value
+    ------ Wait for AFrame to load in before parenting ------
+    local AccessoryList = InventoryGUI:WaitForChild("TabContainer"):WaitForChild("AFrame")
+
     newtemplate.Parent = AccessoryList
     local bool = false
     local equipped = false
+
+    ------ Clone Accessory + Initialize Visual Viewport + Dynamic for If Owned or Not
     -- clones the accessory Object to add to button
     local newAccessory = AccessoryString.Accessory:Clone()
     newAccessory.Parent = newtemplate.ViewportFrame
@@ -71,6 +76,7 @@ local function addToFrame(AccessoryString, Type)
 
     newtemplate.ViewportFrame.CurrentCamera = camera
 
+    ------ If the accessory has not been found here, 
     if not table.find(InvFunctions["InvData"], newtemplate.Name) then
         newtemplate.ImageColor3 = Color3.fromRGB(161,161,161)
     else
@@ -114,7 +120,6 @@ end
 
 --populates the Accesory Scrolling Frame with all the items 
 local function Populate(AccTable)
-    
     if CheckForFire() then
         for key in pairs (AccTable) do
             for inst2 in pairs (AccTable[key]) do
@@ -128,6 +133,7 @@ end
     make sure when using AddItem that the Button Will be Disabled in the Shop GUI Note for Self 
     or other team member. these are test buttons to add Accessories. Find the Accessory you wish to add to the Player from the Accessory List
 ]]
+--[[
 InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
     local Button
     for key, value in pairs (AccessoryList:GetChildren()) do
@@ -141,6 +147,7 @@ InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
     --a disable or hide button would go here
     InventoryGUI.AddAll:Destroy()
 end)
+]]
 
 InventoryGUI:WaitForChild("ExitButton").Activated:Connect(function()
     GuiUtilities.TweenCurrentFrameOut(InventoryGUI)
@@ -149,9 +156,9 @@ end)
 --fires Script on event passing player and AccessoryTable to target function
 AccesoryTableEvent.OnClientEvent:Connect(Populate)
 
-
---stores saved inventory into InvFunctions table functions["InvData"]
+--stores saved inventory into InvFunctions table functions["InvData"] (InventoryEventRE / "store" on server)
 GetPlayerSavedInventoryEvent.OnClientEvent:Connect(InvFunctions.store)
+
 local function Send()
     SendToServer:FireServer(InvFunctions["InvData"])
 end

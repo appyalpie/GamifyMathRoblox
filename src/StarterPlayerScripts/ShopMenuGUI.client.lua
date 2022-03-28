@@ -1,7 +1,7 @@
 local InvFunctions = require(script.Parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
-local MenuGui = Player:WaitForChild("PlayerGui",1):WaitForChild("UniqueOpenGui",1):WaitForChild("MenuGui",1)
+local MenuGui = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui")
 local ShopGUI = MenuGui:WaitForChild("ShopContainer",1)
 local AccessoryList = ShopGUI:WaitForChild("ShopScreen",1)
 local Acctemplate = ReplicatedStorage:WaitForChild("Accessories",1):WaitForChild("ShopTemplate",1)
@@ -22,7 +22,7 @@ local EquippedConnections = {}
 local ButtonList = {}
 local AccesoryTable = {}
 
-local Selected -- pointer to a specific Accessory image Button
+local Selected -- pointer to a specific Accessory image Button 
 local Currency
 local function CheckForFire()
     local i =  0
