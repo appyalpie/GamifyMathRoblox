@@ -15,6 +15,7 @@ LevelSystem.SetLevelEntry = function(Player,XP)
     local XPCounter = XP
     --Determines the XP required for each interation 
     while(XPCounter >= nextLevel) do
+        TotalXP = TotalXP + nextLevel
         if loopLevel < 9 then
             XPCounter = XPCounter - nextLevel
             nextLevel = math.floor(nextLevel*1.2)
@@ -88,7 +89,10 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             end
             loopLevel = loopLevel + 1
         end 
-            LevelSystem.TriggerCelebration(Player)
+        LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
+        LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = LevelSystem.PlayerXPList[Player.UserId]["totalXP"] +nextLevel
+        LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel
+        LevelSystem.TriggerCelebration(Player)
     end
 end
 
