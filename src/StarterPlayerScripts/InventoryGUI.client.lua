@@ -1,3 +1,7 @@
+script.Disabled = true -- Moved to Inventory 2.0
+if script.Disabled == true then
+    print("Moved to Inventory 2.0 (InventoryGUI.client.lua")
+else
 --services used
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
@@ -202,3 +206,4 @@ local function ShopTrigger(ItemName)
 end
 ColorEvent.onClientEvent:Connect(ShopTrigger)
 
+end

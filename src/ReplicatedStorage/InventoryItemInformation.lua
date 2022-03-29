@@ -15,6 +15,13 @@ local InventoryItemInformation = {
         Description = "Goggles",
         Cost = 0
     },
+    ["PirateHat"] = {
+        Type = "head",
+        Row = 1,
+        Column = 3,
+        Description = "Ahoy there!",
+        Cost = 10
+    },
     ------ Body Accessories ------
     ["BackPack"] = {
         Type = "body",

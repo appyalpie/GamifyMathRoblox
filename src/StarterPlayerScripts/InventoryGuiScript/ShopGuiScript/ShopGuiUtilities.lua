@@ -1,11 +1,14 @@
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local ShopItemsInformation = require(ReplicatedStorage:WaitForChild("ShopItemsInformation"))
 
 local InventoryInformationRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("InventoryInformationRF")
 local ShopPurchaseRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("ShopPurchaseRF")
+
+local InventoryViewportItems = ReplicatedFirst.InventoryViewportItems
 
 local ShopGuiUtilities = {}
 
@@ -15,7 +18,9 @@ local buyButtonConnection
 
 local Color3Lookup = {
     owned = Color3.fromRGB(133, 240, 138),
-    inactive = Color3.fromRGB(140,140,140)
+    inactive = Color3.fromRGB(140,140,140),
+    buyButtonActive = Color3.fromRGB(52, 236, 39),
+    buyButtonInactive = Color3.fromRGB(150,150,150)
 }
 ------_____ Shop Menu Stuff _____------
 
@@ -90,21 +95,33 @@ ShopGuiUtilities.revealShopkeeperItems = function(Shopkeeper)
     end
 end
 
+ShopGuiUtilities.InitializeViewportCamera = function(PictureFrame)
+    local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+    local ViewportCamera
+    if ViewportFrame:FindFirstChild("ViewportCamera") ~= nil then return end
+    ViewportCamera = Instance.new("Camera")
+    ViewportFrame.CurrentCamera = ViewportCamera
+    ViewportCamera.Name = "ViewportCamera"
+    ViewportCamera.Parent = ViewportFrame
+    return ViewportCamera
+end
+
 ------ Initialize all shop items to "not owned" ------
 ShopGuiUtilities.initializeShopMenu = function(ShopMenu, Shopkeeper)
     print("Initializing Shop")
+    local DetailFrame = ShopMenu.EquipsFrame:WaitForChild("DetailFrame")
+    local PictureFrame = DetailFrame:WaitForChild("PictureFrame")
+    local TextFrame = DetailFrame:WaitForChild("TextFrame")
+    local BuyButton = TextFrame:WaitForChild("BuyButton")
+    local Description2 = TextFrame:WaitForChild("Description2") -- Description
+    local Description4 = TextFrame:WaitForChild("Description4") -- Cost
+
     for k, v in pairs(accessoryButtonGUIDTable) do
         v[1].Parent.Visible = true
         v[1].Visible = true
         ShopGuiUtilities.CleanupEntry(k) -- Cleanup Any Prior Button Connections
         v[2] = v[1].InputEnded:Connect(function(input, gameProcessed) -- Connect the Accessory Button (not the buy)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                local DetailFrame = ShopMenu.EquipsFrame:WaitForChild("DetailFrame")
-                local PictureFrame = DetailFrame:WaitForChild("PictureFrame")
-                local TextFrame = DetailFrame:WaitForChild("TextFrame")
-                local BuyButton = TextFrame:WaitForChild("BuyButton")
-                local Description2 = TextFrame:WaitForChild("Description2") -- Description
-                local Description4 = TextFrame:WaitForChild("Description4") -- Cost
 
                 local shopItemInfo = ShopItemsInformation[Shopkeeper][v[1]:GetAttribute("item_name")]
 
@@ -122,11 +139,29 @@ ShopGuiUtilities.initializeShopMenu = function(ShopMenu, Shopkeeper)
                         ShopGuiUtilities.Click_Button_Owned(input, v[1], DetailFrame, shopItemInfo)
                     end
                 end)
+                local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+                ------ Clear viewportFrame children and initialize new ------
+                ViewportFrame:ClearAllChildren()
+                local ViewportCamera = ShopGuiUtilities.InitializeViewportCamera(PictureFrame)
+                local itemForViewport = InventoryViewportItems:WaitForChild(v[1]:GetAttribute("item_name")):Clone()
+                itemForViewport.Parent = ViewportFrame
+                ViewportCamera.CFrame = CFrame.new(Vector3.new(0, 2, 6) + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+
+                BuyButton.BackgroundColor3 = Color3Lookup.buyButtonActive
                 Description2.Text = shopItemInfo.Description
                 Description4.Text = shopItemInfo.Cost
             end
         end)
+
     end
+    local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+    ViewportFrame:ClearAllChildren()
+    if buyButtonConnection and buyButtonConnection.Connected then
+        buyButtonConnection:Disconnect()
+    end
+    BuyButton.BackgroundColor3 = Color3Lookup.buyButtonInactive
+    Description2.Text = ""
+    Description4.Text = ""
 end
 
 ShopGuiUtilities.Click_Button_Owned = function(input, itemButton, DetailFrame, shopItemInfo)
@@ -140,6 +175,15 @@ ShopGuiUtilities.Click_Button_Owned = function(input, itemButton, DetailFrame, s
             buyButtonConnection:Disconnect() -- If already owned, the buy button shall be disabled
         end
 
+        local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+        ------ Clear viewportFrame children and initialize new ------
+        ViewportFrame:ClearAllChildren()
+        local ViewportCamera = ShopGuiUtilities.InitializeViewportCamera(PictureFrame)
+        local itemForViewport = InventoryViewportItems:WaitForChild(itemButton:GetAttribute("item_name")):Clone()
+        itemForViewport.Parent = ViewportFrame
+        ViewportCamera.CFrame = CFrame.new(Vector3.new(0, 2, 6) + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+
+        BuyButton.BackgroundColor3 = Color3Lookup.buyButtonInactive
         local Description2 = TextFrame:WaitForChild("Description2")
         Description2.Text = shopItemInfo.Description
         local Description4 = TextFrame:WaitForChild("Description4") -- Cost
@@ -163,11 +207,13 @@ ShopGuiUtilities.updateShopMenu = function(player, ShopMenu, Shopkeeper)
         ["leg"] = EquipsFrame:WaitForChild("ScrollingFrameLegAccessories")
     }
     local playerInventoryData = InventoryInformationRF:InvokeServer() -- Table of all owned item names
-
+    print(playerInventoryData)
     for _, playerItemName in pairs(playerInventoryData) do
         ------ Get Info on Item ------
+        print(playerItemName)
         local shopItemInfo = ShopItemsInformation[Shopkeeper][playerItemName]
-        if shopItemInfo == nil then return end
+        if shopItemInfo == nil then continue end
+        
 
         ------ Initialize Item Frames To Owned / Equipped------
         local typeFrame = typeToFrameDictionary[shopItemInfo.Type]

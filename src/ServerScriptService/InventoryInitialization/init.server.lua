@@ -34,7 +34,7 @@ Players.PlayerAdded:Connect(function(player)
     else -- Possible datastore throttle error
         PlayerInventoryTable[player.UserId] = {}
     end
-    PlayerInventoryTable[player.UserId] = {"MathBlockHead", "Goggles"}
+    PlayerInventoryTable[player.UserId] = {"MathBlockHead", "PirateHat","TwoDeckKneeCover"}
     
     ------ Re-equip Accessories for the Player When They Spawn ------
     player.CharacterAdded:Connect(function(character)
@@ -122,6 +122,7 @@ ShopPurchaseRF.OnServerInvoke = function(player, Shopkeeper, itemName)
     if playerCurrentCurrency >= cost then
         GameStatsUtilities.incrementCurrency(player, -cost)
         table.insert(PlayerInventoryTable[player.UserId], itemName)
+        print("Added Item to Inventory")
         return true
     else
         return false

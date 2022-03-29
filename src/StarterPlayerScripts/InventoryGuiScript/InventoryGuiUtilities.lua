@@ -1,6 +1,8 @@
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 
 local InventoryItemInformation = require(ReplicatedStorage:WaitForChild("InventoryItemInformation"))
 
@@ -8,12 +10,17 @@ local InventoryInformationRF = ReplicatedStorage.InventoryEventsNew:WaitForChild
 local InventoryEquipRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("InventoryEquipRF")
 local InventoryUnequipRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("InventoryUnequipRF")
 
+local InventoryViewportItems = ReplicatedFirst.InventoryViewportItems
+
 local InventoryGuiUtilities = {}
 
 local Color3Lookup = {
     owned = Color3.fromRGB(133, 240, 138),
     equipped = Color3.fromRGB(0, 60, 255),
-    inactive = Color3.fromRGB(140,140,140)
+    inactive = Color3.fromRGB(140,140,140),
+    equipButtonOwned = Color3.fromRGB(52,236,39),
+    equipButtonEquipped = Color3.fromRGB(13,54,236),
+    equipButtonInactive = Color3.fromRGB(140,140,140)
 }
 
 -- K: GUID V: 1.Button 2.ButtonConnection
@@ -22,6 +29,9 @@ local accessoryButtonGUIDTable = {}
 -- 1: Button 2: Type ("owned" / "equipped" / "inactive")
 local currentlySelected = {nil, nil}
 local equipButtonConnection
+
+local ViewportCameraOffset = Vector3.new(0,2,6)
+local ViewportCameraNewOffset = Vector3.new(0,6,4)
 
 InventoryGuiUtilities.CleanupEntry = function(GUID)
     if accessoryButtonGUIDTable[GUID][2] then
@@ -50,9 +60,21 @@ InventoryGuiUtilities.InitializeAccessoryButtonIds = function(EquipsFrame)
     ------ Head Accessories ------
     InventoryGuiUtilities.AddGUIDForButton(ScrollingFrameHeadAccessories:WaitForChild("1"):WaitForChild("1"):WaitForChild("Button"))
     InventoryGuiUtilities.AddGUIDForButton(ScrollingFrameHeadAccessories:WaitForChild("1"):WaitForChild("2"):WaitForChild("Button"))
+    InventoryGuiUtilities.AddGUIDForButton(ScrollingFrameHeadAccessories:WaitForChild("1"):WaitForChild("3"):WaitForChild("Button"))
     ------ Leg Accessories ------
     InventoryGuiUtilities.AddGUIDForButton(ScrollingFrameLegAccessories:WaitForChild("1"):WaitForChild("1"):WaitForChild("Button"))
     InventoryGuiUtilities.AddGUIDForButton(ScrollingFrameLegAccessories:WaitForChild("1"):WaitForChild("2"):WaitForChild("Button"))
+end
+
+InventoryGuiUtilities.InitializeViewportCamera = function(PictureFrame)
+    local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+    local ViewportCamera
+    if ViewportFrame:FindFirstChild("ViewportCamera") ~= nil then return end
+    ViewportCamera = Instance.new("Camera")
+    ViewportFrame.CurrentCamera = ViewportCamera
+    ViewportCamera.Name = "ViewportCamera"
+    ViewportCamera.Parent = ViewportFrame
+    return ViewportCamera
 end
 
 ------ Initializes All Inventory Items to be Unowned at the start ------
@@ -65,6 +87,15 @@ InventoryGuiUtilities.initializeInventoryMenu = function(InventoryMenu)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 local DetailFrame = InventoryMenu.EquipsFrame:WaitForChild("DetailFrame")
                 local PictureFrame = DetailFrame:WaitForChild("PictureFrame")
+                local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+                ------ Clear viewportFrame children and initialize new ------
+                ViewportFrame:ClearAllChildren()
+                local ViewportCamera = InventoryGuiUtilities.InitializeViewportCamera(PictureFrame)
+                local itemForViewport = InventoryViewportItems:WaitForChild(v[1]:GetAttribute("item_name")):Clone()
+                itemForViewport.Parent = ViewportFrame
+                ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+
+
                 local TextFrame = DetailFrame:WaitForChild("TextFrame")
                 local EquipButton = TextFrame:WaitForChild("EquipButton")
                 local Description2 = TextFrame:WaitForChild("Description2")
@@ -74,8 +105,9 @@ InventoryGuiUtilities.initializeInventoryMenu = function(InventoryMenu)
                 end
 
                 local inventoryInfo = InventoryItemInformation[v[1]:GetAttribute("item_name")]
+                EquipButton.BackgroundColor3 = Color3Lookup.equipButtonInactive
+                EquipButton.Text = "Equip"
                 Description2.Text = inventoryInfo.Description
-                currentlySelected = {v[1], "inactive"}
             end
         end)
     end
@@ -109,6 +141,13 @@ InventoryGuiUtilities.Click_Button_Equipped = function(input, itemButton, Detail
         local PictureFrame = DetailFrame:WaitForChild("PictureFrame")
         local TextFrame = DetailFrame:WaitForChild("TextFrame")
         local EquipButton = TextFrame:WaitForChild("EquipButton")
+        local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+        ------ Clear viewportFrame children and initialize new ------
+        ViewportFrame:ClearAllChildren()
+        local ViewportCamera = InventoryGuiUtilities.InitializeViewportCamera(PictureFrame)
+        local itemForViewport = InventoryViewportItems:WaitForChild(itemButton:GetAttribute("item_name")):Clone()
+        itemForViewport.Parent = ViewportFrame
+        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
 
         if equipButtonConnection then
             equipButtonConnection:Disconnect()
@@ -127,9 +166,10 @@ InventoryGuiUtilities.Click_Button_Equipped = function(input, itemButton, Detail
             end
         end)
 
+        EquipButton.BackgroundColor3 = Color3Lookup.equipButtonEquipped
+        EquipButton.Text = "Unequip"
         local Description2 = TextFrame:WaitForChild("Description2")
         Description2.Text = playerItemInfo.Description
-        currentlySelected = {itemButton, "equipped"}
     end
 end
 
@@ -147,6 +187,13 @@ InventoryGuiUtilities.Click_Button_Owned = function(input, itemButton, DetailFra
         local PictureFrame = DetailFrame:WaitForChild("PictureFrame")
         local TextFrame = DetailFrame:WaitForChild("TextFrame")
         local EquipButton = TextFrame:WaitForChild("EquipButton")
+        local ViewportFrame = PictureFrame:WaitForChild("ViewportFrame")
+        ------ Clear viewportFrame children and initialize new ------
+        ViewportFrame:ClearAllChildren()
+        local ViewportCamera = InventoryGuiUtilities.InitializeViewportCamera(PictureFrame)
+        local itemForViewport = InventoryViewportItems:WaitForChild(itemButton:GetAttribute("item_name")):Clone()
+        itemForViewport.Parent = ViewportFrame
+        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
 
         if equipButtonConnection then
             equipButtonConnection:Disconnect()
@@ -166,9 +213,10 @@ InventoryGuiUtilities.Click_Button_Owned = function(input, itemButton, DetailFra
             end
         end)
 
+        EquipButton.BackgroundColor3 = Color3Lookup.equipButtonOwned
+        EquipButton.Text = "Equip"
         local Description2 = TextFrame:WaitForChild("Description2")
         Description2.Text = playerItemInfo.Description
-        currentlySelected = {itemButton, "owned"}
     end
 end
 
@@ -197,7 +245,7 @@ InventoryGuiUtilities.updateInventoryMenu = function(player, InventoryMenu)
         ------ Get Info on Item ------
         local playerItemInfo = InventoryItemInformation[playerItemName]
         if playerItemInfo == nil then return end
-
+        print(playerItemName)
         ------ Initialize Item Frames To Owned / Equipped------
         local typeFrame = typeToFrameDictionary[playerItemInfo.Type]
         local itemFrame = typeFrame:WaitForChild(playerItemInfo.Row):WaitForChild(playerItemInfo.Column)

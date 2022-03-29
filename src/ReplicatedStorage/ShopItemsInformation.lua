@@ -15,8 +15,8 @@ ShopItemsInformation["Llama"] = {
         Row = 1,
         Column = 2,
         Description = "Goggles",
-        Cost = 0,
-        ImageAssetID = "rbxassetid://9213448289"
+        Cost = 3,
+        ImageAssetID = "rbxassetid://9227214496"
     },
     ------ Body Accessories ------
     ["BackPack"] = {
@@ -25,7 +25,7 @@ ShopItemsInformation["Llama"] = {
         Column = 1,
         Description = "A leather travel pack, just enough room for your math essentials",
         Cost = 100,
-        ImageAssetID = "rbxassetid://9213448721"
+        ImageAssetID = "rbxassetid://9227214678"
     },
     ["Card24"] = {
         Type = "body",
@@ -33,7 +33,7 @@ ShopItemsInformation["Llama"] = {
         Column = 2,
         Description = "So many ways to make one number",
         Cost = 2424,
-        ImageAssetID = "rbxassetid://9213448419"
+        ImageAssetID = "rbxassetid://9227214583"
     },
     ------ Leg Accessories ------
     ["MathBlockKneeCover"] = {
@@ -60,7 +60,7 @@ ShopItemsInformation["Skeleton"] = {
         Type = "head",
         Row = 1,
         Column = 1,
-        Description = "Math-block head",
+        Description = "Argg, Ahoy there!",
         Cost = 10,
         ImageAssetID = "rbxassetid://9222520524"
     }
