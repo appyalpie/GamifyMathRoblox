@@ -106,8 +106,13 @@ GameStatsUtilities.newGame24NPCDefeated = function(player, npcName)
     end
 end
 
-GameStatsUtilities.getPlayerData = function(player)
-    return playerGameStats[player.UserId]
+GameStatsUtilities.getPlayerData = function(player, returnLevelStatsBool)
+    local returnLevelStatsBool = returnLevelStatsBool or false -- to allow for nil to be passed in
+    if returnLevelStatsBool then
+        return playerGameStats[player.UserId], GameStatsUtilities.getLevelInformation(player)
+    else
+        return playerGameStats[player.UserId]
+    end
 end
 
 GameStatsUtilities.saveLastSolution = function(player, solution)
@@ -115,6 +120,14 @@ GameStatsUtilities.saveLastSolution = function(player, solution)
         table.remove(playerGameStats[player.UserId]["Game24Last5Solutions"], 5)
     end
     table.insert(playerGameStats[player.UserId]["Game24Last5Solutions"], 1, solution)
+end
+
+------ Level System Stuff For Client Stats GUI ------
+GameStatsUtilities.getLevelInformation = function(player)
+    local playerLevel = LevelSystem.DisplayLevel(player)
+    local playerLevelProgress = LevelSystem.DisplayProgression(player, playerGameStats[player.UserId]["XP"])
+    local playerNextLevelAmount = LevelSystem.DisplayNextLevelAmount(player)
+    return {playerLevel, playerLevelProgress, playerNextLevelAmount}
 end
 
 return GameStatsUtilities
