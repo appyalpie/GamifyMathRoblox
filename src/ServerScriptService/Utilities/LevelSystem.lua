@@ -1,3 +1,4 @@
+local SoundFX = game:GetService("ServerStorage"):WaitForChild("Sounds"):WaitForChild("Level Up")
 local LevelSystem = {}
  LevelSystem.PlayerXPList = {}
 
@@ -91,6 +92,7 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             loopLevel = loopLevel + 1
         end 
         LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
+        LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = LevelSystem.PlayerXPList[Player.UserId]["totalXP"] +nextLevel
         LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel
         LevelSystem.TriggerCelebration(Player)
     end
@@ -114,6 +116,24 @@ end
 -- Both Level system Rewards and the VFX can occur from this function
 LevelSystem.TriggerCelebration = function(Player)
     print(Player.Name .. " has leveled up")
+    local OneUP = SoundFX:Clone()
+    OneUP.Parent = Player.Character:WaitForChild("Head")
+    OneUP:Play()
+    OneUP:Destroy()
+
+    delay(0,function()local Particles = Instance.new("ParticleEmitter")
+        Particles.Parent = Player.Character:WaitForChild("Head")
+        Particles.Color =ColorSequence.new(Color3.fromRGB(201, 168, 22))
+        Particles.Size = NumberSequence.new(1, 1)
+        Particles.Lifetime = NumberRange.new(1, 4)
+        Particles.Rate = 100
+        Particles.Speed = NumberRange.new(3, 3)
+        Particles.SpreadAngle = Vector2.new(1000, 1000)
+        task.wait(3)
+        Particles.Rate = 0
+        task.wait(3)
+        Particles:Destroy()
+    end)
     --[[
         activate some VFX here on server
     ]]

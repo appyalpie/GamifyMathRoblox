@@ -1,0 +1,11 @@
+script.Parent.Activated:Connect(function()
+	script.Parent.MousePosition:FireServer((game.Players.LocalPlayer:GetMouse().Hit.p))
+end)
+game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("ThrowPotion").OnClientEvent:Connect(function(part)
+	game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("ThrowPotion"):FireServer(part)	
+end)
+
+
+
+
+//Note This Script is coppied from an object and is incompatible with rojo syncing
