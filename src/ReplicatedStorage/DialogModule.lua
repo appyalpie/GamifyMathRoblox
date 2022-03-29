@@ -182,7 +182,7 @@ local DialogModule = {
     ["Prentiss the apprentice"] = {
         [1] = "Hello Stranger, Welcome to Alchemy Island.",
         [2] = "You can mix ingredients to make potions with wondorous results using your knowledge of ratios.",
-        [3] = "My master and I were on our way to the academy when he was beset by back pain. He needs a specific potion to cure him.",
+        [3] = "My master and I were on our way to make potions when he was beset by back pain. He needs a specific potion to cure him.",
         [4] = "I would help him myself but he hasn't taught me about ratios yet!",
         [5] = "Please talk to him down the way and see what potion he needs. I'm sure he'd help you in return."
     },
@@ -190,9 +190,9 @@ local DialogModule = {
         [1] = "Oh did Randallf send you? That's so nice of you to help him.",
         [2] = "He always gets his ratios confused though.",
         [3] = "To make a grow potion you need: 1 red mushroom, 1 blue berry, and 1 green herb.",
-        [4] = "Because your so nice I'll tell you how to make other potions as well",
-        [5] = "To make a shrink potion you need: 0 red mushrooms, 0 blue berries, and 16 green herbs.",
-        [6] = "To make an explosive potion you need: 2 red mushrooms, 0 blue berries, and 14 green herbs."
+        [4] = "Because you're so nice I'll tell you how to make other potions as well",
+        [5] = "To make a shrink potion you need: 1 red mushrooms, 3 blue berries, and 1 green herbs.",
+        [6] = "To make an explosive potion you need: 2 red mushrooms, 1 blue berries, and 1 green herbs."
     }
 }
 
