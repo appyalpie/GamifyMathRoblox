@@ -258,6 +258,9 @@ local function CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
 	------ Reset Player Camera Controls ------
 	CameraSetFOVRE:FireClient(player, 70)
 	CameraResetRE:FireClient(player)
+	
+	-- play the song that was playing before this
+	MusicEvent:FireClient(player,"lastsound", 0.9)
 end
 
 local function StartNextRound(player, ancestorModel, Game_Cards, CurrentGameInfo)
@@ -332,6 +335,9 @@ end
 
 function Game_24.initializeTimed(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
+
+	-- play transition song (player, assetId, volume)
+	MusicEvent:FireClient(player,"rbxassetid://9203228470", 0.45)
 
 	------ Lock Player Movements ------
 	LockMovementRE:FireClient(player)
