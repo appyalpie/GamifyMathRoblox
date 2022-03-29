@@ -18,10 +18,8 @@ muteMusicButton.Activated:Connect(function()
     if soundGroupToMute.Volume ~= 0 
     then
         soundGroupToMute.Volume = 0
-        muteMusicButton.Text = "Unmute Music"
     else
         soundGroupToMute.Volume = 1
-        muteMusicButton.Text = "Mute Music"
     end
 
 end)
