@@ -54,7 +54,7 @@ ShopItemsInformation["Llama"] = {
     }
 }
 
-ShopItemsInformation["Skeleton"] = {
+ShopItemsInformation["Skeleton At Tony V"] = {
     ------ Head Accessories ------
     ["PirateHat"] = {
         Type = "head",

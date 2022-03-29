@@ -11,6 +11,7 @@ local InventoryInformationRF = ReplicatedStorage.InventoryEventsNew:WaitForChild
 local InventoryEquipRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("InventoryEquipRF")
 local InventoryUnequipRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("InventoryUnequipRF")
 local ShopPurchaseRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("ShopPurchaseRF")
+local ResetInventoryBE = ReplicatedStorage.InventoryEventsNew:WaitForChild("ResetInventoryBE")
 
 local InventoryDataStore = DataStoreService:GetDataStore("PlayerInventories")
 
@@ -34,7 +35,7 @@ Players.PlayerAdded:Connect(function(player)
     else -- Possible datastore throttle error
         PlayerInventoryTable[player.UserId] = {}
     end
-    PlayerInventoryTable[player.UserId] = {"MathBlockHead", "PirateHat","TwoDeckKneeCover"}
+    --PlayerInventoryTable[player.UserId] = {"MathBlockHead", "PirateHat","TwoDeckKneeCover"}
     
     ------ Re-equip Accessories for the Player When They Spawn ------
     player.CharacterAdded:Connect(function(character)
@@ -128,3 +129,7 @@ ShopPurchaseRF.OnServerInvoke = function(player, Shopkeeper, itemName)
         return false
     end
 end
+
+ResetInventoryBE.Event:Connect(function(player)
+    PlayerInventoryTable[player.UserId] = {}
+end)

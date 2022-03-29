@@ -18,7 +18,7 @@ local NoButton = YesNoFrame.NoButton
 local NPCName = DialogFrame:WaitForChild("NPCName")
 local InputButtonConnection
 
-local OpenShopEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents"):WaitForChild("OpenShopEvent")
+local ShopOpenBE = ReplicatedStorage.InventoryEventsNew:WaitForChild("ShopOpenBE")
 
 --triggers and counts
 local DialogOpen = false
@@ -191,8 +191,8 @@ for _, v in pairs(NPCs:GetChildren()) do
                 Dialog = DialogModule[NPCName.Value] 
                 DialogIndex += 1
                 OnDialog(Dialog, DialogIndex, NPCs[NPCName.Value].HumanoidRootPart.ProximityPrompt)
-                if DialogIndex == 0 and NPCName.Value == "Llama" then
-                    OpenShopEvent:FireServer()
+                if DialogIndex == 0 and (NPCName.Value == "Llama" or NPCName.Value == "Skeleton At Tony V") then
+                    ShopOpenBE:Fire(NPCName.Value)
                 end
             
             end)

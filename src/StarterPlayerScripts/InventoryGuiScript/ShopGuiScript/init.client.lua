@@ -5,6 +5,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 local ShopGuiUtilities = require(script:WaitForChild("ShopGuiUtilities"))
 
+local ShopOpenBE = ReplicatedStorage.InventoryEventsNew:WaitForChild("ShopOpenBE")
+
 local localPlayer = Players.LocalPlayer
 
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
@@ -30,6 +32,34 @@ local checkValidInput = function(input)
 	end
 end
 
+ShopOpenBE.Event:Connect(function(Shopkeeper)
+	------ Initialize Accessory Buttons (dynamically) ------
+	local EquipsFrame = ShopMenu:WaitForChild("EquipsFrame")
+	ShopGuiUtilities.InitializeAccessoryButtonIds(EquipsFrame, Shopkeeper)
+	ShopGuiUtilities.hideAllShopItems(ShopMenu)
+	ShopGuiUtilities.revealShopkeeperItems(Shopkeeper)
+	ShopGuiUtilities.initializeShopMenu(ShopMenu, Shopkeeper)
+
+	--script.Disabled = true
+	targetFrame:SetAttribute("isActive", true)
+
+	------ Update Shop Menu ------
+	ShopGuiUtilities.updateShopMenu(localPlayer, ShopMenu, Shopkeeper)
+
+	-- tween other frames out
+	GuiUtilities.TweenOtherActiveFramesOut(otherFrames)
+	
+	local twinfo = TweenInfo.new(0.8,Enum.EasingStyle.Back,Enum.EasingDirection.Out,0,false,0)
+	local goal = {}
+	goal.Position = UDim2.new(0.5,0,0.5,0)
+	local tween1 = TweenService:Create(targetFrame,twinfo,goal)
+	tween1:Play()
+	tween1.Completed:Connect(function()
+		--script.Disabled = false
+	end)
+end)
+
+--[[
 local Shopkeepers = game.Workspace.Shopkeepers
 for _, v in pairs(Shopkeepers:GetChildren()) do
 	v.HumanoidRootPart.ProximityPrompt.Triggered:Connect(function()
@@ -58,8 +88,8 @@ for _, v in pairs(Shopkeepers:GetChildren()) do
 			--script.Disabled = false
 		end)
 	end)
-end
-
+end	
+]]
 
 ------ Exit Button ------
 local ExitButton = ShopMenu:WaitForChild("ExitButton")
