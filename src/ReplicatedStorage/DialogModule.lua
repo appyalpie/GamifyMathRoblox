@@ -165,10 +165,11 @@ local DialogModule = {
     ["Randallf_first_meeting"] = {
         [1] = "ooo ooo! eee eee eee urgggghhh....",
         [2] = "Please, give me a Grow potion.",
-        [3] = "In return, I'll unlock the portal to the next world.", 
+        [3] = "You only need 100 red mushrooms, 100 blue berries, and 100 green herbs.",
+        [4] = "In return, I'll unlock the portal to the next world.", 
     },
     ["Randallf_second_meeting"] = { --if player accept quest does not have potion
-        [1] = "Do you have it yet?"
+        [1] = "Do you have a Grow Potion yet?"
             
     },
     ["Randallf_third_meeting"] = { --if player accept quest does have potion
@@ -176,7 +177,7 @@ local DialogModule = {
         [2] = "Will you please let me have it?"      
     },
     ["Randallf_fourth_meeting"] = { --when quest is done
-        [1] = "Thank you for helping me. My Back feels much better",       
+        [1] = "Thank you for helping me friend! My Back feels much better.",       
     },
     ["Prentiss the apprentice"] = {
         [1] = "Hello Stranger, Welcome to Alchemy Island.",
@@ -186,7 +187,12 @@ local DialogModule = {
         [5] = "Please talk to him down the way and see what potion he needs. I'm sure he'd help you in return."
     },
     ["Alchemia"] = {
-        [1] = "sample text"
+        [1] = "Oh did Randallf send you? That's so nice of you to help him.",
+        [2] = "He always gets his ratios confused though.",
+        [3] = "To make a grow potion you need: 1 red mushroom, 1 blue berry, and 1 green herb.",
+        [4] = "Because your so nice I'll tell you how to make other potions as well",
+        [5] = "To make a shrink potion you need: 0 red mushrooms, 0 blue berries, and 16 green herbs.",
+        [6] = "To make an explosive potion you need: 2 red mushrooms, 0 blue berries, and 14 green herbs."
     }
 }
 

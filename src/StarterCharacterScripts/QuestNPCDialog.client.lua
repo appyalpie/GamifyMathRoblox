@@ -11,6 +11,7 @@ local YesNoFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitF
 local InputButton =  DialogFrame:WaitForChild("Input")
 local YesButton = YesNoFrame.YesButton
 local NoButton = YesNoFrame.NoButton
+local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 --this is the NPC name label in the dialog frame maybe not correct
 local NPCName = DialogFrame:WaitForChild("NPCName")
 local NPCState = "Randallf_first_meeting"
@@ -49,6 +50,8 @@ end
 
 --handle dialog given proximity prompt. bring in dialog associated with individual NPC base on dialog module script
 local function OnDialog(Dialog, Index, ProximityPrompt)
+    --make the inventory GUI invisible. then make it visible when done
+    InventoryGUI.Visible = false
     --do this once the dialog is exhausted 
     if Index == #Dialog then
         
@@ -115,7 +118,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                         DialogOpen = false
                         DialogIndex = 0
                         Player.Character.HumanoidRootPart.Anchored = false
-        
+                        --get the inventory window back
+                        InventoryGUI.Visible = true
                     end)
         
                     --handle the no button behavior. 
@@ -151,6 +155,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                         DialogIndex = 0
                         --release the player
                         Player.Character.HumanoidRootPart.Anchored = false
+                        --get the inventory window back
+                        InventoryGUI.Visible = true
                     end)
                 end)
                 
@@ -212,6 +218,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                     DialogOpen = false
                     DialogIndex = 0
                     Player.Character.HumanoidRootPart.Anchored = false
+                    --get the inventory window back
+                    InventoryGUI.Visible = true
                 end)
     
                 --handle the no button behavior. 
@@ -245,6 +253,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                     DialogIndex = 0
                     --release the player
                     Player.Character.HumanoidRootPart.Anchored = false
+                    --get the inventory window back
+                    InventoryGUI.Visible = true
                 end)
             end)
         end
@@ -278,6 +288,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         DialogOpen = false
         DialogIndex = 0
         Player.Character.HumanoidRootPart.Anchored = false
+        InventoryGUI.Visible = true
     end
 end
 

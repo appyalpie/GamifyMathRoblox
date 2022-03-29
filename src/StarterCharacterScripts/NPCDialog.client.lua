@@ -14,6 +14,7 @@ local YesNoFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitF
 local InputButton =  DialogFrame:WaitForChild("Input")
 local YesButton = YesNoFrame.YesButton
 local NoButton = YesNoFrame.NoButton
+local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 --this is the NPC name label in the dialog frame maybe not correct
 local NPCName = DialogFrame:WaitForChild("NPCName")
 local InputButtonConnection
@@ -52,6 +53,8 @@ end
 
 --handle dialog given proximity prompt. bring in dialog associated with individual NPC base on dialog module script
 local function OnDialog(Dialog, Index, ProximityPrompt)
+    --hide the inventory gui
+    InventoryGUI.Visible = false
     --if there is dialog at the index provided (pages of dialog lines)
     if Index == #Dialog and ProximityPrompt:GetAttribute('Challenger') then
         local Tween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
@@ -95,6 +98,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 DialogOpen = false
                 DialogIndex = 0
                 Player.Character.HumanoidRootPart.Anchored = false
+                --show the inventory gui
+                InventoryGUI.Visible = true
 
                 ChallengeEvent:FireServer(ProximityPrompt)
             end)
@@ -131,6 +136,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 DialogIndex = 0
                 
                 Player.Character.HumanoidRootPart.Anchored = false
+                --show the inventory gui
+                InventoryGUI.Visible = true
             end)
         end)
     end
@@ -163,6 +170,8 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         DialogOpen = false
         DialogIndex = 0
         Player.Character.HumanoidRootPart.Anchored = false
+        --show the inventory gui
+        InventoryGUI.Visible = true
     end
 end
 
