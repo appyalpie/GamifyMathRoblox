@@ -1,4 +1,4 @@
-local SoundFX = game:GetService("ServerStorage"):WaitForChild("Sounds"):WaitForChild("Level Up")
+
 local LevelSystem = {}
  LevelSystem.PlayerXPList = {}
 
@@ -123,8 +123,8 @@ end
 -- Both Level system Rewards and the VFX can occur from this function
 LevelSystem.TriggerCelebration = function(Player)
     print(Player.Name .. " has leveled up")
-    local OneUP = SoundFX:Clone()
-    OneUP.Parent = Player.Character:WaitForChild("Head")
+    local OneUP = game:GetService("ServerStorage"):FindFirstChild("Sounds"):FindFirstChild("Level Up"):Clone()
+    OneUP.Parent = Player.Character:FindFirstChild("HumanoidRootPart")
     OneUP:Play()
     OneUP:Destroy()
 
