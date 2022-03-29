@@ -13,8 +13,8 @@ local CardObject = require(script.CardObject)
 local Timer = require(ServerScriptService.Utilities:WaitForChild("Timer"))
 
 ------ Title Binding Remote Events ------
-local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideShowNameAndTitleEvent')
-local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
+local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideShowNameAndTitleEvent')
+local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideHideNameAndTitleEvent')
 ------ Movement Binding Remote Events ------
 local LockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("LockMovementRE")
 local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMovementRE")

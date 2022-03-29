@@ -36,8 +36,8 @@ local Explosion_Core = ServerStorage.Island_2.Game_24:WaitForChild("Explosion_Co
 local Solution_Display = ServerStorage.Island_2.Game_24:WaitForChild("Solution_Display")
 
 ------ Title Binding Remote Events ------
-local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
-local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
+local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideHideNameAndTitleEvent')
+local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideHideNameAndTitleEvent')
 
 ------ Camera Remote Events ------
 local CameraPointToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraPointToRE")

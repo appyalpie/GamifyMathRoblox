@@ -1,12 +1,12 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
  
-local AddTitlesEvent = ReplicatedStorage:WaitForChild("AddTitlesEvent")
-local InitTitlesEvent = ReplicatedStorage:WaitForChild("InitTitlesEvent")
-local ShowTitlesEvent = ReplicatedStorage:WaitForChild("ShowTitlesEvent")
-local PlayerSideHideNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideHideNameAndTitleEvent')
-local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage:WaitForChild('PlayerSideShowNameAndTitleEvent')
-local ActivateTitleButtonEvent = ReplicatedStorage:WaitForChild("ActivateTitleButtonEvent")
+local AddTitlesEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild("AddTitlesEvent")
+local InitTitlesEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild("InitTitlesEvent")
+local ShowTitlesEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild("ShowTitlesEvent")
+local PlayerSideHideNameAndTitleEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideHideNameAndTitleEvent')
+local PlayerSideShowNameAndTitleEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideShowNameAndTitleEvent')
+local ActivateTitleButtonEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild("ActivateTitleButtonEvent")
 
 local Player = Players.LocalPlayer
 local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui"):WaitForChild("InventoryScreen"):WaitForChild("TabContainer")
