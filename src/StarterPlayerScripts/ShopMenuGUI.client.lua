@@ -1,3 +1,7 @@
+script.Disabled = true -- Moved to Inventory 2.0
+if script.Disabled == true then
+    print("Moved to Inventory 2.0 (ShopMenuGUI.client.lua")
+else
 local InvFunctions = require(script.Parent:WaitForChild("Inventory"):WaitForChild("functions"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = game:GetService("Players").LocalPlayer
@@ -22,7 +26,7 @@ local EquippedConnections = {}
 local ButtonList = {}
 local AccesoryTable = {}
 
-local Selected -- pointer to a specific Accessory image Button
+local Selected -- pointer to a specific Accessory image Button 
 local Currency
 local function CheckForFire()
     local i =  0
@@ -137,3 +141,4 @@ end)
 -- open shop event was created if the Shop event is server fired otherwise interaction will need to be added to fire the same function
 
 OpenShopEvent.onClientEvent:Connect(OpenShop)
+end
