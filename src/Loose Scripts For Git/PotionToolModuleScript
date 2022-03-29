@@ -1,0 +1,151 @@
+local throwAnimation = script.Parent.Throw
+local Direction
+local potion = script.Parent
+local debris = game:GetService("Debris")
+local ThrowPotion = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("ThrowPotion")
+local Collision = game:GetService("ServerScriptService"):WaitForChild("Utilities"):WaitForChild("PotionsNotCollide")
+canThrow = true
+
+script.Parent.MousePosition.OnServerEvent:Connect(function(player,mouse)
+	Direction = mouse
+end)
+
+
+potion.Activated:Connect(function()
+	
+	if canThrow == true then
+		canThrow = false
+		
+		local char = potion.Parent
+		local human = char:FindFirstChild("Humanoid")
+		if human then
+			local loadedAnim = human:LoadAnimation(throwAnimation)
+			loadedAnim:play()
+			task.wait(.5)
+		end
+		
+
+		
+		local hitbox = Instance.new("Part",workspace)
+		hitbox.Shape = "Ball"
+		hitbox.Size = Vector3.new(3,3,3)
+		hitbox.Material = Enum.Material.Sand
+		hitbox.Transparency = 1
+		hitbox.CFrame = CFrame.new(script.Parent.Handle.Position + script.Parent.Handle.CFrame.LookVector*3,Direction)
+		ThrowPotion:FireClient(game:GetService("Players"):GetPlayerFromCharacter(potion.Parent),hitbox)
+		
+		for i,v in pairs(game.Workspace.LightingZones:GetDescendants()) do
+			if v:IsA("Part") then
+				local Collissionfilter = Instance.new("NoCollisionConstraint",hitbox)
+				Collissionfilter.Part0 = hitbox
+				Collissionfilter.Part1 = v
+			end
+		end
+		
+		for i,v in pairs(game.Workspace.Sounds.MusicZones:GetDescendants()) do
+			if v:IsA("Part") then
+				local Collissionfilter = Instance.new("NoCollisionConstraint",hitbox)
+				Collissionfilter.Part0 = hitbox
+				Collissionfilter.Part1 = v
+			end
+		end
+		
+		local attachment0 = Instance.new("Attachment",hitbox); attachment0.Position = Vector3.new(-.5,0,0); attachment0.Orientation = Vector3.new(0,180,0)
+		local attachment1 = Instance.new("Attachment",hitbox); attachment1.Position = Vector3.new(.5,0,0)
+		local trail = Instance.new("Trail",hitbox); trail.Attachment0 = attachment0; trail.Attachment1 = attachment1
+		
+		
+		script.Parent.Beaker:Clone().Parent = hitbox
+		hitbox.Beaker.CanCollide = false
+		hitbox.Beaker.Position = hitbox.Position
+		script.Parent.Liquid:Clone().Parent = hitbox
+		hitbox.Liquid.CanCollide = false
+		hitbox.Liquid.Position = (hitbox.Position- Vector3.new(.007,0.958,-.009))
+		script.Parent.MagicSmoke:Clone().Parent = hitbox
+		hitbox.MagicSmoke.CanCollide = false
+		hitbox.MagicSmoke.Position = hitbox.Position
+		
+		
+		local ModelWeld1 = Instance.new("WeldConstraint",hitbox)
+		ModelWeld1.Part0 = hitbox.Beaker
+		ModelWeld1.Part1 = hitbox.Liquid
+		local ModelWeld2 = Instance.new("WeldConstraint",hitbox)
+		ModelWeld2.Part0 = hitbox.Beaker
+		ModelWeld2.Part1 = hitbox.MagicSmoke
+		local ModelWeld3 = Instance.new("WeldConstraint",hitbox)
+		ModelWeld3.Part0 = hitbox
+		ModelWeld3.Part1 = hitbox.Beaker
+		
+		
+		
+		local BodyVelocity = Instance.new("BodyVelocity",hitbox)
+		BodyVelocity.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+		BodyVelocity.P = 3000
+		
+		
+		
+		local ORI = 0
+		
+		spawn(function()
+			while wait() do
+				ORI = ORI - .1
+				hitbox.CFrame = hitbox.CFrame + hitbox.CFrame.LookVector *4
+				hitbox.Orientation = Vector3.new(hitbox.Orientation.X + ORI, hitbox.Orientation.Y,hitbox.Orientation.Z)
+				
+			end
+		end)
+		
+		hitbox.Touched:Connect(function(part)
+			if not game:GetService("CollectionService"):HasTag(part,"NoCollidePotions") then
+					local hitbox2 = Instance.new("Part",workspace)
+					hitbox2.Shape = "Ball"
+					hitbox2.Size = Vector3.new(8,8,8)
+					hitbox2.Anchored = true
+					hitbox2.CanCollide = false
+					hitbox2.Material = Enum.Material.Sand
+					hitbox2.Transparency = 1
+					hitbox2.CFrame = CFrame.new(hitbox.Position)
+					hitbox2.Touched:Connect(function(hit)
+					
+						hitbox2:Destroy()
+						local player = game.Players:GetPlayerFromCharacter((hit.Parent))
+							if player then
+								local direction = hitbox.Position - hit.Parent:FindFirstChild("HumanoidRootPart").Position
+								local Knockbackforce = Instance.new("BodyVelocity")
+								Knockbackforce.Name = "KnockbackForce"
+								Knockbackforce.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+								Knockbackforce.Velocity = (direction.unit)*-30
+								Knockbackforce.Parent = hit.Parent:FindFirstChild("HumanoidRootPart")
+								task.wait(.4)
+								Knockbackforce:Destroy()
+							
+							end
+							hitbox:Destroy()
+						
+							local particlePlaceHolder = Instance.new("Part")
+							particlePlaceHolder.Size = Vector3.new(1,1,1)
+							particlePlaceHolder.CanCollide = false
+							particlePlaceHolder.Transparency = 1
+							particlePlaceHolder.CFrame = hitbox.CFrame + Vector3.new(0,3,0)
+							particlePlaceHolder.Anchored = true
+							particlePlaceHolder.Parent = workspace
+							
+							local Particles = Instance.new("ParticleEmitter",workspace)
+							Particles.Parent = particlePlaceHolder
+							Particles.Color = ColorSequence.new(Color3.fromRGB(170,0,255))
+							Particles.Size = NumberSequence.new(1,1)
+							Particles.Lifetime = NumberRange.new(.3,.3)
+							Particles.Rate = 1000
+							Particles.Speed = NumberRange.new(30,30)
+							Particles.SpreadAngle = Vector2.new(1000,1000)
+							debris:AddItem(particlePlaceHolder,1)
+							wait(.5)
+							potion:Destroy()
+						end)
+				end
+			end)
+	end
+end)
+
+
+//Note This Script is coppied from an object and is incompatible with rojo syncing
