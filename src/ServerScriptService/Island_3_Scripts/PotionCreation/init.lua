@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 
 local LockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("LockMovementRE")
 local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMovementRE")
@@ -24,6 +25,13 @@ local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("Re
 
 local AddTextToRecipeReferenceRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("AddTextToRecipeReferenceEvent")
 
+local beakerSmokeEffect
+local beakerBitsFlyingUp
+local beakerExplosionSmoke
+local beakerTameBits
+local bubblingSound
+local recievePotionSound
+local steamSound
 
 local potionPrompt
 
@@ -35,6 +43,13 @@ function PotionCreation.initialize(player, promptObject)
     local combinationTable = promptObject.Parent.Parent.Parent.Parent
     local lockObject = combinationTable.Table:WaitForChild("PlayerLockLocation")
     local cameraObject = combinationTable.Table:WaitForChild("TableCameraLocation")
+    bubblingSound = combinationTable.Beaker.Beaker:WaitForChild("Bubbling")
+    recievePotionSound = combinationTable.Beaker.Beaker:WaitForChild("RecievePotion")
+    steamSound = combinationTable.Beaker.Beaker:WaitForChild("Steam")
+    beakerSmokeEffect = combinationTable.Beaker.MagicSmoke.Attachment:WaitForChild("Smoke")
+    beakerBitsFlyingUp = combinationTable.Beaker.MagicSmoke.Attachment:WaitForChild("Bits")
+    beakerExplosionSmoke = combinationTable.Beaker.MagicSmoke.Attachment:WaitForChild("OutSmoke")
+    beakerTameBits = combinationTable.Beaker.MagicSmoke.Core:WaitForChild("Bits")
 
     -- Move the player to the lock position
     player.Character:WaitForChild("HumanoidRootPart").Position = lockObject.Position
@@ -43,6 +58,8 @@ function PotionCreation.initialize(player, promptObject)
     potionPrompt = promptObject
     promptObject.Enabled = false;
 
+    beakerSmokeEffect.Enabled = true
+    beakerTameBits.Enabled = true
 
     -- Enable to check for recipe conflicts when the prompt is hit
     --RecipeList.CheckForRecipeConflicts()
@@ -57,13 +74,17 @@ function PotionCreation.initialize(player, promptObject)
     -- Error handling in case player disconnects
     local playerHumanoidDiedConnection
 	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
-		potionPrompt.Enabled = true;
+		potionPrompt.Enabled = true
+        beakerSmokeEffect.Enabled = false
+        beakerTameBits.Enabled = false
 		playerHumanoidDiedConnection:Disconnect()
 	end)
 	local playerLeaveConnection
 	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
 		if removed == player then
-			potionPrompt.Enabled = true;
+			potionPrompt.Enabled = true
+            beakerSmokeEffect.Enabled = false
+            beakerTameBits.Enabled = false
 			playerLeaveConnection:Disconnect()
 		end
 	end)
@@ -73,6 +94,7 @@ end
 -- TODO: only one reward object in players backpack
 local function onCombinationButtonActivated(player, selectedIngredients)
     local playerIngredients = PotionUtilities.GetPlayerIngredients(player)
+
 
     -- Compare selectedIngredients to Player's amount of ingredients
     if selectedIngredients["Ingredient1"] <= playerIngredients["Ingredient1"] and
@@ -87,6 +109,23 @@ local function onCombinationButtonActivated(player, selectedIngredients)
                 if returnedValue ~= nil then
                     PotionUtilities.DecrementIngredients(player, selectedIngredients)
                     local rewardObject = returnedValue["RewardObject"]:Clone()
+
+                    bubblingSound:Play()
+                    beakerBitsFlyingUp.Enabled = true
+
+                    wait(1.75)
+
+                    steamSound:Play()
+                    beakerExplosionSmoke.Enabled = true
+
+                    wait(2)
+
+                    recievePotionSound:Play()
+
+                    beakerSmokeEffect.Enabled = false
+                    beakerBitsFlyingUp.Enabled = false
+                    beakerExplosionSmoke.Enabled = false
+                    beakerTameBits.Enabled = false
 
                     -- Add the discovered recipe to the recipe reference paper
                     AddTextToRecipeReferenceRE:FireClient(player, recipe)
@@ -125,7 +164,7 @@ local function onExitButtonActivatedEvent(player)
     PlayerSideShowNameAndTitleRE:FireClient(player)
     CameraResetRE:FireClient(player)
 
-
+    beakerSmokeEffect.Enabled = false
     CombineMenuFinishedRE:FireClient(player)
     wait(1)
     potionPrompt.Enabled = true;
