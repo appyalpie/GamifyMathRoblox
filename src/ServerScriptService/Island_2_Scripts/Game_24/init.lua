@@ -822,15 +822,16 @@ function Game_24.preInitializationCompetitive(promptObject, player)
 	local exitButton = terminalPart.ExitButton
 	local clickDetector = exitButton.ClickDetector
 	local exitButtonClickDetectorConnection
-	CurrentGameInfo._exitButtonConnection = exitButtonClickDetectorConnection
 	CurrentGameInfo._exitButton = exitButton
-	exitButtonClickDetectorConnection = clickDetector.MouseClick:Connect(function()
+	exitButtonClickDetectorConnection = clickDetector.MouseClick:Connect(function(player)
 		if player ~= CurrentGameInfo.currentPlayer then return end
 		CleanupPreCompetitive(promptObject, player, CurrentGameInfo)
 		exitButtonClickDetectorConnection:Disconnect()
 		exitButton.BrickColor = BrickColor.new("Institutional white")
 	end)
 	exitButton.BrickColor = BrickColor.new("Really red")
+	CurrentGameInfo._exitButtonConnection = exitButtonClickDetectorConnection
+	print(tostring(CurrentGameInfo._exitButtonConnection))
 
 	-- Lock player movements
 	LockMovementRE:FireClient(player)
@@ -874,7 +875,7 @@ function Game_24.initializeCompetitive(arena_index)
 		v._playerLeaveConnection:Disconnect()
 		v._playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
 			if removed == v.currentPlayer then
-				CleanupPreCompetitive(arena_index)
+				CleanupCompetitive(arena_index)
 				v._playerLeaveConnection:Disconnect()
 			end
 		end)
