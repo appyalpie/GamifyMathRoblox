@@ -16,11 +16,11 @@ local AccessoryTab = InventoryGUI:WaitForChild("ALabel")
 local TitleTab = InventoryGUI:WaitForChild("TLabel")
 local BadgeTab = InventoryGUI:WaitForChild("ZLabel")
 --Remote Events to be Used
-local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents",5):WaitForChild("InventoryEvents",5)
-local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent",1)
-local GetPlayerSavedInventoryEvent = InventoryEvents:WaitForChild("InventoryStore",1)
-local SendServerEquipped = InventoryEvents:WaitForChild("SendEquippedToServer",1)
-local SendToServer = InventoryEvents:WaitForChild("InventorySave",1)
+local InventoryEvents = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents")
+local AccesoryTableEvent = InventoryEvents:WaitForChild("AddAccesoryTableEvent")
+local GetPlayerSavedInventoryEvent = InventoryEvents:WaitForChild("InventoryStore")
+local SendServerEquipped = InventoryEvents:WaitForChild("SendEquippedToServer")
+local SendToServer = InventoryEvents:WaitForChild("InventorySave")
 local ColorEvent = InventoryEvents:WaitForChild("ColorEvent")
 --Module Scripts to be used
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
@@ -137,8 +137,7 @@ end
     make sure when using AddItem that the Button Will be Disabled in the Shop GUI Note for Self 
     or other team member. these are test buttons to add Accessories. Find the Accessory you wish to add to the Player from the Accessory List
 ]]
---[[
-InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
+--[[InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
     local Button
     for key, value in pairs (AccessoryList:GetChildren()) do
         if value:IsA("ImageButton") then
@@ -150,8 +149,7 @@ InventoryGUI:WaitForChild("AddAll").Activated:Connect(function()
     
     --a disable or hide button would go here
     InventoryGUI.AddAll:Destroy()
-end)
-]]
+end)]]
 
 InventoryGUI:WaitForChild("ExitButton").Activated:Connect(function()
     GuiUtilities.TweenCurrentFrameOut(InventoryGUI)

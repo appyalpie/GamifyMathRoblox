@@ -24,11 +24,13 @@ function Timer:start(duration, display)
 			self._duration = duration
 			self._startTime = tick()
 			while self._running and tick() - self._startTime < duration do
-                for _, v in pairs(display:GetDescendants()) do
-                    if v:IsA("TextLabel") then
-                        v.Text = MathUtilities.formatTime(duration - (tick() - self._startTime))
-                    end
-                end
+				if display then
+					for _, v in pairs(display:GetDescendants()) do
+						if v:IsA("TextLabel") then
+							v.Text = MathUtilities.formatTime(duration - (tick() - self._startTime))
+						end
+					end
+				end
 				wait()
 			end
 			local completed = self._running
@@ -36,11 +38,13 @@ function Timer:start(duration, display)
 			self._startTime = nil
 			self._duration = nil
 			self._finishedEvent:Fire(completed)
-            for _, v in pairs(display:GetDescendants()) do
-                if v:IsA("TextLabel") then
-                    v.Text = ""
-                end
-            end
+			if display then
+				for _, v in pairs(display:GetDescendants()) do
+					if v:IsA("TextLabel") then
+						v.Text = ""
+					end
+				end
+			end
 		end)
 		timerThread()
 	else
