@@ -6,6 +6,7 @@ local DataStoreService = game:GetService("DataStoreService")
 local dataStore = DataStoreService:GetDataStore("InvData")
 local remoteEvent = ReplicatedStorage:WaitForChild("RemoteEvents",1):WaitForChild("InventoryEvents",1)
 
+------ Clone from ServerStorage to ReplicatedStorage? ------
 if not(game.ReplicatedStorage:FindFirstChild('Accessories')) then
     local accessoryFolder = ServerStorage:WaitForChild("Accessories")
     local clone = accessoryFolder:Clone()
@@ -15,9 +16,9 @@ end
 local AccessoryListModule = require(ServerScriptService:WaitForChild("AccessoryList"))
 local AccessoryList = AccessoryListModule.GetAccesory()
 
-local addAccTable = remoteEvent.AddAccesoryTableEvent
-local SaveTable = remoteEvent.InventorySave
-local remoteFunctionEquip = remoteEvent:FindFirstChild("SendEquippedToServer")
+local addAccTable = remoteEvent:WaitForChild("AddAccesoryTableEvent")
+local SaveTable = remoteEvent:WaitForChild("InventorySave")
+local remoteFunctionEquip = remoteEvent:WaitForChild("SendEquippedToServer")
 
 local ColorEvent = remoteEvent:WaitForChild("ColorEvent")
 
@@ -54,8 +55,7 @@ Players.PlayerAdded:Connect(function(player)
     arms.Parent = Equipped
     Item:Clone().Parent = arms
 
-
-    wait(1)
+    --wait(1)
     local success, savedInventory = pcall(function()
         return dataStore:GetAsync(player.UserId)
     end)
@@ -70,8 +70,8 @@ Players.PlayerAdded:Connect(function(player)
     table.insert(InvTable, player.UserId, savedInventory)
     -- passes player and accessory table
     -- wait is here so all client scripts can finish loading in otherwise they don't fire shop GUI sometimes
-    wait(1)
-    addAccTable:FireClient(player,AccessoryList) 
+    --wait(1)
+    addAccTable:FireClient(player, AccessoryList) 
 
     if success then
         local store = remoteEvent:WaitForChild("InventoryStore")
@@ -81,7 +81,7 @@ Players.PlayerAdded:Connect(function(player)
     else
         if not savedInventory then
         local success, error = pcall(function()
-        dataStore:setAsync(player.UserId, {})
+        dataStore:setAsync(player.UserId, {}) -- Why are we setting the player's data table here? Just an extra call to datastore
         end)
         if success then
             print("Data Table created")

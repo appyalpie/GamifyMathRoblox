@@ -16,7 +16,7 @@ local InlayFrame1 = PortalMenu:WaitForChild("InlayFrame")
 local InlayFrame2 = InlayFrame1:WaitForChild("InlayFrame")
 
 -- extend to include other frames if more frames
-local otherFrames = {MenuGui:WaitForChild("OptionsMenu"),MenuGui:WaitForChild("ShopContainer"),MenuGui:WaitForChild("InventoryScreen")}
+local otherFrames = {MenuGui:WaitForChild("OptionsMenu"),MenuGui:WaitForChild("ShopMenu"),MenuGui:WaitForChild("InventoryMenu")}
 
 local tweenInfo = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 local tweenInfo2 = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)

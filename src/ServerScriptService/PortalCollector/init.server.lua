@@ -22,6 +22,7 @@ for _,v in ipairs(portals) do
     local portal = v:FindFirstChild("Portal")
     if portal then
         collectionService:AddTag(portal,"Portal")
+        collectionService:AddTag(portal,"NoCollidePotions")
     end
 end
 

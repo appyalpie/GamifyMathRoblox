@@ -9,12 +9,11 @@ local PlayerSideShowNameAndTitleEvent = ReplicatedStorage.RemoteEvents.Titles:Wa
 local ActivateTitleButtonEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild("ActivateTitleButtonEvent")
 
 local Player = Players.LocalPlayer
-local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui"):WaitForChild("InventoryScreen"):WaitForChild("TabContainer")
-local TitleList = InventoryGUI:WaitForChild("TFrame")
+local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui"):WaitForChild("InventoryMenu")
+local TitleList = InventoryGUI:WaitForChild("TitlesFrame"):WaitForChild("InlayFrame")
 
 local overheadTitle = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadTitle")
 local overheadName = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadName")
-
 
 local titles = {}
 

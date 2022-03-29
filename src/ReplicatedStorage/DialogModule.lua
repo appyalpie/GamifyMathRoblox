@@ -116,7 +116,9 @@ local DialogModule = {
     },
     ["Skeleton At Tony V"] = {
         [1] = "...",
-        [2] = "I can't talk dummy."
+        [2] = "I can't talk dummy.",
+        [3] = ". . .",
+        [4] = "Here, I'll show ya something cool"
     },
     ["Hatless Pirate"] = {
         [1] = "Man... I lost my hat.",
