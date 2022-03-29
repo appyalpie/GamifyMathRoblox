@@ -17,7 +17,7 @@ local PlayerSideShowNameAndTitleRE = ReplicatedStorage.RemoteEvents.Titles:WaitF
 local recipeViewPrompt
 RecipeReference = {}
 
-RecipeReference.MoveCamera = function(player, combinationTable)
+RecipeReference.Initialize = function(player, combinationTable)
     local newCamera = combinationTable.Paper.SurfaceGuiPart.PaperCameraLocation
     recipeViewPrompt = combinationTable.PaperHolder.PromptAttachment.ProximityPrompt
     recipeViewPrompt.Enabled = false
@@ -25,6 +25,19 @@ RecipeReference.MoveCamera = function(player, combinationTable)
     PlayerSideHideNameAndTitleRE:FireClient(player)
     LockMovementRE:FireClient(player)
     RecipeReferenceViewRE:FireClient(player)
+
+    local playerHumanoidDiedConnection
+	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
+		recipeViewPrompt.Enabled = true;
+		playerHumanoidDiedConnection:Disconnect()
+	end)
+	local playerLeaveConnection
+	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
+		if removed == player then
+			recipeViewPrompt.Enabled = true;
+			playerLeaveConnection:Disconnect()
+		end
+	end)
 end
 
 ------- when exit button is hit -------

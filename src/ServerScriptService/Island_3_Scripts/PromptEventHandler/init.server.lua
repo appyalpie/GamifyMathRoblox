@@ -22,6 +22,6 @@ end
 
 for _,paperPrompt in pairs(RecipeReferencePrompts) do
 	paperPrompt.Triggered:Connect(function(player)
-		RecipeReference.MoveCamera(player, paperPrompt.Parent.Parent.Parent)
+		RecipeReference.Initialize(player, paperPrompt.Parent.Parent.Parent)
 	end)
 end

@@ -1,5 +1,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService("Players")
 
 local LockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("LockMovementRE")
 local UnlockMovementRE = ReplicatedStorage.RemoteEvents:WaitForChild("UnlockMovementRE")
@@ -38,6 +39,8 @@ function PotionCreation.initialize(player, promptObject)
     potionPrompt = promptObject
     promptObject.Enabled = false;
 
+    
+
     --Enable to check for recipe conflicts when the prompt is hit
     --RecipeList.CheckForRecipeConflicts()
 
@@ -46,6 +49,19 @@ function PotionCreation.initialize(player, promptObject)
     player.Character:PivotTo(lockObject:GetPivot())
     LockMovementRE:FireClient(player)
     PlayerSideHideNameAndTitleRE:FireClient(player)
+
+    local playerHumanoidDiedConnection
+	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
+		potionPrompt.Enabled = true;
+		playerHumanoidDiedConnection:Disconnect()
+	end)
+	local playerLeaveConnection
+	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
+		if removed == player then
+			potionPrompt.Enabled = true;
+			playerLeaveConnection:Disconnect()
+		end
+	end)
 
 end
 
@@ -105,5 +121,7 @@ local function onExitButtonActivatedEvent(player)
 end
 
 ExitButtonActivatedRE.OnServerEvent:Connect(onExitButtonActivatedEvent)
+
+
 
 return PotionCreation
