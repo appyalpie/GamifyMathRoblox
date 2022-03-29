@@ -1,6 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
+local UnlockIsland3BarrierRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("UnlockIsland3BarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
 local LevelSystem = require(script.Parent.Parent.Utilities.LevelSystem)
 
@@ -25,7 +26,9 @@ GameStatsUtilities.initializePlayerGameStats = function(player)
         Game24Wins = 0,
         Game24NPCDefeated = {},
         BarrierToIsland3Down = false,
-        Game24Last5Solutions = {}
+        Game24Last5Solutions = {},
+        ------Alchemy------
+        BarrierToIsland4Down = false
     }
 end
 
@@ -42,8 +45,13 @@ GameStatsUtilities.setPlayerGameStats = function(player, playerData)
     playerGameStats[player.UserId]["BarrierToIsland3Down"] = playerData["BarrierToIsland3Down"]
     if playerData["BarrierToIsland3Down"] == true then
         UnlockBarrierRE:FireClient(player)
+        PortalGuiUpdateRE:FireClient(player, true)
     end
     playerGameStats[player.UserId]["Game24Last5Solutions"] = playerData["Game24Last5Solutions"]
+    playerGameStats[player.UserId]["BarrierToIsland4Down"] = playerData["BarrierToIsland4Down"]
+    if playerData["BarrierToIsland4Down"] == true then
+        UnlockIsland3BarrierRE:FireClient(player)
+    end
 end
 
 -----Overall Game------
@@ -102,6 +110,7 @@ GameStatsUtilities.newGame24NPCDefeated = function(player, npcName)
             --print("Firing")
             playerGameStats[player.UserId]["BarrierToIsland3Down"] = true
             UnlockBarrierRE:FireClient(player)
+            PortalGuiUpdateRE:FireClient(player, true)
         end
     end
 end
@@ -128,6 +137,11 @@ GameStatsUtilities.getLevelInformation = function(player)
     local playerLevelProgress = LevelSystem.DisplayProgression(player, playerGameStats[player.UserId]["XP"])
     local playerNextLevelAmount = LevelSystem.DisplayNextLevelAmount(player)
     return {playerLevel, playerLevelProgress, playerNextLevelAmount}
+end
+
+------ Island 3 Barrier Update ------
+GameStatsUtilities.updateIsland3BarrierDown = function(player)
+    playerGameStats[player.UserId]["BarrierToIsland4Down"] = true
 end
 
 return GameStatsUtilities

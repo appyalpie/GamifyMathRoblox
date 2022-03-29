@@ -4,6 +4,8 @@ local TweenService = game:GetService("TweenService")
 local DialogModule = require(ReplicatedStorage.DialogModule)
 local Player = game:GetService("Players").LocalPlayer
 
+local PortalGuiUpdateIsland3BE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateIsland3BE")
+local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
 
 --GUI variables
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
@@ -110,8 +112,12 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                             }
                         end
                         --also decrement the potion from players backpack
-                        Player.Backpack:FindFirstChild("GrowPotion"):Destroy()
-                        
+                        if Player.Backpack:FindFirstChild("GrowPotion") then
+                            Player.Backpack:FindFirstChild("GrowPotion"):Destroy()
+                        end
+                        -- Update the Portal GUI and Update the player's Barrier Status
+                        PortalGuiUpdateIsland3BE:Fire(true)
+                        UpdateIsland3BarrierDownStatusRE:FireServer()
                         --cleanup
                         InputButtonConnection:Disconnect()
                         ProximityPrompt.Enabled = true
