@@ -7,6 +7,7 @@ local GameStats = require(script.Parent.GameStatsInitialization.GameStatsUtiliti
 Players.PlayerAdded:Connect(function(player)
     wait(1) -- wait for the datastore to retrieve the value
     local PlayerStats = GameStats.getPlayerData(player)
+    print(PlayerStats["XP"])
     local XP = PlayerStats["XP"]
     LevelSystem.SetLevelEntry(player,XP)
 

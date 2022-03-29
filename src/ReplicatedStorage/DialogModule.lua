@@ -37,7 +37,10 @@ local DialogModule = {
         [6] = "Make sure to speak to Hurdy if you want to learn more about the 24 game. It's what they pay him for..."  
     },
     ["Pubby"] = {
-        [1] = "Welcome to Tony V's!"
+        [1] = "Welcome to Tony V's!",
+        [2] = "Stay awhile if you'd like, we got the finest company in town!",
+        [3] = "If you're looking to get to the next Island, ya gotta prove your worth. You gotta beat at least 2 people in 24 to move on.",
+        [4] = "Try starting with that 'Tough Guy' in the back!"
     },
     ["Hurdy"] = {
         [1] = ":Sigh: What now? Oh! Hi! I thought you were my brother Gurdy.",
@@ -61,6 +64,7 @@ local DialogModule = {
         [2] = "You win and I'll give you a special prize.",
         [3] = "Remember, If you wanna swing at the king then ya betta not miss!" 
     },
+    ---main hub NPCs
     ["Rama"] = {
         [1] = "Welcome to the main hub of Mega Blue Traveler. I am Rama the Keeper of these lands.",
         [2] = "Those who seek to master math may seek respite here.",
@@ -72,6 +76,116 @@ local DialogModule = {
         [2] = "What I got is wot you want!",
         [3] = "'and me yor bees and honey (money) and av a butcher's hook (a look)."
     },
+    ------ Inside Tony Vs ------
+    ["Tough Guy"] = {
+        [1] = "I'm a tough customer.",
+        [2] = "Because I'm not very good at math...",
+        [3] = "Hey wanna practice with me?"
+    },
+    ["Pirate Dude 1"] = {
+        [1] = "...",
+        [2] = "Why doesn't my boss buy a hat?",
+        [3] = "You didn't hear  this from me."
+    },
+    ["Pirate Dude 2"] = {
+        [1] = "Time to celebrate my super epic victory at the Champions Club.",
+        [2] = "Aww yeahhhhhhh"
+    },
+    ["Pirate Dude 3"] = {
+        [1] = "Huh? I'm not a deckhand what.",
+        [2] = "Wait why does it say deckhand above my head?"
+    },
+    ["Pirate Dude 4"] = {
+        [1] = "If you're wondering how to get off this Island, hear this.",
+        [2] = "All you gotta do is beat at least 2 different people in 24.",
+        [3] = "After that, the barrier comes down easy!"
+    },
+    ["Pirate Dude 5"] = {
+        [1] = "...",
+        [2] = "I don't wanna talk about it."
+    },
+    ["Pirate Dude 6"] = {
+        [1] = "Hmm...",
+        [2] = "I'm stumped on this one, maybe you can figure it out?",
+        [3] = "one, three, four, six",
+        [4] = "Is this one even possible?"
+    },
+    ["Pirate Dude 7"] = {
+        [1] = "Hey, have ya challenged the Tough Guy yet?",
+        [2] = "He's not so tough."
+    },
+    ["Skeleton At Tony V"] = {
+        [1] = "...",
+        [2] = "I can't talk dummy."
+    },
+    ["Hatless Pirate"] = {
+        [1] = "Man... I lost my hat.",
+        [2] = "Now what am I supposed to do?",
+        [3] = "I don't even have 2 hands!"
+    },
+    ["Pirate Girl 1"] = {
+        [1] = "Potion Seller, I require only your strongest potion."
+    },
+    ["Pirate Girl 2"] = {
+        [1] = "...",
+        [2] = "This guy keeps bugging me on this really tough problem.",
+        [3] = "Maybe you can solve it?"
+    },
+    ------ Other Misc Island 2 Folk ------
+    ["builderman"] = {
+        [1] = "Oh hey there!",
+        [2] = "I hope you've been enjoying the game so far haha.",
+        [3] = "The second layer of the island is under construction, come back soon to see more!",
+        [4] = "I'll see you around!"
+    },
+    ["Fisherman"] = {
+        [1] = "24 fish... 24 fish... 24 fish...",
+        [2] = "Do I multiply... no maybe subtract..."
+    },
+    ["Ship Pirate Dude"] = {
+        [1] = "Ahoy there sailor!",
+        [2] = "Hows it going?",
+        [3] = "Wait... how the heck do ships fly?"
+    },
+    ["Stadium Pirate 1"] = {
+        [1] = "Hmm...",
+        [2] = "I'm not sure I'm ready for this..."
+    },
+    ["Stadium Pirate 2"] = {
+        [1] = "AHHH",
+        [2] = "Tommy Two Decks is too good!"
+    },
+    ["Stadium Pirate 3"] = {
+        [1] = "My goodness...",
+        [2] = "Don't be upset man, lets practice and get better!"
+    },
+    --island 3 npcs--
+    ["Randallf_first_meeting"] = {
+        [1] = "ooo ooo! eee eee eee urgggghhh....",
+        [2] = "Please, give me a Grow potion.",
+        [3] = "In return, I'll unlock the portal to the next world.", 
+    },
+    ["Randallf_second_meeting"] = { --if player accept quest does not have potion
+        [1] = "Do you have it yet?"
+            
+    },
+    ["Randallf_third_meeting"] = { --if player accept quest does have potion
+        [1] = "Ah! you have a Grow Potion!",
+        [2] = "Will you please let me have it?"      
+    },
+    ["Randallf_fourth_meeting"] = { --when quest is done
+        [1] = "Thank you for helping me. My Back feels much better",       
+    },
+    ["Prentiss the apprentice"] = {
+        [1] = "Hello Stranger, Welcome to Alchemy Island.",
+        [2] = "You can mix ingredients to make potions with wondorous results using your knowledge of ratios.",
+        [3] = "My master and I were on our way to the academy when he was beset by back pain. He needs a specific potion to cure him.",
+        [4] = "I would help him myself but he hasn't taught me about ratios yet!",
+        [5] = "Please talk to him down the way and see what potion he needs. I'm sure he'd help you in return."
+    },
+    ["Alchemia"] = {
+        [1] = "sample text"
+    }
 }
 
 return DialogModule

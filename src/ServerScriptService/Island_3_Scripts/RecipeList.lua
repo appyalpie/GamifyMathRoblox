@@ -1,8 +1,12 @@
 local ServerStorage = game:GetService("ServerStorage")
 
+------- List of recipes, their names, and ingredients -------
+-------     Ingredient1 = Mushrooms     -------
+-------     Ingredient2 = Berries       -------
+-------     Ingredient3 = Herbs         -------
 local RecipeList = {
     [1] = {
-        Name = "Butt",
+        Name = "Grow Potion",
         Ingredient1 = 1,
         Ingredient2 = 1,
         Ingredient3 = 1,
@@ -10,21 +14,20 @@ local RecipeList = {
     },
 
     [2] = {
-        Name = "Grr",
-        Ingredient1 = 0,
-        Ingredient2 = 0,
-        Ingredient3 = 16,
+        Name = "Shrink Potion",
+        Ingredient1 = 3,
+        Ingredient2 = 1,
+        Ingredient3 = 1,
         RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ShrinkPotion")
     },
 
     [3] = {
-        Name = "Eberts Explosive Event",
-        Ingredient1 = 2,
-        Ingredient2 = 0,
-        Ingredient3 = 14,
+        Name = "Explosive Potion",
+        Ingredient1 = 4,
+        Ingredient2 = 2,
+        Ingredient3 = 2,
         RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ExplosivePotion")
     }
-    --explosion, grow, shrink
 }
 
 ------- This is a debugging tool to check for equivalency of recipes -------
@@ -38,8 +41,6 @@ RecipeList.CheckForRecipeConflicts = function()
 
             local recipe1 = RecipeList[recipe1Index]
             local recipe2 = RecipeList[recipe2Index]
-            --print(recipe1["Ingredient1"])
-            --print(recipe2)
 
             -- take the higher number of the two recipes Ingredient 1 and mod them to see if there is a remainder
             if recipe1["Ingredient1"] > recipe2["Ingredient1"] then
@@ -113,6 +114,7 @@ RecipeList.CheckForRecipeConflicts = function()
     end
 end
 
+-- This one is for use in combination stuff, but is the same logic
 RecipeList.CheckForEquivalency = function(input, recipe)
     local Ingredient1Equivalent = false
     local Ingredient2Equivalent = false
