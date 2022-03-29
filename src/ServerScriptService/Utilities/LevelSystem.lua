@@ -119,6 +119,20 @@ LevelSystem.TriggerCelebration = function(Player)
     OneUP.Parent = Player.Character:WaitForChild("Head")
     OneUP:Play()
     OneUP:Destroy()
+
+    delay(0,function()local Particles = Instance.new("ParticleEmitter")
+        Particles.Parent = Player.Character:WaitForChild("Head")
+        Particles.Color =ColorSequence.new(Color3.fromRGB(201, 168, 22))
+        Particles.Size = NumberSequence.new(1, 1)
+        Particles.Lifetime = NumberRange.new(1, 4)
+        Particles.Rate = 100
+        Particles.Speed = NumberRange.new(3, 3)
+        Particles.SpreadAngle = Vector2.new(1000, 1000)
+        task.wait(3)
+        Particles.Rate = 0
+        task.wait(3)
+        Particles:Destroy()
+    end)
     --[[
         activate some VFX here on server
     ]]
