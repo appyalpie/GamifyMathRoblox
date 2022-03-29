@@ -15,8 +15,8 @@ local RecipeList = {
 
     [2] = {
         Name = "Shrink Potion",
-        Ingredient1 = 3,
-        Ingredient2 = 1,
+        Ingredient1 = 1,
+        Ingredient2 = 3,
         Ingredient3 = 1,
         RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ShrinkPotion")
     },
