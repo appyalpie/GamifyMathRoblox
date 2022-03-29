@@ -5,6 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
+local PortalGuiUpdateIsland3BE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateIsland3BE")
 local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
 local localPlayer = Players.LocalPlayer
 
@@ -49,10 +50,26 @@ PortalGuiUpdateRE.OnClientEvent:Connect(function(warp3Status)
     WarpButton3.BackgroundColor3 = Color3.fromRGB(255, 105, 105)
     WarpButton3.AutoButtonColor = true
     WarpTitle3.BackgroundColor3 = Color3.fromRGB(188, 188, 188)
+    WarpTitle3.Text = "Alchemy"
 
     if warp3Status == true then
         WarpButton3.InputEnded:Connect(function(input, gameProcessed)
             warpButton(input, gameProcessed, WarpButton3:GetAttribute("warp_position"))
+        end)
+    end
+end)
+
+PortalGuiUpdateIsland3BE.Event:Connect(function(warp4Status)
+    local WarpButton4 = InlayFrame2:WaitForChild("WarpButton4")
+    local WarpTitle4 = InlayFrame2:WaitForChild("WarpTitle4")
+    
+    WarpButton4.BackgroundColor3 = Color3.fromRGB(255, 105, 105)
+    WarpButton4.AutoButtonColor = true
+    WarpTitle4.BackgroundColor3 = Color3.fromRGB(188, 188, 188)
+
+    if warp4Status == true then
+        WarpButton4.InputEnded:Connect(function(input, gameProcessed)
+            warpButton(input, gameProcessed, WarpButton4:GetAttribute("warp_position"))
         end)
     end
 end)

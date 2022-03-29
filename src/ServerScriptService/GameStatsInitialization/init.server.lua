@@ -7,6 +7,7 @@ local GameStatsUtilities = require(script.GameStatsUtilities)
 
 ------Overall Game------
 local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
+local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
 
 ------Math Blocks------
 
@@ -45,3 +46,7 @@ end)
 PlayerStatsRF.OnServerInvoke = function(player, returnLevelStatsBool)
     return GameStatsUtilities.getPlayerData(player, returnLevelStatsBool)
 end
+
+UpdateIsland3BarrierDownStatusRE.OnServerEvent:Connect(function(player)
+    GameStatsUtilities.updateIsland3BarrierDown(player)
+end)
