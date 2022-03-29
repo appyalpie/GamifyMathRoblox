@@ -22,12 +22,15 @@ local IngredientSpawnUtilities = {}
 
 local ingredientSpawns = {}
 
+-- This coroutine loops infiunitely but yields after every loop waiting for the block it created to be touched to resume
 local function SpawnCoroutineTask(node)
     while true do
         local IngredientInstance = node["block"]:Clone()
         IngredientInstance.Parent = node["nodePart"]
         IngredientInstance.Position = IngredientInstance.Parent.Position
         IngredientInstance.Orientation = IngredientInstance.Parent.Orientation
+
+        -- Tween in like it's growing in
         local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
         local sizeTweenIn
         if IngredientInstance.Name == INGREDIENT_1_NAME then
@@ -51,6 +54,7 @@ local function SpawnCoroutineTask(node)
 
             IngredientInstance:Destroy()
 
+            --Create a timer waiting for the next spawn (random depending on ingredient)
             local nextSpawn
             if IngredientInstance.Name == INGREDIENT_1_NAME then
                 nextSpawn = math.random(3, 10)
@@ -63,6 +67,7 @@ local function SpawnCoroutineTask(node)
 
             local timer = Timer.new()
             timer:start(nextSpawn, nil)
+            --once the timer finishes, the coroutine calls itself again
             timer.finished:Connect(function()
                 coroutine.resume(node["spawnCoroutine"], node)
             end)
@@ -71,6 +76,7 @@ local function SpawnCoroutineTask(node)
     end
 end
 
+--Initialize the coroutine for every spawn node
 IngredientSpawnUtilities.initialize = function()
     for index, nodePart in pairs(Workspace.Island_3.Islands.IngredientSpawnNodes:GetChildren()) do
         local tempBlock
