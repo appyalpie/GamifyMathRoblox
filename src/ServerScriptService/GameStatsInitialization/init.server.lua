@@ -42,6 +42,6 @@ Players.PlayerRemoving:Connect(function(player)
     end
 end)
 
-PlayerStatsRF.OnServerInvoke = function(player)
-    return GameStatsUtilities.getPlayerData(player)
+PlayerStatsRF.OnServerInvoke = function(player, returnLevelStatsBool)
+    return GameStatsUtilities.getPlayerData(player, returnLevelStatsBool)
 end

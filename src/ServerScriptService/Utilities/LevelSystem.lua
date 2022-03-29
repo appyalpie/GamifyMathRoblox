@@ -92,7 +92,7 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             loopLevel = loopLevel + 1
         end 
         LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
-        LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = LevelSystem.PlayerXPList[Player.UserId]["totalXP"] +nextLevel
+        --LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = LevelSystem.PlayerXPList[Player.UserId]["totalXP"] +nextLevel -- This is an extra increment
         LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel
         LevelSystem.TriggerCelebration(Player)
     end
@@ -102,8 +102,15 @@ end
 LevelSystem.DisplayLevel = function(Player)
     return  LevelSystem.PlayerXPList[Player.UserId]["Level"]
 end
+
+------ Get the amount of XP to the next level for a player ------
+LevelSystem.DisplayNextLevelAmount = function(Player)
+    return LevelSystem.PlayerXPList[Player.UserId]["nextLevel"]
+end
+
 --returns a value between 0-1 for bar tracking
 LevelSystem.DisplayProgression = function(Player,XP)
+    print("TotalXP: " .. tostring(LevelSystem.PlayerXPList[Player.UserId]["totalXP"]))
     return ((XP - LevelSystem.PlayerXPList[Player.UserId]["totalXP"]) / LevelSystem.PlayerXPList[Player.UserId]["nextLevel"])
 end
 
