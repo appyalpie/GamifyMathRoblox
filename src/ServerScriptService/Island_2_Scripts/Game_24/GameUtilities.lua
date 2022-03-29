@@ -3,12 +3,13 @@ local Debris = game:GetService("Debris")
 local TweenService = game:GetService("TweenService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local CardObject = require(script.Parent.CardObject)
 local OperatorSetObject = require(script.Parent.OperatorSetObject)
 
 local GameInfo = require(script.Parent.Parent.GameInfo)
---local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
+local TweenUtilities = require(script.Parent.Parent.Parent.Utilities.TweenUtilities)
 local SphereUtilities = require(script.Parent.Parent.Parent.Utilities.SphereUtilities)
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
@@ -31,6 +32,8 @@ local Energyball = ServerStorage.Island_2.Game_24:WaitForChild("Energyball")
 local Fireball = ServerStorage.Island_2.Game_24:WaitForChild("Fireball")
 local Combine_Core = ServerStorage.Island_2.Game_24:WaitForChild("Combine_Core")
 local Explosion_Core = ServerStorage.Island_2.Game_24:WaitForChild("Explosion_Core")
+
+local Solution_Display = ServerStorage.Island_2.Game_24:WaitForChild("Solution_Display")
 
 ------ Title Binding Remote Events ------
 local PlayerSideShowNameAndTitleEvent = game.ReplicatedStorage.RemoteEvents.Titles:WaitForChild('PlayerSideHideNameAndTitleEvent')
@@ -66,12 +69,33 @@ GameUtilities.Get_Starting_Position = function(center, gap, index, numberPresent
 	return origin - (Vector3.new(index, 0, index) * offset)
 end
 
+GameUtilities.Get_New_Cards = function(cardPulled, Game_Cards, CurrentGameInfo)
+	local numberOfCards = 4
+	for i = 1, numberOfCards do
+		---- Create New Card ----
+		local newBaseCard = Level1_Card_Model:Clone()
+		GameUtilities.Set_Orientation(newBaseCard.PrimaryPart, CurrentGameInfo._orientationDegrees)
+		---- Add To Game_Cards List ----
+		local newCardObject = CardObject.new()
+		table.insert(Game_Cards, newCardObject)
+		newCardObject._cardTable[2] = cardPulled[i]
+		newCardObject._cardObject = newBaseCard
+		newCardObject._startingPosition = newBaseCard.PrimaryPart.Position
+		---- Change Position ----
+		newBaseCard.PrimaryPart.Position = GameInfo.CARD_INIT_OFFSET +
+			GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition, GameInfo.GAP_SIZE, i - 1, numberOfCards, CurrentGameInfo._orientation)
+		---- Change Parent ----
+		newBaseCard.Parent = CurrentGameInfo._cardFolder
+		---- Adjust Display ----
+		newCardObject:UpdateGUI()
+	end
+end
+
 --returns a cloned card based on what depth is passed in
 GameUtilities.Get_Card_Clone_From_Depth = function(depth)
     return Card_Model_Table[depth]:Clone()
 end
 
---TODO: add VFX
 GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
     local counter = 1
     for _, v in pairs(BoardCards:GetDescendants()) do
@@ -81,6 +105,38 @@ GameUtilities.Board_Initialization = function(BoardCards, cardPulled)
 			counter = counter + 1
 		end
 	end
+end
+
+-- Note: Assumes WeldConstraints are created
+GameUtilities.Board_Initialization_VFX = function(BoardCards, BoardModel)
+	------ Arm Movement ------
+	local Core = BoardModel.Board.Core
+	local coreSpinTween = TweenService:Create(Core, GameInfo.BoardSpinTweenInfo, 
+		{CFrame = Core.CFrame * CFrame.Angles(-math.pi/2, 0, 0)})
+	coreSpinTween:Play()
+	
+	------ Particle Emitter Effects ------
+	for _, v in pairs(BoardCards:GetChildren()) do
+		local particleCoroutine = coroutine.wrap(function()
+			v.ParticleAttachment.Circle.Enabled = true
+			v.ParticleAttachment.MagicCenter.Enabled = true
+			wait(GameInfo.BoardSpinTweenInfo.Time)
+			v.ParticleAttachment.Circle.Enabled = false
+			v.ParticleAttachment.MagicCenter.Enabled = false
+		end)
+		particleCoroutine()
+	end
+
+	------ Sound Effects ------
+	local soundCoroutine = coroutine.wrap(function()
+		Core.Sounds.Slide:Play()
+		Core.Sounds.Magical_Swirling_Tone_1:Play()
+		Core.Sounds.Rocks_3:Play()
+		wait(GameInfo.BoardSpinTweenInfo.Time)
+		Core.Sounds.Slide:Stop()
+		Core.Sounds.Slide_Stop:Play()
+	end)
+	soundCoroutine()
 end
 
 GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGameInfo)
@@ -200,14 +256,14 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 			energyBall1.Position = newCard._cardObject.PrimaryPart.Position
 			energyBall1.Parent = game.Workspace
 			local positionOfSplit1 = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition,
-				4, indexOfRemovedCard, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3, CurrentGameInfo._orientation) --???
+				4, indexOfRemovedCard, #(CurrentGameInfo._cardFolder:GetChildren())+3, CurrentGameInfo._orientation) --???
 			Debris:AddItem(energyBall1, 3)
 
 			local energyBall2 = Energyball:Clone()
 			energyBall2.Position = newCard._cardObject.PrimaryPart.Position
 			energyBall2.Parent = game.Workspace
 			local positionOfSplit2 = GameUtilities.Get_Starting_Position(CurrentGameInfo._originalOriginPosition,
-				4, indexOfRemovedCard + 1, #(CurrentGameInfo.ancestorModel.CardFolder:GetChildren())+3, CurrentGameInfo._orientation)
+				4, indexOfRemovedCard + 1, #(CurrentGameInfo._cardFolder:GetChildren())+3, CurrentGameInfo._orientation)
 			Debris:AddItem(energyBall2, 3)
 
 			energyBall1.Sounds.Magical:Play()
@@ -279,8 +335,8 @@ GameUtilities.Reveal_Operators = function(newCard, model, Game_Cards, CurrentGam
 					splitCard1._cardObject.Base_Card.SurfaceGui.TextLabel.TextTransparency = 1
 					splitCard2._cardObject.Base_Card.SurfaceGui.TextLabel.TextTransparency = 1
 
-					splitCard1._cardObject.Parent = model.CardFolder
-					splitCard2._cardObject.Parent = model.CardFolder
+					splitCard1._cardObject.Parent = CurrentGameInfo._cardFolder
+					splitCard2._cardObject.Parent = CurrentGameInfo._cardFolder
 
 					local splitCard1Tween = TweenService:Create(splitCard1._cardObject.Base_Card, GameInfo.SplitCardTweenInfo, {Transparency = 0})
 					local splitCard2Tween = TweenService:Create(splitCard2._cardObject.Base_Card, GameInfo.SplitCardTweenInfo, {Transparency = 0})
@@ -491,7 +547,7 @@ GameUtilities.Card_Functionality = function(card, model, Game_Cards, CurrentGame
 						combinedCard:UpdateGUI()
 						GameUtilities.Card_Functionality(combinedCard, model, Game_Cards, CurrentGameInfo) -- give new card functionality
 						combinedCardObject.PrimaryPart.Position = targetCFrame.Position 
-						combinedCardObject.Parent = model.CardFolder
+						combinedCardObject.Parent = CurrentGameInfo._cardFolder
 					end)
 					energyBall1.Sounds.Air_Woosh_Long:Play()
 					energyBall2.Sounds.Air_Woosh_Long:Play()
@@ -1350,6 +1406,480 @@ GameUtilities.IncrementStats = function(difficulty, solution, player, npcBeaten)
 		GameStatsUtilities.incrementCurrency(player, GameInfo.SinglePlayerCurrencyTable[difficulty])
 		GameStatsUtilities.incrementGame24Wins(player)
 		GameStatsUtilities.saveLastSolution(player, solution) -- save win solution
+	end
+end
+
+GameUtilities.Win_Sequence_Competitive = function(winningPlayerCurrentGameInfo, losingPlayerCurrentGameInfo, winningPlayerGame_Cards, losingPlayerGame_Cards, finishedWinSequenceEvent)
+	------ Victory and Defeat GUI for each player ------
+	VictoryEventRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer)
+	DefeatEventRE:FireClient(losingPlayerCurrentGameInfo.currentPlayer)
+
+	------ Losing Player Loses Their Cards and Their Camera is Reset
+	CameraMoveToRE:FireClient(losingPlayerCurrentGameInfo.currentPlayer, losingPlayerCurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+	if losingPlayerGame_Cards then
+		for _, v in pairs(losingPlayerGame_Cards) do
+			GameUtilities.Hide_Operators(v)
+			v._cardObject.Base_Card.ClickDetector:Destroy()
+
+			local explosionCore = Explosion_Core:Clone()
+			explosionCore.Parent = losingPlayerCurrentGameInfo.ancestorModel.Cleanup
+			Debris:AddItem(explosionCore, 2)
+			explosionCore.Position = v._cardObject.Base_Card.Position
+			explosionCore.Dirt:Emit(50)
+			explosionCore.Explosion_Random:Emit(50)
+			explosionCore.Heat:Emit(50)
+			explosionCore.Shockwave:Emit(50)
+			explosionCore.Sounds.Explosion_sound_effect:Play()
+			v._cardObject:Destroy()
+		end
+		table.clear(losingPlayerGame_Cards)
+		losingPlayerGame_Cards = nil -- allow cleanup
+	end
+
+	------ Get equation from last card ------
+	local winningCard = winningPlayerGame_Cards[1]
+	local winningCardTable = winningCard._cardTable
+	local winningSequence = {}
+	local winningString = CardObject.getSequence(winningCardTable)
+	--print(winningString)
+
+	------ GameStats Changes ------ TODO: change to dynamic with difficulty, by default all are easy
+	GameUtilities.IncrementStats("easy", winningString, winningPlayerCurrentGameInfo.currentPlayer, nil)
+
+	------ Construct winning sequence (list of chars of winnningString) ------
+	local startIndex = 1
+	while startIndex <= string.len(winningString) do
+		local character = string.sub(winningString, startIndex, startIndex)
+		if tonumber(character) ~= nil then
+			local startOfNumber = startIndex
+			local endOfNumber = startIndex
+			while tonumber(string.sub(winningString, startIndex + 1, startIndex + 1)) ~= nil do
+				startIndex = startIndex + 1
+				endOfNumber = startIndex
+			end
+			table.insert(winningSequence, tonumber(string.sub(winningString, startOfNumber, endOfNumber)))
+		else
+			table.insert(winningSequence, character)
+		end
+		startIndex = startIndex + 1
+	end
+
+	------ Setup WinSequenceFolder Connection To Reposition Objects Upon Insertion ------
+	local winSequenceTable = {}
+	local winSequenceFolderConnection = winningPlayerCurrentGameInfo._winSequenceFolder.ChildAdded:Connect(function()
+		local iterator = 0
+		for _, v in pairs(winSequenceTable) do
+			local newPosition = GameUtilities.Get_Starting_Position(winningPlayerCurrentGameInfo._originalOriginPosition + GameInfo.WinningSequenceOffsetGoal,
+			 GameInfo.GAP_SIZE, iterator, #winningPlayerCurrentGameInfo._winSequenceFolder:GetChildren(), winningPlayerCurrentGameInfo._orientation)
+
+			local positionTween = TweenService:Create(v, GameInfo.WinningSequenceTweenInfo, {Position = newPosition})
+			positionTween:Play()
+
+			iterator = iterator + 1
+		end
+	end)
+
+	------ Camera Set To Follow the Winning Card + Sound Effect Play ------
+	CameraFollowRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer, winningCard._cardObject.Base_Card)
+	winningCard._cardObject.Base_Card.Sounds.Electric_Sound_Loop:Play()
+
+	------ Setup Beam to Board Cards Effect + Board Card Clone, Turn and Move Effect ------
+	local boardCardCloneTable = {}
+	local attachment1 = Instance.new("Attachment")
+	attachment1.Name = "Attachment1"
+	attachment1.Parent = winningCard._cardObject.PrimaryPart
+	for _, v in pairs(winningPlayerCurrentGameInfo.ancestorModel.BoardCards:GetChildren()) do
+		local boardCardClone = v:Clone()
+		boardCardClone.Transparency = 1
+		boardCardClone.Parent = winningPlayerCurrentGameInfo.ancestorModel.Cleanup
+		table.insert(boardCardCloneTable, boardCardClone)
+
+		local attachment0 = Instance.new("Attachment")
+		attachment0.Name = "Attachment0"
+		attachment0.Parent = boardCardClone
+
+		local newBeam = Instance.new("Beam")
+		newBeam.Attachment0 = attachment0
+		newBeam.Attachment1 = attachment1
+		newBeam.FaceCamera = true
+		newBeam.Texture = GameInfo.WinningCardBeamTexture
+		newBeam.Width0 = 6
+		newBeam.Width1 = 6
+		newBeam.Transparency = NumberSequence.new{
+			NumberSequenceKeypoint.new(0, 0),
+			NumberSequenceKeypoint.new(1, 0)
+		}
+		newBeam.Parent = attachment0
+
+		local boardCloneTween = TweenService:Create(boardCardClone, GameInfo.BoardCardTweenInfo, {Position = boardCardClone.Position + Vector3.new(-1,0,0), 
+			Transparency = .5, Orientation = Vector3.new(0, winningPlayerCurrentGameInfo._orientationDegrees, 0)})
+		boardCloneTween:Play()
+	end
+
+	------ Setup Winning Card Flying Up Effect ------
+	local winningCardTween = TweenService:Create(winningCard._cardObject.PrimaryPart, GameInfo.WinningCardTweenInfo, 
+		{Position = winningCard._cardObject.PrimaryPart.Position + GameInfo.WinningCardOffsetGoal})
+	
+	winningCardTween.Completed:Connect(function()
+		------ Camera Resets to Default and FOV increases ------
+		CameraMoveToRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer, winningPlayerCurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
+		CameraSetFOVRE:FireClient(winningPlayerCurrentGameInfo.currentPlayer, GameInfo.FOVWinning, GameInfo.FOVSetTime)
+		------ Win Sequence Part and Board Card Show Sequence Effect ------
+		for i, v in ipairs(winningSequence) do
+			if type(winningSequence[i]) ~= "number" then
+				local newPart = GameInfo.LookUpTable[winningSequence[i]]:Clone()
+				newPart.Position = winningPlayerCurrentGameInfo.ancestorModel.Center.Position
+				GameUtilities.Set_Orientation(newPart, winningPlayerCurrentGameInfo._orientationDegrees + 180)
+				table.insert(winSequenceTable, newPart)
+				newPart.Parent = winningPlayerCurrentGameInfo._winSequenceFolder
+
+				newPart.Sounds.Swoosh_1:Play()
+			else
+				for _, v in pairs(boardCardCloneTable) do
+					if v:GetAttribute("value") == winningSequence[i] then
+						table.insert(winSequenceTable, v)
+						v.Parent = winningPlayerCurrentGameInfo._winSequenceFolder
+						table.remove(boardCardCloneTable, table.find(boardCardCloneTable, v))
+						break
+					end
+				end
+			end
+			wait(.1) --TODO: Config
+		end
+		winSequenceFolderConnection:Disconnect()
+
+		wait(2) --TODO: Config
+
+		------ Equation Flies Back to Board Effect ------
+		for _, v in pairs(winSequenceTable) do
+			local squeezeTween = TweenService:Create(v, GameInfo.WinningSequenceSqueezeTweenInfo, {Size = Vector3.new(.5, .5, .5), Transparency = 1})
+			local squeezeTweenConnection
+			squeezeTweenConnection = squeezeTween.Completed:Connect(function()
+				v:Destroy()
+				squeezeTweenConnection:Disconnect()
+
+				local energyBall = Energyball:Clone()
+				energyBall.Position = v.Position
+				energyBall.Parent = winningPlayerCurrentGameInfo.ancestorModel.Cleanup
+				local energyBallTween = TweenService:Create(energyBall, GameInfo.WinningSequenceEnergyBallTweenInfo, {Position = winningPlayerCurrentGameInfo.ancestorModel.Center.Position})
+				energyBallTween.Completed:Connect(function()
+					energyBall:Destroy()
+					if winningPlayerCurrentGameInfo._winSequencePlaying == true then
+						finishedWinSequenceEvent:Fire()
+						winningPlayerCurrentGameInfo._winSequencePlaying = false
+					end
+				end)
+				energyBall.Sounds.Air_Woosh_Long.Volume = 0.05
+				energyBall.Sounds.Air_Woosh_Long:Play()
+				energyBallTween:Play()
+			end)
+			squeezeTween:Play()
+		end
+	end)
+	winningCardTween:Play()
+end
+
+GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGameInfo, finishedWinSequenceEvent)
+	--[[
+		1. Save the winning card to CurrentGameInfo
+		2. Small visual effects
+		3. finishedSequenceEventFire
+	]]
+	local winningCard = Game_Cards[1]
+	local winningCardTable = winningCard._cardTable
+	local winningString = CardObject.getSequence(winningCardTable)
+	table.insert(CurrentGameInfo._foundSolutions, winningString)
+
+	------ Turn Winning Card into Ball and Orbit ------
+	------ Create the Ball ------
+	local newSolutionDisplay = Solution_Display:Clone()
+	table.insert(CurrentGameInfo._solutionDisplays, newSolutionDisplay)
+	newSolutionDisplay:SetPrimaryPartCFrame(CFrame.new(winningCard._cardObject.PrimaryPart.Position))
+	newSolutionDisplay.Parent = CurrentGameInfo.ancestorModel.Cleanup
+	------ Initialize Display Text ------
+	newSolutionDisplay:WaitForChild("Screen"):WaitForChild("SurfaceGui").TextLabel.Text = CardObject.getColoredSequenceWithDepth(winningCardTable, 1)
+
+	local winTweenInfo = TweenInfo.new(.5)
+	local winCardSqueezeTween = TweenService:Create(winningCard._cardObject.PrimaryPart, winTweenInfo, 
+		{Orientation = winningCard._cardObject.PrimaryPart.Orientation + Vector3.new(math.random(-60,60),math.random(-60,60),math.random(-60,60)),
+		Transparency = .8, Size = Vector3.new(.1, .5, .3)}) -- TODO: Configure to GameInfo?
+	winCardSqueezeTween.Completed:Connect(function()
+		winningCard._cardObject:Destroy()
+		------ Attach the Display to a Ring Slot ------
+		-- weld the model
+		for _, v in pairs(newSolutionDisplay:GetDescendants()) do
+			if v ~= newSolutionDisplay.PrimaryPart and v:IsA("BasePart") then
+				local weld = Instance.new("WeldConstraint")
+				weld.Parent = v
+				weld.Part0 = newSolutionDisplay.PrimaryPart
+				weld.Part1 = v
+				v.Anchored = false
+				v.Massless = true
+			end
+		end
+
+		------ Select a Slot ------
+		local slot
+		if #CurrentGameInfo._foundSolutions > 12 then
+			------ Special Slot ------
+			--print("Reached Special Slot")
+			slot = CurrentGameInfo._ring1Slots[1]
+		elseif #CurrentGameInfo._foundSolutions % 2 == 0 then
+			------ Ring 2 ------
+			--print("Ring2")
+			for _, v in pairs (CurrentGameInfo._ring2Slots) do
+				if v:GetAttribute("occupied") == true then
+					continue
+				else
+					slot = v
+					v:SetAttribute("occupied", true)
+					break
+				end
+			end
+		else
+			------ Ring 1 ------
+			--print("Ring1")
+			for _, v in pairs (CurrentGameInfo._ring1Slots) do
+				if v:GetAttribute("occupied") == true then
+					continue
+				else
+					slot = v
+					v:SetAttribute("occupied", true)
+					break
+				end
+			end
+		end
+		------ Move To Slot ------
+		local time = .4
+		local moveDisplayTween
+		local runserviceHeartbeatConnection
+		CurrentGameInfo._runserviceHeartbeatConnection = runserviceHeartbeatConnection
+		runserviceHeartbeatConnection = RunService.Heartbeat:Connect(function()
+			if CurrentGameInfo._timer == nil or CurrentGameInfo._timer:isRunning() == false then
+				runserviceHeartbeatConnection:Disconnect()
+			end
+			if SphereUtilities.getDistance(newSolutionDisplay.PrimaryPart.Position, slot.Position) < 2 then
+				------ Weld ------
+				--print("Welding")
+				if moveDisplayTween then 
+					moveDisplayTween:Cancel() 
+				end
+				newSolutionDisplay.PrimaryPart.Anchored = false
+				newSolutionDisplay.PrimaryPart.Massless = true
+				newSolutionDisplay.PrimaryPart.CFrame = CFrame.new(slot.Position)
+				local displayWeld = Instance.new("WeldConstraint")
+				displayWeld.Parent = newSolutionDisplay.PrimaryPart
+				displayWeld.Name = "RingWeldConstraint"
+				displayWeld.Part0 = newSolutionDisplay.PrimaryPart
+				displayWeld.Part1 = slot
+				runserviceHeartbeatConnection:Disconnect()
+				------ Fire Finished ------
+				finishedWinSequenceEvent:Fire()
+			else
+				------ Move ------
+				--print("Fire Move")
+				local moveTweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
+				local moveDisplayTween = TweenService:Create(newSolutionDisplay.PrimaryPart, moveTweenInfo, 
+					{CFrame = CFrame.new(slot.Position)})
+				moveDisplayTween:Play()
+			end
+		end)
+	end)
+	wait(0.1)
+	winCardSqueezeTween:Play()
+end
+
+GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInfo)
+	------ Cleanup and Destroy Cards and Operators (if any) ------
+	if Game_Cards then
+		for _, v in pairs(Game_Cards) do
+			GameUtilities.Hide_Operators(v)
+			v._cardObject:Destroy()
+		end
+
+		table.clear(Game_Cards)
+		Game_Cards = nil -- allow cleanup
+	end
+
+	------ Increment Stats + Save Solutions ------
+	for _, v in pairs(CurrentGameInfo._foundSolutions) do
+		GameUtilities.IncrementStats(CurrentGameInfo._difficulty, v, CurrentGameInfo.currentPlayer, nil)
+	end
+	--[[
+		1. Get All Saved Completed 24 Sequences
+		2. VFX for spitting out equations -- need to calculate potential range which may host
+		3. Spawn 24 Game Fairies that showcase the equations
+	]]
+	
+	------ Generate Range ------
+	local systemTheta = math.rad(CurrentGameInfo.ancestorModel.PromptPart.Orientation.Y) - math.pi/2
+	-- For Testing, Drawing Boundaries --
+	-- for _, v in pairs(GameInfo.SolutionsXRange) do
+	-- 	for _, c in pairs(GameInfo.SolutionsZRange) do
+	-- 		local boundaryPart = Instance.new("Part")
+	-- 		boundaryPart.Anchored = true
+	-- 		boundaryPart.BrickColor = BrickColor.new("Neon green")
+	-- 		boundaryPart.Size = Vector3.new(1,1,1)
+	-- 		local radius = math.sqrt(v^2 + c^2)
+	-- 		local theta = math.atan2(v, c)
+	-- 		boundaryPart.Position = Vector3.new(math.sin(theta+systemTheta)*radius, 0, math.cos(theta+systemTheta)*radius) + 
+	-- 		CurrentGameInfo.ancestorModel.PromptPart.Position
+	-- 		boundaryPart.Parent = CurrentGameInfo.ancestorModel.Cleanup
+	-- 	end
+	-- end
+
+	local solutionPoints = {}
+	for i, v in ipairs(CurrentGameInfo._solutionDisplays) do
+		local verifiedXZPoint
+		while verifiedXZPoint == nil do
+			------ Generate Position ------
+			local randomXZPoint = {math.random(GameInfo.SolutionsXRange[1], GameInfo.SolutionsXRange[2]), 
+				math.random(GameInfo.SolutionsZRange[1], GameInfo.SolutionsZRange[2])}
+			------ Verify Point ------
+			local verified = true
+			for _, v in pairs(solutionPoints) do
+				local distance = math.sqrt((v[1] - randomXZPoint[1])^2 + (v[2] - randomXZPoint[2])^2)
+				if distance <= GameInfo.SolutionMinimumDistance then
+					verified = false
+					break
+				end
+			end
+			if not verified then continue end
+			verifiedXZPoint = randomXZPoint
+			table.insert(solutionPoints, verifiedXZPoint)
+		end
+		------ Initialize Solution Display Position ------
+		local radius = math.sqrt(verifiedXZPoint[1]^2 + verifiedXZPoint[2]^2)
+		local theta = math.atan2(verifiedXZPoint[1], verifiedXZPoint[2])
+		local newPositionOffset = Vector3.new(math.sin(theta+systemTheta)*radius,0, math.cos(theta+systemTheta)*radius)
+		------ Unweld and Anchor Display ------
+		if v.PrimaryPart:FindFirstChild("RingWeldConstraint") then
+			v.PrimaryPart.RingWeldConstraint:Destroy()
+		end
+		if CurrentGameInfo._runserviceHeartbeatConnection then
+			CurrentGameInfo._runserviceHeartbeatConnection:Disconnect()
+		end
+		v.PrimaryPart.Anchored = true
+		------ Arcing Movement ------
+		local targetPosition = newPositionOffset + CurrentGameInfo.ancestorModel.PromptPart.Position
+		local basePhi = SphereUtilities.getXY(v.PrimaryPart.Position, targetPosition)
+		local baseTheta = SphereUtilities.getXZ(v.PrimaryPart.Position, targetPosition)
+		local baseDistance = SphereUtilities.getDistance(v.PrimaryPart.Position, targetPosition)
+		local baseDistanceValue = Instance.new("NumberValue")
+		baseDistanceValue.Value = baseDistance
+		baseDistanceValue.Parent = v
+		local phiIncrement = math.random(1,3) * .01
+		local thetaIncrement = math.random(1,3) * -.01
+		local baseCounter = 0
+		local baseDistanceValueTween = TweenService:Create(baseDistanceValue, GameInfo.SolutionArcTweenInfo, {Value = 0})
+		baseDistanceValue:GetPropertyChangedSignal("Value"):Connect(function()
+			v:SetPrimaryPartCFrame(CFrame.new(SphereUtilities.sphereToRect2(
+				baseDistanceValue.Value, basePhi + (phiIncrement * baseCounter), baseTheta + (thetaIncrement * baseCounter), targetPosition)))
+			baseCounter = baseCounter + 1
+		end)
+		baseDistanceValueTween.Completed:Connect(function()
+			------ Initialize Solution Display Effects ------
+			v.Ambient.ParticleFloating.Enabled = true
+			v.Base.RingEmission0.Enabled = true
+			v.Base.RingEmission1.Enabled = true
+			v.Center.Smaller.Particles.RingEmission0.Enabled = true
+			v.Center.Smaller.Particles.RingEmission1.Enabled = true
+			-- v.Center.Smaller.Particles.SmallRingEmission0.Enabled = false
+			-- v.Center.Smaller.Particles.SmallRingEmission0.Enabled = false
+			v.Center.Transparency = .85
+			v.Center.Smaller.Transparency = .7
+
+			------ Initialize Solution Display Hitbox ------
+			local screenTouchPart = v.ScreenTouchPart
+			local screen = v.Screen
+			GameUtilities.Set_Orientation(screen, CurrentGameInfo._orientationDegrees - 90)
+
+			local screenGui = screen.SurfaceGui
+			local frameStart = UDim2.new(0,0,0,0)
+			screenGui.Border.Size = frameStart
+			screenGui.Fill.Size = frameStart
+			screenGui.TextLabel.TextTransparency = 1
+
+			screenGui.Enabled = true
+
+			screenTouchPart.Touched:Connect(function(otherPart)
+				GameUtilities.Solution_Display_Touched(otherPart, screenGui)
+			end)
+			screenTouchPart.TouchEnded:Connect(function(otherPart)
+				GameUtilities.Solution_Display_Touch_Ended(otherPart, screenGui)
+			end)
+		end)
+		baseDistanceValueTween:Play()
+		------ Parent and Table Insert ------
+		-- newSolutionDisplay.Parent = CurrentGameInfo.ancestorModel.Cleanup
+		-- table.insert(solutionPoints, {verifiedXZPoint[1], verifiedXZPoint[2]})
+		-- counter = counter + 1
+		local cleanupCoroutine = coroutine.wrap(function()
+			------ Display Death Animation ------
+			wait(GameInfo.DisplayDuration)
+			v.ScreenTouchPart:Destroy()
+			v.Screen:Destroy()
+			for _, e in pairs(v:GetDescendants()) do
+				if e:IsA("ParticleEmitter") then
+					e.Enabled = false
+				end
+			end
+			TweenUtilities.Fade(v.Center, 3, 1, 0)
+			TweenUtilities.Fade(v.Center.Smaller, 3, 1, 0)
+			v.Center.Flangers.Enabled = true
+			wait(4)
+			v.Center.Flangers.Enabled = false
+			Debris:AddItem(v, 4)
+		end)
+		cleanupCoroutine()
+		wait(1)
+	end
+end
+
+GameUtilities.Solution_Display_Touched = function(otherPart, screenGui)
+	if otherPart.Name == "HumanoidRootPart" then
+		------ Orientate ------
+		local screen = screenGui.Parent
+		if screen:FindFirstChild("WeldConstraint") then -- if welded get rid of weld
+			screen.Anchored = true
+			screen:FindFirstChild("WeldConstraint"):Destroy()
+		end
+		local ScreenCFrameTween = TweenService:Create(screen, GameInfo.ScreenTweenInfo, 
+			{CFrame = CFrame.new(screen.Position, Vector3.new(otherPart.Position.X, screen.Position.Y, otherPart.Position.Z))})
+		ScreenCFrameTween:Play()
+		------ ScreenGui Popup Animation ------
+		local border = screenGui.Border
+		local fill = screenGui.Fill
+		local TextLabel = screenGui.TextLabel
+
+		local frameMid = UDim2.new(0, 0, 1, 0)
+		local frameEnd = UDim2.new(1, 0, 1, 0)
+		local fillEnd = UDim2.new(0.9, 0, 0.85, 0)
+		TweenUtilities.UITweenSize(border, frameMid, 0.25, 0)
+		TweenUtilities.UITweenSize(fill, frameMid, 0.25, 0)
+
+		TweenUtilities.UITweenFadeText(TextLabel, 0, 0.25, 0.25)
+
+		TweenUtilities.UITweenSize(border, frameEnd, 0.25, 0.25)
+		TweenUtilities.UITweenSize(fill, fillEnd, 0.25, 0.5)
+	end
+end
+
+GameUtilities.Solution_Display_Touch_Ended = function(otherPart, screenGui)
+	if otherPart.Name == "HumanoidRootPart" then
+		local border = screenGui.Border
+		local fill = screenGui.Fill
+		local TextLabel = screenGui.TextLabel
+
+		local frameStart = UDim2.new(0, 0, 0, 0)
+		local frameMid = UDim2.new(0, 0, 1, 0)
+		TweenUtilities.UITweenFadeText(TextLabel, 1, 0.25, 0)
+
+		TweenUtilities.UITweenSize(border, frameMid, 0.25, 0)
+		TweenUtilities.UITweenSize(fill, frameMid, 0.25, 0)
+
+		TweenUtilities.UITweenSize(border, frameStart, 0.25, 0)
+		TweenUtilities.UITweenSize(fill, frameStart, 0.25, 0)
 	end
 end
 

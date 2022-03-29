@@ -16,6 +16,7 @@ local YesButton = YesNoFrame.YesButton
 local NoButton = YesNoFrame.NoButton
 --this is the NPC name label in the dialog frame maybe not correct
 local NPCName = DialogFrame:WaitForChild("NPCName")
+local InputButtonConnection
 
 local OpenShopEvent = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("InventoryEvents"):WaitForChild("OpenShopEvent")
 
@@ -87,9 +88,9 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 DialogTween:Play()
                 YesNoTween:Play()
                 
-                --need to tween out yes no frame if dialog is exhausted through input button
-                
+             
                 --fire the event to transport player to the game
+                InputButtonConnection:Disconnect()
                 ProximityPrompt.Enabled = true
                 DialogOpen = false
                 DialogIndex = 0
@@ -124,6 +125,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                 DialogTween:Play()
                 YesNoTween:Play()
 
+                InputButtonConnection:Disconnect()
                 ProximityPrompt.Enabled = true
                 DialogOpen = false
                 DialogIndex = 0
@@ -156,6 +158,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         })
         YesNoTween:Play()
 
+        InputButtonConnection:Disconnect()
         ProximityPrompt.Enabled = true
         DialogOpen = false
         DialogIndex = 0
@@ -163,36 +166,36 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     end
 end
 
---in future use context action service space bar. Hhuman computer interaction! future feature.
-InputButton.MouseButton1Click:Connect(function()
-    local Dialog = DialogModule[NPCName.Value] 
-    if GradualTextInProgress then
-        return
-    end
-    
-    Dialog = DialogModule[NPCName.Value] 
-    DialogIndex += 1
-    OnDialog(Dialog, DialogIndex, NPCs[NPCName.Value].HumanoidRootPart.ProximityPrompt)
-    if DialogIndex == 0 and NPCName.Value == "Llama" then
-        OpenShopEvent:FireServer()
-    end
-  
-end)
-
 --loop through npcs in NPCs directory
 for _, v in pairs(NPCs:GetChildren()) do
     local HumanoidRootPart = v:FindFirstChild("HumanoidRootPart")
     local ProximityPrompt = HumanoidRootPart:FindFirstChild("ProximityPrompt")
 
     if HumanoidRootPart and ProximityPrompt then
-        ProximityPrompt.ObjectText = v.Name
-        ProximityPrompt.ActionText = "Chat with " .. v.Name
+        --ProximityPrompt.ObjectText = v.Name
+        --ProximityPrompt.ActionText = "Chat with " .. v.Name
         
         local Dialog = DialogModule[v.Name]
         ProximityPrompt.Triggered:Connect(function()
             if DialogOpen then
                 return
             end
+
+            --in future use context action service space bar. Hhuman computer interaction! future feature.
+            InputButtonConnection = InputButton.MouseButton1Click:Connect(function()
+                local Dialog = DialogModule[NPCName.Value] 
+                if GradualTextInProgress then
+                    return
+                end
+                
+                Dialog = DialogModule[NPCName.Value] 
+                DialogIndex += 1
+                OnDialog(Dialog, DialogIndex, NPCs[NPCName.Value].HumanoidRootPart.ProximityPrompt)
+                if DialogIndex == 0 and NPCName.Value == "Llama" then
+                    OpenShopEvent:FireServer()
+                end
+            
+            end)
             
             DialogOpen = true
             ProximityPrompt.Enabled = false

@@ -8,7 +8,7 @@ local PlayerIngredientStore = DataStoreService:GetDataStore("PlayerIngredientInv
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local IngredientSpawnUtilities = require(ServerScriptService.Island_3_Scripts.IngredientSpawns:WaitForChild("IngredientSpawnUtilities"))
 
---Initiate block spawning on the islands
+--Initiate ingredient spawning on the islands
 IngredientSpawnUtilities.initialize()
 
 Players.PlayerAdded:Connect(function(player)

@@ -1,3 +1,7 @@
+--services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CheckpointsRE = ReplicatedStorage.RemoteEvents:WaitForChild("CheckpointsRE")
+
 
 local CheckpointUtilities = {}
 local ProximityPrompts = {}
@@ -22,69 +26,20 @@ end
 
 --call once to set checkpoint touched to set the player's checkpoint--going to change this to an interaction
 function CheckpointUtilities.setCheckpointEvents()
-    --local Player = game:GetService("Players").LocalPlayer --need the player
     for _, v in pairs (allCheckpoints) do 
        if v:IsA("Model") then
         --get the proximity prompts from the checkpoints that have them
-        local Energyball = v:FindFirstChild("Energyball") --returns nil
-        local ProximityPrompt = Energyball:FindFirstChild("ProximityPrompt") --this isn't working
+        local Energyball = v:FindFirstChild("Energyball") 
+        local ProximityPrompt = Energyball:FindFirstChild("ProximityPrompt") 
 
         --instead of touch need to be set by proximity prompt located in checkpoints.Checkpoint.Energyball.ProximityPrompt (part of model)
-
-        
         if ProximityPrompt then
             table.insert(ProximityPrompts, ProximityPrompt)
             ProximityPrompt.Triggered:Connect(function(player)
-                
+                CheckpointsRE:FireClient(player, ProximityPrompt)
                 --set the checkpoint to the player
                 player:SetAttribute("checkpoint", v:GetAttribute("checkpointNum"))
 
-                for _, c in pairs (ProximityPrompts) do
-                    
-                    if c.Enabled == true then
-                        continue
-                    end
-
-                    c.Enabled = true
-
-                    --handle the colors
-                    local AncestorModel = c:FindFirstAncestorWhichIsA("Model")
-                    local CoreAttachment = AncestorModel.Energyball.CoreAttachment
-                    CoreAttachment.Core.Color = ColorSequence.new{
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(42,255,248)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(42,255,248))
-                    }
-                    
-                    CoreAttachment.OuterCore.Color = ColorSequence.new{
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(42,255,248)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(42,255,248))
-                    }
-                    
-                    CoreAttachment.Shine.Color = ColorSequence.new{
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(42,255,248)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(42,255,248))
-                    }
-                end
-               
-                ProximityPrompt.Enabled = false
-                --turn to yellow
-                local AncestorModel = ProximityPrompt:FindFirstAncestorWhichIsA("Model")
-                local CoreAttachment = AncestorModel.Energyball.CoreAttachment
-
-                CoreAttachment.Core.Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 170, 28)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 170, 28))
-                }
-                CoreAttachment.OuterCore.Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 170, 28)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 170, 28))
-                }
-                
-                CoreAttachment.Shine.Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(0,170,28)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(0,170,28))
-                }
-  
             end)
         end  
 
