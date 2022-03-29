@@ -64,6 +64,7 @@ local DialogModule = {
         [2] = "You win and I'll give you a special prize.",
         [3] = "Remember, If you wanna swing at the king then ya betta not miss!" 
     },
+    ---main hub NPCs
     ["Rama"] = {
         [1] = "Welcome to the main hub of Mega Blue Traveler. I am Rama the Keeper of these lands.",
         [2] = "Those who seek to master math may seek respite here.",
@@ -158,6 +159,33 @@ local DialogModule = {
         [1] = "My goodness...",
         [2] = "Don't be upset man, lets practice and get better!"
     },
+    --island 3 npcs--
+    ["Randallf_first_meeting"] = {
+        [1] = "ooo ooo! eee eee eee urgggghhh....",
+        [2] = "Please, give me a Grow potion.",
+        [3] = "In return, I'll unlock the portal to the next world.", 
+    },
+    ["Randallf_second_meeting"] = { --if player accept quest does not have potion
+        [1] = "Do you have it yet?"
+            
+    },
+    ["Randallf_third_meeting"] = { --if player accept quest does have potion
+        [1] = "Ah! you have a Grow Potion!",
+        [2] = "Will you please let me have it?"      
+    },
+    ["Randallf_fourth_meeting"] = { --when quest is done
+        [1] = "Thank you for helping me. My Back feels much better",       
+    },
+    ["Prentiss the apprentice"] = {
+        [1] = "Hello Stranger, Welcome to Alchemy Island.",
+        [2] = "You can mix ingredients to make potions with wondorous results using your knowledge of ratios.",
+        [3] = "My master and I were on our way to the academy when he was beset by back pain. He needs a specific potion to cure him.",
+        [4] = "I would help him myself but he hasn't taught me about ratios yet!",
+        [5] = "Please talk to him down the way and see what potion he needs. I'm sure he'd help you in return."
+    },
+    ["Alchemia"] = {
+        [1] = "sample text"
+    }
 }
 
 return DialogModule
