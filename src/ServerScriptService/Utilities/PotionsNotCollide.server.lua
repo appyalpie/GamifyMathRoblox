@@ -3,9 +3,10 @@ local lightingZones = game.Workspace.LightingZones:GetChildren()
 local MusicZones = game.Workspace.Sounds.MusicZones:GetDescendants()
 local Locations= game.Workspace.Locations:GetChildren()
 local PotionProjectile = game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("ThrowPotion")
+local Main_hubEffects = game.Workspace.Main_Hub_Enclave.Floor.Effects:GetDescendants()
 
 local Filter = {}
-Filter._index = {lightingZones,MusicZones, Locations}
+Filter._index = {lightingZones,MusicZones, Locations,Main_hubEffects}
 Filter.TAG_NAME = "NoCollidePotions"
 
 
