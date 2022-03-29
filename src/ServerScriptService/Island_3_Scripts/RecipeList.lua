@@ -2,7 +2,7 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local RecipeList = {
     [1] = {
-        Name = "Butt",
+        Name = "Grow Potion",
         Ingredient1 = 1,
         Ingredient2 = 1,
         Ingredient3 = 1,
@@ -10,18 +10,18 @@ local RecipeList = {
     },
 
     [2] = {
-        Name = "Grr",
-        Ingredient1 = 0,
-        Ingredient2 = 0,
-        Ingredient3 = 16,
+        Name = "Shrink Potion",
+        Ingredient1 = 3,
+        Ingredient2 = 1,
+        Ingredient3 = 1,
         RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ShrinkPotion")
     },
 
     [3] = {
-        Name = "Eberts Explosive Event",
-        Ingredient1 = 2,
-        Ingredient2 = 0,
-        Ingredient3 = 14,
+        Name = "Explosive Potion",
+        Ingredient1 = 4,
+        Ingredient2 = 2,
+        Ingredient3 = 2,
         RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ExplosivePotion")
     }
     --explosion, grow, shrink

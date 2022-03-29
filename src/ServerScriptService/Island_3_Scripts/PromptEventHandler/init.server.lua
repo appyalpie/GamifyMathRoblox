@@ -2,19 +2,26 @@ local Workspace = game:GetService("Workspace")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local PotionPrompt = Workspace.Island_3.Islands.PotionCreationTables.CombinationTable.Beaker.Beaker.PromptAttachment.ProximityPrompt
-local RecipeReferencePrompt = Workspace.Island_3.Islands.PotionCreationTables.CombinationTable.PaperHolder.PromptAttachment.ProximityPrompt
+local allCombinationTables = Workspace.Island_3.Islands.PotionCreationTables:GetChildren()
+local PotionPrompts = {}
+local RecipeReferencePrompts = {}
+
 local PotionCreation = require(ServerScriptService.Island_3_Scripts:WaitForChild("PotionCreation"))
-local RecipeReference = require(ServerScriptService.Island_3_Scripts.RecipeReference:WaitForChild("RecipeReference"))
+local RecipeReference = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeReference"))
 
-local function onPotionPromptTriggered(player)
-	PotionCreation.initialize(player, PotionPrompt)
+for _,combinationTable in pairs(allCombinationTables) do
+	table.insert(PotionPrompts, combinationTable.Beaker.Beaker.PromptAttachment.ProximityPrompt)
+	table.insert(RecipeReferencePrompts, combinationTable.PaperHolder.PromptAttachment.ProximityPrompt)
 end
 
-PotionPrompt.Triggered:Connect(onPotionPromptTriggered)
-
-local function onRecipeReferencePrompt(player)
-	RecipeReference.MoveCamera(player, RecipeReferencePrompt.Parent.Parent.Parent)
+for _,prompt in pairs(PotionPrompts) do
+	prompt.Triggered:Connect(function(player)
+		PotionCreation.initialize(player, prompt)
+	end)
 end
 
-RecipeReferencePrompt.Triggered:Connect(onRecipeReferencePrompt)
+for _,paperPrompt in pairs(RecipeReferencePrompts) do
+	paperPrompt.Triggered:Connect(function(player)
+		RecipeReference.MoveCamera(player, paperPrompt.Parent.Parent.Parent)
+	end)
+end

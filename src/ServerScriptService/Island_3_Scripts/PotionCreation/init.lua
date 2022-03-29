@@ -18,9 +18,6 @@ local InvalidRecipeRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("In
 local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombineMenuFinishedEvent")
 local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
 
-local lockObject = game.Workspace.Island_3.Islands.PotionCreationTables.CombinationTable.Table:WaitForChild("PlayerLockLocation")
-local cameraObject = game.Workspace.Island_3.Islands.PotionCreationTables.CombinationTable.Table:WaitForChild("TableCameraLocation")
-
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
 
@@ -32,6 +29,10 @@ local potionPrompt
 PotionCreation = {}
 
 function PotionCreation.initialize(player, promptObject)
+    local combinationTable = promptObject.Parent.Parent.Parent.Parent
+    local lockObject = combinationTable.Table:WaitForChild("PlayerLockLocation")
+    local cameraObject = combinationTable.Table:WaitForChild("TableCameraLocation")
+
     player.Character:WaitForChild("HumanoidRootPart").Position = lockObject.Position
 
     potionPrompt = promptObject
@@ -74,8 +75,9 @@ local function onCombinationButtonActivated(player, selectedIngredients)
                     PlayerSideShowNameAndTitleRE:FireClient(player)
                     CameraResetRE:FireClient(player)
                 
-                    potionPrompt.Enabled = true;
                     CombineMenuFinishedRE:FireClient(player)
+                    wait(1)
+                    potionPrompt.Enabled = true;
                     return
                 end
             end
@@ -96,8 +98,10 @@ local function onExitButtonActivatedEvent(player)
     PlayerSideShowNameAndTitleRE:FireClient(player)
     CameraResetRE:FireClient(player)
 
-    potionPrompt.Enabled = true;
+
     CombineMenuFinishedRE:FireClient(player)
+    wait(1)
+    potionPrompt.Enabled = true;
 end
 
 ExitButtonActivatedRE.OnServerEvent:Connect(onExitButtonActivatedEvent)

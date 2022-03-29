@@ -9,17 +9,21 @@ local MissingIngredientRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild
 local InvalidRecipeRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("InvalidRecipeEvent")
 local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombineMenuFinishedEvent")
 local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
+local Island3EnteredRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3EnteredEvent")
+local Island3ExitRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3ExitEvent")
 
 local IngredientGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 
-local Ingredient1QuantityDisplay = IngredientGUI:WaitForChild("Ingredient1Quantity")
-local Ingredient2QuantityDisplay = IngredientGUI:WaitForChild("Ingredient2Quantity")
-local Ingredient3QuantityDisplay = IngredientGUI:WaitForChild("Ingredient3Quantity")
+local Ingredient1QuantityDisplay = IngredientGUI.InlayFrame.Ingredient1Frame:WaitForChild("Ingredient1Quantity")
+local Ingredient2QuantityDisplay = IngredientGUI.InlayFrame.Ingredient2Frame:WaitForChild("Ingredient2Quantity")
+local Ingredient3QuantityDisplay = IngredientGUI.InlayFrame.Ingredient3Frame:WaitForChild("Ingredient3Quantity")
+
+local IngredientFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 
 local AddToPotionFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("AddToPotionFrame")
-local AddIngredientsFrame = AddToPotionFrame:WaitForChild("AddIngredientsFrame")
+local AddIngredientsFrame = AddToPotionFrame:WaitForChild("InlayFrame"):WaitForChild("AddIngredientsFrame")
 
-local CombineButton = AddToPotionFrame:WaitForChild("CombineButton")
+local CombineButton = AddToPotionFrame:WaitForChild("InlayFrame"):WaitForChild("CombineButton")
 local ExitButton = AddToPotionFrame:WaitForChild("ExitButton")
 
 local AddIngredient1SubFrame = AddIngredientsFrame:WaitForChild("Ingredient1Subframe")
@@ -140,7 +144,7 @@ local function onPotionPromptActivatedEvent()
     AddToPotionFrame.Visible = true
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
     local goalPosition = {}
-    goalPosition.Position = UDim2.new(0.794,0,0.355,0)
+    goalPosition.Position = UDim2.new(0.794,0,0.204,0)
     local tweenIn = TweenService:Create(AddToPotionFrame ,twinfo, goalPosition)
     tweenIn:Play()
 end
@@ -173,7 +177,7 @@ InvalidRecipeRE.OnClientEvent:Connect(onInvalidRecipeEvent)
 local function onCombineMenuFinishedEvent()
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
     local goalPosition = {}
-    goalPosition.Position = UDim2.new(1,0,0.355,0)
+    goalPosition.Position = UDim2.new(1,0,0.204,0)
     local tweenOut = TweenService:Create(AddToPotionFrame ,twinfo, goalPosition)
     tweenOut:Play()
     tweenOut.Completed:Connect(function()
@@ -182,3 +186,29 @@ local function onCombineMenuFinishedEvent()
 end
 
 CombineMenuFinishedRE.OnClientEvent:Connect(onCombineMenuFinishedEvent)
+
+------ Called when the player has entered island 3 ------
+local function onIsland3EnteredEvent()
+    IngredientFrame.Visible = true
+    local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
+    local goalPosition = {}
+    goalPosition.Position = UDim2.new(0.794,0,0.676,0)
+    local tweenIn = TweenService:Create(IngredientFrame ,twinfo, goalPosition)
+    tweenIn:Play()
+end
+
+Island3EnteredRE.OnClientEvent:Connect(onIsland3EnteredEvent)
+
+------ Called when the player has entered a zone that's not island 3 ------
+local function onIsland3ExitEvent()
+    local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
+    local goalPosition = {}
+    goalPosition.Position = UDim2.new(1,0,0.676,0)
+    local tweenOut = TweenService:Create(IngredientFrame ,twinfo, goalPosition)
+    tweenOut:Play()
+    tweenOut.Completed:Connect(function()
+        IngredientFrame.Visible = false
+    end)
+end
+
+Island3ExitRE.OnClientEvent:Connect(onIsland3ExitEvent)

@@ -1,6 +1,7 @@
 local ServerScriptService = game:GetService("ServerScriptService")
 local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
 
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local Timer = require(ServerScriptService.Utilities:WaitForChild("Timer"))
@@ -27,6 +28,17 @@ local function SpawnCoroutineTask(node)
         IngredientInstance.Parent = node["nodePart"]
         IngredientInstance.Position = IngredientInstance.Parent.Position
         IngredientInstance.Orientation = IngredientInstance.Parent.Orientation
+        local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
+        local sizeTweenIn
+        if IngredientInstance.Name == INGREDIENT_1_NAME then
+            sizeTweenIn = TweenService:Create(IngredientInstance ,twinfo, {Size = Vector3.new(1.42, 1.475, 1.497)})
+        elseif IngredientInstance.Name  == INGREDIENT_2_NAME then
+            sizeTweenIn = TweenService:Create(IngredientInstance ,twinfo, {Size = Vector3.new(1.143, 1.143, 1.525)})
+        elseif IngredientInstance.Name == INGREDIENT_3_NAME then
+            sizeTweenIn = TweenService:Create(IngredientInstance.Mesh ,twinfo, {Scale = Vector3.new(0.65, 1.8, 0.7)})
+        end
+
+        sizeTweenIn:Play()
 
         IngredientInstance.Touched:Connect(function(objectHit)
             if IngredientInstance.Name == INGREDIENT_1_NAME then
@@ -39,7 +51,15 @@ local function SpawnCoroutineTask(node)
 
             IngredientInstance:Destroy()
 
-            local nextSpawn = math.random(3, 10)
+            local nextSpawn
+            if IngredientInstance.Name == INGREDIENT_1_NAME then
+                nextSpawn = math.random(3, 10)
+            elseif IngredientInstance.Name  == INGREDIENT_2_NAME then
+                nextSpawn = math.random(25, 35)
+            elseif IngredientInstance.Name == INGREDIENT_3_NAME then
+                nextSpawn = math.random(3, 10)
+            end
+
 
             local timer = Timer.new()
             timer:start(nextSpawn, nil)

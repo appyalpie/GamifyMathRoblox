@@ -1,7 +1,7 @@
 local liquidsAndMore = {}
 local TweenService = game:GetService("TweenService")
 
-for _,v in pairs(game.Workspace.Island_3.test_zone:GetDescendants()) do
+for _,v in pairs(game.Workspace.Island_3.Islands.PotionCreationTables:GetDescendants()) do
     if v.Name == "Liquid" then
         table.insert(liquidsAndMore, v)
     end
@@ -23,6 +23,7 @@ for _,v in pairs(liquidsAndMore) do
     local blueTween = TweenService:Create(v, tweenInfo, {Color = Color3.new(0,0,1)})
     local magentaTween = TweenService:Create(v, tweenInfo, {Color = Color3.new(1,0,1)})
     local redTween = TweenService:Create(v, tweenInfo, {Color = Color3.new(1,0,0)})
+    wait(math.random(1,3) + math.random())
 
     yellowTween:Play()
     yellowTween.Completed:Connect(function()
