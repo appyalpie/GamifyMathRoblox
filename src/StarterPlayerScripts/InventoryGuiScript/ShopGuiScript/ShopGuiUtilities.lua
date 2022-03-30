@@ -22,6 +22,12 @@ local Color3Lookup = {
     buyButtonActive = Color3.fromRGB(52, 236, 39),
     buyButtonInactive = Color3.fromRGB(150,150,150)
 }
+
+local ShopkeeperToTitleLookup = {
+    ["Llama"] = "Llama's Shinies",
+    ["Skeleton At Tony V"] = "Bone's Goodies"
+}
+
 ------_____ Shop Menu Stuff _____------
 
 ShopGuiUtilities.CleanupEntry = function(GUID)
@@ -106,9 +112,11 @@ ShopGuiUtilities.InitializeViewportCamera = function(PictureFrame)
     return ViewportCamera
 end
 
------- Initialize all shop items to "not owned" ------
+------ Initialize all shop items to "not owned" (Item Frame + Button Connection) + Shopkeeper name update ------
 ShopGuiUtilities.initializeShopMenu = function(ShopMenu, Shopkeeper)
     print("Initializing Shop")
+    local Bar = ShopMenu:WaitForChild("Bar")
+    local ShopTitle = Bar:WaitForChild("ShopTitle")
     local DetailFrame = ShopMenu.EquipsFrame:WaitForChild("DetailFrame")
     local PictureFrame = DetailFrame:WaitForChild("PictureFrame")
     local TextFrame = DetailFrame:WaitForChild("TextFrame")
@@ -118,6 +126,7 @@ ShopGuiUtilities.initializeShopMenu = function(ShopMenu, Shopkeeper)
 
     for k, v in pairs(accessoryButtonGUIDTable) do
         v[1].Parent.Visible = true
+        v[1].Parent.ImageColor3 = Color3Lookup.inactive
         v[1].Visible = true
         ShopGuiUtilities.CleanupEntry(k) -- Cleanup Any Prior Button Connections
         v[2] = v[1].InputEnded:Connect(function(input, gameProcessed) -- Connect the Accessory Button (not the buy)
@@ -159,6 +168,7 @@ ShopGuiUtilities.initializeShopMenu = function(ShopMenu, Shopkeeper)
     if buyButtonConnection and buyButtonConnection.Connected then
         buyButtonConnection:Disconnect()
     end
+    ShopTitle.Text = ShopkeeperToTitleLookup[Shopkeeper]
     BuyButton.BackgroundColor3 = Color3Lookup.buyButtonInactive
     Description2.Text = ""
     Description4.Text = ""
@@ -210,10 +220,9 @@ ShopGuiUtilities.updateShopMenu = function(player, ShopMenu, Shopkeeper)
     print(playerInventoryData)
     for _, playerItemName in pairs(playerInventoryData) do
         ------ Get Info on Item ------
-        print(playerItemName)
         local shopItemInfo = ShopItemsInformation[Shopkeeper][playerItemName]
         if shopItemInfo == nil then continue end
-        
+        print(playerItemName)
 
         ------ Initialize Item Frames To Owned / Equipped------
         local typeFrame = typeToFrameDictionary[shopItemInfo.Type]

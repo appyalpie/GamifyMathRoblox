@@ -7,11 +7,14 @@ local GameStatsUtilities = require(script.GameStatsUtilities)
 
 ------Overall Game------
 local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
-local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
+local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
+local PlayerPortalGuiLoadedRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PlayerPortalGuiLoadedRE")
 
 ------Math Blocks------
 
 ------24 Game------
+
+------Alchemy Island ------
 
 local GameStatsStore = DataStoreService:GetDataStore("PlayerGameStats")
 
@@ -46,6 +49,10 @@ end)
 PlayerStatsRF.OnServerInvoke = function(player, returnLevelStatsBool)
     return GameStatsUtilities.getPlayerData(player, returnLevelStatsBool)
 end
+
+PlayerPortalGuiLoadedRE.OnServerEvent:Connect(function(player)
+    GameStatsUtilities.UnlockIsland3Barrier(player)
+end)
 
 UpdateIsland3BarrierDownStatusRE.OnServerEvent:Connect(function(player)
     GameStatsUtilities.updateIsland3BarrierDown(player)

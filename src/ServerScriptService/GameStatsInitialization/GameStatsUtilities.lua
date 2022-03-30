@@ -1,7 +1,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
-local UnlockIsland3BarrierRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("UnlockIsland3BarrierRE")
+local UnlockIsland3BarrierRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UnlockIsland3BarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
 local LevelSystem = require(script.Parent.Parent.Utilities.LevelSystem)
 
@@ -49,9 +49,6 @@ GameStatsUtilities.setPlayerGameStats = function(player, playerData)
     end
     playerGameStats[player.UserId]["Game24Last5Solutions"] = playerData["Game24Last5Solutions"]
     playerGameStats[player.UserId]["BarrierToIsland4Down"] = playerData["BarrierToIsland4Down"]
-    if playerData["BarrierToIsland4Down"] == true then
-        UnlockIsland3BarrierRE:FireClient(player)
-    end
 end
 
 -----Overall Game------
@@ -141,7 +138,14 @@ end
 
 ------ Island 3 Barrier Update ------
 GameStatsUtilities.updateIsland3BarrierDown = function(player)
+    print("BarrierToIsland4Down is now set to true")
     playerGameStats[player.UserId]["BarrierToIsland4Down"] = true
+end
+
+GameStatsUtilities.UnlockIsland3Barrier = function(player)
+    if playerGameStats[player.UserId]["BarrierToIsland4Down"] == true then
+        UnlockIsland3BarrierRE:FireClient(player)
+    end 
 end
 
 return GameStatsUtilities
