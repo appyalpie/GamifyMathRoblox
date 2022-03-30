@@ -27,6 +27,8 @@ local DialogTween = nil
 local DialogIndex = 0
 local GradualTextInProgress = false
 local TEXT_SPEED = .01
+local YesButtonClickConnection
+local NoButtonClickConnection
 
 --functions
 --helper function
@@ -51,6 +53,18 @@ local function FastText(Text)
     DialogFrame.DialogText.Text = Text
 end
 
+local function DisconnectButtons()
+    if YesButtonClickConnection then
+        YesButtonClickConnection:Disconnect()
+    end
+    if NoButtonClickConnection then
+        NoButtonClickConnection:Disconnect()
+    end
+    if InputButtonConnection then
+        InputButtonConnection:Disconnect()
+    end
+end
+
 --handle dialog given proximity prompt. bring in dialog associated with individual NPC base on dialog module script
 local function OnDialog(Dialog, Index, ProximityPrompt)
     --hide the inventory gui
@@ -61,85 +75,60 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
             Position = UDim2.new(0.1, 0, 0.5, 0)
         })
         Tween:Play()
+        ------ Update: Instead of tweening then adding functionality, add functionality first ------
+        YesButtonClickConnection = YesButton.MouseButton1Click:Connect(function()
+            --end gradual text
+            GradualTextInProgress = false
+            --tween out both dialog and yesno frames
+            local DialogTween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 0, 2, 0)
+            })
 
-        --when tween is done. connect functionality to the buttons
-        Tween.Completed:Connect(function()
-            local YesButtonClickConnection
-            local NoButtonClickConnection
-
-            YesButtonClickConnection = YesButton.MouseButton1Click:Connect(function()
-                --end gradual text
-                GradualTextInProgress = false
-
-                --disconnect connections
-                if YesButtonClickConnection then
-                    YesButtonClickConnection:Disconnect()
-                end
-
-                if NoButtonClickConnection then
-                    NoButtonClickConnection:Disconnect()
-                end
-
-                --tween out both dialog and yesno frames
-                local DialogTween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-                    Position = UDim2.new(0, 0, 2, 0)
-                })
-
-                local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-                    Position = UDim2.new(0, 0, 2, 0)
-                })
-                DialogTween:Play()
-                YesNoTween:Play()
-                
-             
-                --fire the event to transport player to the game
-                InputButtonConnection:Disconnect()
-                ProximityPrompt.Enabled = true
-                DialogOpen = false
-                DialogIndex = 0
-                Player.Character.HumanoidRootPart.Anchored = false
-                --show the inventory gui
-                InventoryGUI.Visible = true
-
-                ChallengeEvent:FireServer(ProximityPrompt)
-            end)
-
-            --handle the no button behavior. 
-            NoButtonClickConnection = NoButton.MouseButton1Click:Connect(function()
+            local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 0, 2, 0)
+            })
+            DialogTween:Play()
+            YesNoTween:Play()
             
-                --end gradual text
-                GradualTextInProgress = false
+            ------ Disconnect all buttons ------
+            DisconnectButtons()
+            ProximityPrompt.Enabled = true
+            DialogOpen = false
+            DialogIndex = 0
+            Player.Character.HumanoidRootPart.Anchored = false
+            --show the inventory gui
+            InventoryGUI.Visible = true
 
-                --disconnect connections
-                if YesButtonClickConnection then
-                    YesButtonClickConnection:Disconnect()
-                end
-
-                if NoButtonClickConnection then
-                    NoButtonClickConnection:Disconnect()
-                end
-
-                --tween out both dialog and yesno frames
-                local DialogTween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-                    Position = UDim2.new(0, 0, 2, 0)
-                })
-
-                local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-                    Position = UDim2.new(0, 0, 2, 0)
-                })
-                DialogTween:Play()
-                YesNoTween:Play()
-
-                InputButtonConnection:Disconnect()
-                ProximityPrompt.Enabled = true
-                DialogOpen = false
-                DialogIndex = 0
-                
-                Player.Character.HumanoidRootPart.Anchored = false
-                --show the inventory gui
-                InventoryGUI.Visible = true
-            end)
+            ChallengeEvent:FireServer(ProximityPrompt)
         end)
+        --handle the no button behavior. 
+        NoButtonClickConnection = NoButton.MouseButton1Click:Connect(function()
+        
+            --end gradual text
+            GradualTextInProgress = false
+
+            --tween out both dialog and yesno frames
+            local DialogTween = TweenService:Create(DialogFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 0, 2, 0)
+            })
+
+            local YesNoTween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, 0, 2, 0)
+            })
+            DialogTween:Play()
+            YesNoTween:Play()
+
+            DisconnectButtons()
+            ProximityPrompt.Enabled = true
+            DialogOpen = false
+            DialogIndex = 0
+            
+            Player.Character.HumanoidRootPart.Anchored = false
+            --show the inventory gui
+            InventoryGUI.Visible = true
+        end)
+        --Tween.Completed:Connect(function()
+        --end)
     end
     
     if Dialog[Index] then
@@ -165,7 +154,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
         })
         YesNoTween:Play()
 
-        InputButtonConnection:Disconnect()
+        DisconnectButtons()
         ProximityPrompt.Enabled = true
         DialogOpen = false
         DialogIndex = 0
