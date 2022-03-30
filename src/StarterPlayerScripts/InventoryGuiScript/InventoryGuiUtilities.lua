@@ -79,10 +79,10 @@ end
 
 ------ Initializes All Inventory Items to be Unowned at the start ------
 InventoryGuiUtilities.initializeInventoryMenu = function(InventoryMenu)
-    print("Initializing Menu")
+    --print("Initializing Menu")
     for k, v in pairs(accessoryButtonGUIDTable) do
         InventoryGuiUtilities.CleanupEntry(k)
-        print(k)
+        --print(k)
         v[2] = v[1].InputEnded:Connect(function(input, gameProcessed)
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 local DetailFrame = InventoryMenu.EquipsFrame:WaitForChild("DetailFrame")

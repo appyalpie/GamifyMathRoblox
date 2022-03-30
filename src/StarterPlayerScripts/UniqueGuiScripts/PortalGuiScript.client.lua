@@ -5,7 +5,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
-local PortalGuiUpdateIsland3BE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateIsland3BE")
+local PortalGuiUpdateIsland3BE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PortalGuiUpdateIsland3BE")
+local PlayerPortalGuiLoadedRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PlayerPortalGuiLoadedRE")
 local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
 local localPlayer = Players.LocalPlayer
 
@@ -60,6 +61,7 @@ PortalGuiUpdateRE.OnClientEvent:Connect(function(warp3Status)
 end)
 
 PortalGuiUpdateIsland3BE.Event:Connect(function(warp4Status)
+    print("PortalGuiUpdateIsland3BE has been fired")
     local WarpButton4 = InlayFrame2:WaitForChild("WarpButton4")
     local WarpTitle4 = InlayFrame2:WaitForChild("WarpTitle4")
     
@@ -73,6 +75,7 @@ PortalGuiUpdateIsland3BE.Event:Connect(function(warp4Status)
         end)
     end
 end)
+PlayerPortalGuiLoadedRE:FireServer(Players.LocalPlayer)
 
 -- Connect first two buttons (always present, when the player is at the main hub they can always goto 1 or 2)
 local WarpButton1 = InlayFrame2:WaitForChild("WarpButton1")
@@ -129,7 +132,6 @@ end)
 ------ Get Player Data and set Player GUI when character is in ------
 local Character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local playerData = PlayerStatsRF:InvokeServer()
-print("Got Player Data")
 
 if playerData["BarrierToIsland3Down"] == true then
     local WarpButton3 = InlayFrame2:WaitForChild("WarpButton3")

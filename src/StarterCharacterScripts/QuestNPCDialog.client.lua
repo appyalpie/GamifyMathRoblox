@@ -4,8 +4,8 @@ local TweenService = game:GetService("TweenService")
 local DialogModule = require(ReplicatedStorage.DialogModule)
 local Player = game:GetService("Players").LocalPlayer
 
-local PortalGuiUpdateIsland3BE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateIsland3BE")
-local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
+local PortalGuiUpdateIsland3BE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PortalGuiUpdateIsland3BE")
+local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
 
 --GUI variables
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
