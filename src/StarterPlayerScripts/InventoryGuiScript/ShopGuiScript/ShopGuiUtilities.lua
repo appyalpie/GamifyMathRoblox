@@ -2,6 +2,7 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local RunService = game:GetService("RunService")
 
 local ShopItemsInformation = require(ReplicatedStorage:WaitForChild("ShopItemsInformation"))
 
@@ -15,6 +16,10 @@ local ShopGuiUtilities = {}
 -- K: GUID V: 1.Button 2. BuyButtonConnection
 local accessoryButtonGUIDTable = {}
 local buyButtonConnection
+
+local ViewportCameraOffset = CFrame.new(0, 0, 4)
+local ViewportCameraSpeed = 20
+local ViewportCameraRunServiceConnection
 
 local Color3Lookup = {
     owned = Color3.fromRGB(133, 240, 138),
@@ -145,7 +150,18 @@ ShopGuiUtilities.initializeShopMenu = function(ShopMenu, Shopkeeper)
                 local ViewportCamera = ShopGuiUtilities.InitializeViewportCamera(PictureFrame)
                 local itemForViewport = InventoryViewportItems:WaitForChild(v[1]:GetAttribute("item_name")):Clone()
                 itemForViewport.Parent = ViewportFrame
-                ViewportCamera.CFrame = CFrame.new(Vector3.new(0, 2, 6) + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+                ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset.Position + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+                local theta = 0
+                local orientation = CFrame.new()
+                local itemCFrame, itemSize = itemForViewport:GetBoundingBox()
+                if ViewportCameraRunServiceConnection and ViewportCameraRunServiceConnection.Connected then
+                    ViewportCameraRunServiceConnection:Disconnect()
+                end
+                ViewportCameraRunServiceConnection = RunService.RenderStepped:Connect(function(deltaTime)
+                    theta = theta + math.rad(ViewportCameraSpeed * deltaTime)
+                    orientation = CFrame.fromEulerAnglesYXZ(math.rad(-ViewportCameraSpeed), theta, 0)
+                    ViewportCamera.CFrame = CFrame.new(itemCFrame.Position) * orientation * ViewportCameraOffset
+                end)
 
                 BuyButton.BackgroundColor3 = Color3Lookup.buyButtonActive
                 Description2.Text = shopItemInfo.Description
@@ -181,7 +197,18 @@ ShopGuiUtilities.Click_Button_Owned = function(input, itemButton, DetailFrame, s
         local ViewportCamera = ShopGuiUtilities.InitializeViewportCamera(PictureFrame)
         local itemForViewport = InventoryViewportItems:WaitForChild(itemButton:GetAttribute("item_name")):Clone()
         itemForViewport.Parent = ViewportFrame
-        ViewportCamera.CFrame = CFrame.new(Vector3.new(0, 2, 6) + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset.Position + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+        local theta = 0
+        local orientation = CFrame.new()
+        local itemCFrame, itemSize = itemForViewport:GetBoundingBox()
+        if ViewportCameraRunServiceConnection and ViewportCameraRunServiceConnection.Connected then
+            ViewportCameraRunServiceConnection:Disconnect()
+        end
+        ViewportCameraRunServiceConnection = RunService.RenderStepped:Connect(function(deltaTime)
+            theta = theta + math.rad(ViewportCameraSpeed * deltaTime)
+            orientation = CFrame.fromEulerAnglesYXZ(math.rad(-ViewportCameraSpeed), theta, 0)
+            ViewportCamera.CFrame = CFrame.new(itemCFrame.Position) * orientation * ViewportCameraOffset
+        end)
 
         BuyButton.BackgroundColor3 = Color3Lookup.buyButtonInactive
         local Description2 = TextFrame:WaitForChild("Description2")

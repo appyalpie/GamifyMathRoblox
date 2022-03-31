@@ -2,6 +2,7 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local InventoryItemInformation = require(ReplicatedStorage:WaitForChild("InventoryItemInformation"))
@@ -30,8 +31,9 @@ local accessoryButtonGUIDTable = {}
 local currentlySelected = {nil, nil}
 local equipButtonConnection
 
-local ViewportCameraOffset = Vector3.new(0,2,6)
-local ViewportCameraNewOffset = Vector3.new(0,6,4)
+local ViewportCameraOffset = CFrame.new(0, 0, 4)
+local ViewportCameraSpeed = 20
+local ViewportCameraRunServiceConnection
 
 InventoryGuiUtilities.CleanupEntry = function(GUID)
     if accessoryButtonGUIDTable[GUID][2] then
@@ -93,8 +95,18 @@ InventoryGuiUtilities.initializeInventoryMenu = function(InventoryMenu)
                 local ViewportCamera = InventoryGuiUtilities.InitializeViewportCamera(PictureFrame)
                 local itemForViewport = InventoryViewportItems:WaitForChild(v[1]:GetAttribute("item_name")):Clone()
                 itemForViewport.Parent = ViewportFrame
-                ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
-
+                ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset.Position + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+                local theta = 0
+                local orientation = CFrame.new()
+                local itemCFrame, itemSize = itemForViewport:GetBoundingBox()
+                if ViewportCameraRunServiceConnection and ViewportCameraRunServiceConnection.Connected then
+                    ViewportCameraRunServiceConnection:Disconnect()
+                end
+                ViewportCameraRunServiceConnection = RunService.RenderStepped:Connect(function(deltaTime)
+                    theta = theta + math.rad(ViewportCameraSpeed * deltaTime)
+                    orientation = CFrame.fromEulerAnglesYXZ(math.rad(-ViewportCameraSpeed), theta, 0)
+                    ViewportCamera.CFrame = CFrame.new(itemCFrame.Position) * orientation * ViewportCameraOffset
+                end)
 
                 local TextFrame = DetailFrame:WaitForChild("TextFrame")
                 local EquipButton = TextFrame:WaitForChild("EquipButton")
@@ -147,7 +159,18 @@ InventoryGuiUtilities.Click_Button_Equipped = function(input, itemButton, Detail
         local ViewportCamera = InventoryGuiUtilities.InitializeViewportCamera(PictureFrame)
         local itemForViewport = InventoryViewportItems:WaitForChild(itemButton:GetAttribute("item_name")):Clone()
         itemForViewport.Parent = ViewportFrame
-        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset.Position + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+        local theta = 0
+        local orientation = CFrame.new()
+        local itemCFrame, itemSize = itemForViewport:GetBoundingBox()
+        if ViewportCameraRunServiceConnection and ViewportCameraRunServiceConnection.Connected then
+            ViewportCameraRunServiceConnection:Disconnect()
+        end
+        ViewportCameraRunServiceConnection = RunService.RenderStepped:Connect(function(deltaTime)
+            theta = theta + math.rad(ViewportCameraSpeed * deltaTime)
+            orientation = CFrame.fromEulerAnglesYXZ(math.rad(-ViewportCameraSpeed), theta, 0)
+            ViewportCamera.CFrame = CFrame.new(itemCFrame.Position) * orientation * ViewportCameraOffset
+        end)
 
         if equipButtonConnection then
             equipButtonConnection:Disconnect()
@@ -193,7 +216,18 @@ InventoryGuiUtilities.Click_Button_Owned = function(input, itemButton, DetailFra
         local ViewportCamera = InventoryGuiUtilities.InitializeViewportCamera(PictureFrame)
         local itemForViewport = InventoryViewportItems:WaitForChild(itemButton:GetAttribute("item_name")):Clone()
         itemForViewport.Parent = ViewportFrame
-        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+        ViewportCamera.CFrame = CFrame.new(ViewportCameraOffset.Position + itemForViewport.PrimaryPart.Position, itemForViewport.PrimaryPart.Position)
+        local theta = 0
+        local orientation = CFrame.new()
+        local itemCFrame, itemSize = itemForViewport:GetBoundingBox()
+        if ViewportCameraRunServiceConnection and ViewportCameraRunServiceConnection.Connected then
+            ViewportCameraRunServiceConnection:Disconnect()
+        end
+        ViewportCameraRunServiceConnection = RunService.RenderStepped:Connect(function(deltaTime)
+            theta = theta + math.rad(ViewportCameraSpeed * deltaTime)
+            orientation = CFrame.fromEulerAnglesYXZ(math.rad(-ViewportCameraSpeed), theta, 0)
+            ViewportCamera.CFrame = CFrame.new(itemCFrame.Position) * orientation * ViewportCameraOffset
+        end)
 
         if equipButtonConnection then
             equipButtonConnection:Disconnect()
