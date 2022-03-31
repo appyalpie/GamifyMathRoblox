@@ -21,6 +21,12 @@ local otherFrames = {MenuGui:WaitForChild("OptionsMenu"),MenuGui:WaitForChild("S
 local tweenInfo = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 local tweenInfo2 = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 
+-- Color3 Changes for ButtonBars
+local Color3Lookup = {
+	active = Color3.fromRGB(232, 222, 113),
+	inactive = Color3.fromRGB(195, 232, 179)
+}
+
 -- Input validity checker --
 local checkValidInput = function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -89,7 +95,6 @@ local BadgesButton = ButtonsBar:WaitForChild("Badges")
 local EquipsButton = ButtonsBar:WaitForChild("Equips")
 local TitlesButton = ButtonsBar:WaitForChild("Titles")
 local function navigateTabs_ButtonsBar(targetButton, input)
-	if not checkValidInput(input) then return end
 	local buttonToFrameDictionary = {
 		["Badges"] = InventoryMenu:WaitForChild("BadgesFrame"),
 		["Equips"] = InventoryMenu:WaitForChild("EquipsFrame"),
@@ -101,13 +106,25 @@ local function navigateTabs_ButtonsBar(targetButton, input)
 	buttonToFrameDictionary[targetButton.Name].Visible = true
 end
 BadgesButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_ButtonsBar(BadgesButton, input)
+	BadgesButton.BackgroundColor3 = Color3Lookup.active
+	EquipsButton.BackgroundColor3 = Color3Lookup.inactive
+	TitlesButton.BackgroundColor3 = Color3Lookup.inactive
 end)
 EquipsButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_ButtonsBar(EquipsButton, input)
+	BadgesButton.BackgroundColor3 = Color3Lookup.inactive
+	EquipsButton.BackgroundColor3 = Color3Lookup.active
+	TitlesButton.BackgroundColor3 = Color3Lookup.inactive
 end)
 TitlesButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_ButtonsBar(TitlesButton, input)
+	BadgesButton.BackgroundColor3 = Color3Lookup.inactive
+	EquipsButton.BackgroundColor3 = Color3Lookup.inactive
+	TitlesButton.BackgroundColor3 = Color3Lookup.active
 end)
 
 ------ Head Body Legs [TypeButtonsBar] ------
@@ -117,7 +134,6 @@ local HeadButton = TypeButtonsBar:WaitForChild("Head")
 local BodyButton = TypeButtonsBar:WaitForChild("Body")
 local LegsButton = TypeButtonsBar:WaitForChild("Legs")
 local function navigateTabs_TypeButtonsBar(targetButton, input)
-	if not checkValidInput(input) then return end
 	local buttonToFrameDictionary = {
 		["Body"] = EquipsFrame:WaitForChild("ScrollingFrameBodyAccessories"),
 		["Head"] = EquipsFrame:WaitForChild("ScrollingFrameHeadAccessories"),
@@ -125,15 +141,29 @@ local function navigateTabs_TypeButtonsBar(targetButton, input)
 	}
 	for _, v in pairs(buttonToFrameDictionary) do
 		v.Visible = false
+		v.BackgroundColor3 = Color3Lookup.inactive
 	end
 	buttonToFrameDictionary[targetButton.Name].Visible = true
+	buttonToFrameDictionary[targetButton.Name].BackgroundColor3 = Color3Lookup.active
 end
 HeadButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_TypeButtonsBar(HeadButton, input)
+	HeadButton.BackgroundColor3 = Color3Lookup.active
+	BodyButton.BackgroundColor3 = Color3Lookup.inactive
+	LegsButton.BackgroundColor3 = Color3Lookup.inactive
 end)
 BodyButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_TypeButtonsBar(BodyButton, input)
+	HeadButton.BackgroundColor3 = Color3Lookup.inactive
+	BodyButton.BackgroundColor3 = Color3Lookup.active
+	LegsButton.BackgroundColor3 = Color3Lookup.inactive
 end)
 LegsButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_TypeButtonsBar(LegsButton, input)
+	HeadButton.BackgroundColor3 = Color3Lookup.inactive
+	BodyButton.BackgroundColor3 = Color3Lookup.inactive
+	LegsButton.BackgroundColor3 = Color3Lookup.active
 end)
