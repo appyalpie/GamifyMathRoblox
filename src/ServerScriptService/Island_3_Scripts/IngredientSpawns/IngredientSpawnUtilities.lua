@@ -52,6 +52,8 @@ local function SpawnCoroutineTask(node)
                 PotionUtilities.IncrementIngredient3(game.Players:GetPlayerFromCharacter(objectHit.Parent), 1)
             end
 
+            IngredientInstance.Parent:WaitForChild("Sparkle"):Play()
+            
             IngredientInstance:Destroy()
 
             --Create a timer waiting for the next spawn (random depending on ingredient)
