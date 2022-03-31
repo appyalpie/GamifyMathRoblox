@@ -35,10 +35,33 @@ local EquipsFrame = InventoryMenu:WaitForChild("EquipsFrame")
 InventoryGuiUtilities.InitializeAccessoryButtonIds(EquipsFrame)
 InventoryGuiUtilities.initializeInventoryMenu(InventoryMenu)
 
+------ Exit Button ------
+local ExitButton = InventoryMenu:WaitForChild("ExitButton")
+local function exit(input, gameProcessed)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		--script.Disabled = true
+        local tween = TweenService:Create(InventoryMenu, tweenInfo, {Position = UDim2.new(0.5, 0, 1.5, 0)})
+        tween:Play()
+        local finishedTweenConnection
+        finishedTweenConnection = tween.Completed:Connect(function()
+            finishedTweenConnection:Disconnect()
+            InventoryMenu:SetAttribute("isActive",false)
+            InventoryMenu.Position = UDim2.new(0.5, 0, -0.5, 0)
+            --script.Disabled = false
+        end)
+	end
+end
+ExitButton.InputEnded:Connect(exit)
+
 ------ Enter Button ------
 local InventoryButton = ButtonBar:WaitForChild("InventoryButton")
 local function enter(input, gameProcessed)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		------ If the inventory is already up, the button will now close it ------
+		if targetFrame:GetAttribute("isActive") == true then
+			exit(input, gameProcessed)
+			return
+		end
 		--script.Disabled = true
 		targetFrame:SetAttribute("isActive", true)
 
@@ -59,24 +82,6 @@ local function enter(input, gameProcessed)
 	end
 end
 InventoryButton.InputEnded:Connect(enter)
-
------- Exit Button ------
-local ExitButton = InventoryMenu:WaitForChild("ExitButton")
-local function exit(input, gameProcessed)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-		--script.Disabled = true
-        local tween = TweenService:Create(InventoryMenu, tweenInfo, {Position = UDim2.new(0.5, 0, 1.5, 0)})
-        tween:Play()
-        local finishedTweenConnection
-        finishedTweenConnection = tween.Completed:Connect(function()
-            finishedTweenConnection:Disconnect()
-            InventoryMenu:SetAttribute("isActive",false)
-            InventoryMenu.Position = UDim2.new(0.5, 0, -0.5, 0)
-            --script.Disabled = false
-        end)
-	end
-end
-ExitButton.InputEnded:Connect(exit)
 
 ------ Equips Titles Badges [ButtonsBar] ------
 local ButtonsBar = InventoryMenu:WaitForChild("ButtonsBar")
