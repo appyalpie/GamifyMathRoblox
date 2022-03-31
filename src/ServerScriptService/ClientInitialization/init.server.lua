@@ -7,9 +7,8 @@ local checkpointStore = DataStoreService:GetDataStore("PlayerCheckpoints")
 --get module
 local CheckpointUtilities = require(script.CheckpointUtilities)
 local BlurRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("BlurRE")
-
-
-
+local ClientReadyCheckpointRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("ClientReadyCheckpointRE")
+local SetCheckpointOnStartRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("SetCheckpointOnStartRE")
 
 --connects the event of adding a player to checkpoint
 Players.PlayerAdded:Connect(function(player)
@@ -60,6 +59,12 @@ Players.PlayerRemoving:Connect(function(player)
         print(errorMessage)
     end
 end)
+
+ClientReadyCheckpointRE.OnServerEvent:Connect(function(player)
+    SetCheckpointOnStartRE:FireClient(player, player:GetAttribute("checkpoint"))
+    
+end)
+
 
 -- set all Checkpoint events
 CheckpointUtilities.setCheckpointEvents()

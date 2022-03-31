@@ -2,9 +2,12 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local CheckpointsRE = ReplicatedStorage.RemoteEvents:WaitForChild("CheckpointsRE")
+local ClientReadyCheckpointRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("ClientReadyCheckpointRE")
+local SetCheckpointOnStartRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("SetCheckpointOnStartRE")
 
 --variables
 local allCheckpoints = game.Workspace.Checkpoints:GetChildren()
+local Players = game:GetService("Players")
 
 CheckpointsRE.OnClientEvent:Connect(function(TargetProximityPrompt)
     
@@ -63,3 +66,30 @@ CheckpointsRE.OnClientEvent:Connect(function(TargetProximityPrompt)
             ColorSequenceKeypoint.new(1, Color3.fromRGB(0,170,28))
         }
 end)
+
+SetCheckpointOnStartRE.OnClientEvent:Connect(function(checkpointnumber)
+    for _, v in pairs (allCheckpoints) do 
+        if v:GetAttribute("checkpointNum") == checkpointnumber then
+            v.Energyball.ProximityPrompt.Enabled = false
+                
+            --turn to green
+            local CoreAttachment = v.Energyball.CoreAttachment
+
+            CoreAttachment.Core.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 170, 28)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 170, 28))
+            }
+            CoreAttachment.OuterCore.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 170, 28)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 170, 28))
+            }
+            
+            CoreAttachment.Shine.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(0,170,28)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(0,170,28))
+            }
+        end
+    end    
+end)
+
+ClientReadyCheckpointRE:FireServer(Players.LocalPlayer)
