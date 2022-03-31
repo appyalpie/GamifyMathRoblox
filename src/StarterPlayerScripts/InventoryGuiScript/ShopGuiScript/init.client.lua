@@ -15,6 +15,12 @@ local MenuGui = UniqueOpenGui:WaitForChild("MenuGui")
 local ButtonBar = MenuGui:WaitForChild("ButtonBar")
 local ShopMenu = MenuGui:WaitForChild("ShopMenu")
 
+-- Color3 Changes for ButtonBars
+local Color3Lookup = {
+	active = Color3.fromRGB(232, 222, 113),
+	inactive = Color3.fromRGB(195, 232, 179)
+}
+
 -- extend to include other frames if more frames, [Used to tween other frames out when Inventory Frame comes in]
 local targetFrame = ShopMenu
 local otherFrames = {MenuGui:WaitForChild("OptionsMenu"),MenuGui:WaitForChild("InventoryMenu"),MenuGui:WaitForChild("PortalMenu")}
@@ -126,13 +132,26 @@ local function navigateTabs_TypeButtonsBar(targetButton, input)
 		v.Visible = false
 	end
 	buttonToFrameDictionary[targetButton.Name].Visible = true
+	buttonToFrameDictionary[targetButton.Name].BackgroundColor3 = Color3Lookup.active
 end
 HeadButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_TypeButtonsBar(HeadButton, input)
+	HeadButton.BackgroundColor3 = Color3Lookup.active
+	BodyButton.BackgroundColor3 = Color3Lookup.inactive
+	LegsButton.BackgroundColor3 = Color3Lookup.inactive
 end)
 BodyButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_TypeButtonsBar(BodyButton, input)
+	HeadButton.BackgroundColor3 = Color3Lookup.inactive
+	BodyButton.BackgroundColor3 = Color3Lookup.active
+	LegsButton.BackgroundColor3 = Color3Lookup.inactive
 end)
 LegsButton.InputEnded:Connect(function(input)
+	if not checkValidInput(input) then return end
 	navigateTabs_TypeButtonsBar(LegsButton, input)
+	HeadButton.BackgroundColor3 = Color3Lookup.inactive
+	BodyButton.BackgroundColor3 = Color3Lookup.inactive
+	LegsButton.BackgroundColor3 = Color3Lookup.active
 end)

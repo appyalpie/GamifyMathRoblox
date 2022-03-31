@@ -161,6 +161,11 @@ local DialogModule = {
         [1] = "My goodness...",
         [2] = "Don't be upset man, lets practice and get better!"
     },
+    ["Pirate Dude Outside Portal"] = {
+        [1] = "How do I get through this barrier...",
+        [2] = "I heard you need to beat at least 2 challengers at 24 to pass through",
+        [3] = "Hmm..."
+    },
     --island 3 npcs--
     ["Randallf_first_meeting"] = {
         [1] = "ooo ooo! eee eee eee urgggghhh....",

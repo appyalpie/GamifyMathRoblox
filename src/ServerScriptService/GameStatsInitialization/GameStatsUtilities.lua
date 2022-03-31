@@ -1,9 +1,15 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerStorage = game:GetService("ServerStorage")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+
+local StatsGuiPart = ServerStorage.Statistics_Stuff:WaitForChild("StatsGuiPart")
 
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
 local UnlockIsland3BarrierRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UnlockIsland3BarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
 local LevelSystem = require(script.Parent.Parent.Utilities.LevelSystem)
+local TweenUtilities = require(script.Parent.Parent.Utilities.TweenUtilities)
 
 local GameStatsUtilities = {}
 
@@ -146,6 +152,35 @@ GameStatsUtilities.UnlockIsland3Barrier = function(player)
     if playerGameStats[player.UserId]["BarrierToIsland4Down"] == true then
         UnlockIsland3BarrierRE:FireClient(player)
     end 
+end
+
+------ Visual Effects ------
+GameStatsUtilities.XPandCurrencyIncrementVFX = function(XPAmount, CurrencyAmount, Position, YOrientation)
+    local newGuiPart = StatsGuiPart:Clone()
+	newGuiPart.Anchored = true
+	local orientation = CFrame.Angles(0, YOrientation, 0)
+	newGuiPart.CFrame = CFrame.new(Position + Vector3.new(0,4,0)) * orientation
+	newGuiPart.Parent = game.Workspace
+	local xpTextLabel = newGuiPart.SurfaceGui.XP
+	local currencyTextLabel = newGuiPart.SurfaceGui.Currency
+    local xpTextLabel2 = newGuiPart.SurfaceGui2.XP
+	local currencyTextLabel2 = newGuiPart.SurfaceGui2.Currency
+	xpTextLabel.TextTransparency = 0
+	currencyTextLabel.TextTransparency = 0
+	xpTextLabel2.TextTransparency = 0
+	currencyTextLabel2.TextTransparency = 0
+    xpTextLabel.Text = "+" .. XPAmount .. " XP"
+    currencyTextLabel.Text = "+" .. CurrencyAmount .. " C"
+    xpTextLabel2.Text = "+" .. XPAmount .. " XP"
+    currencyTextLabel2.Text = "+" .. CurrencyAmount .. " C"
+	local tweenUp = TweenService:Create(newGuiPart, TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {CFrame = 
+		CFrame.new(newGuiPart.Position + Vector3.new(0,.75,0)) * orientation})
+	tweenUp:Play()
+	TweenUtilities.UITweenFadeText(xpTextLabel, 1, 2, .25)
+	TweenUtilities.UITweenFadeText(currencyTextLabel, 1, 2, .25)
+	TweenUtilities.UITweenFadeText(xpTextLabel2, 1, 2, .25)
+	TweenUtilities.UITweenFadeText(currencyTextLabel2, 1, 2, .25)
+	Debris:AddItem(newGuiPart, 2.5)
 end
 
 return GameStatsUtilities

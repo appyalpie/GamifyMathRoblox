@@ -1395,17 +1395,23 @@ end
 
 GameUtilities.IncrementStats = function(difficulty, solution, player, npcBeaten)
 	-- Increment XP and currency by some amount based on the difficulty, also increment the number of wins
+	local Character = player.Character or player.CharacterAdded:Wait()
+	local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 	if npcBeaten then
 		GameStatsUtilities.incrementXP(player, GameInfo.NPCXPTable[difficulty])
 		GameStatsUtilities.incrementCurrency(player, GameInfo.NPCCurrencyTable[difficulty])
 		GameStatsUtilities.incrementGame24Wins(player)
 		GameStatsUtilities.saveLastSolution(player, solution) -- save win solution
 		GameStatsUtilities.newGame24NPCDefeated(player, npcBeaten)
+		GameStatsUtilities.XPandCurrencyIncrementVFX(GameInfo.NPCXPTable[difficulty], GameInfo.NPCCurrencyTable[difficulty], 
+			HumanoidRootPart.Position, HumanoidRootPart.Orientation.Y)
 	else
 		GameStatsUtilities.incrementXP(player, GameInfo.SinglePlayerXPTable[difficulty])
 		GameStatsUtilities.incrementCurrency(player, GameInfo.SinglePlayerCurrencyTable[difficulty])
 		GameStatsUtilities.incrementGame24Wins(player)
 		GameStatsUtilities.saveLastSolution(player, solution) -- save win solution
+		GameStatsUtilities.XPandCurrencyIncrementVFX(GameInfo.SinglePlayerXPTable[difficulty], GameInfo.SinglePlayerCurrencyTable[difficulty], 
+			HumanoidRootPart.Position, HumanoidRootPart.Orientation.Y)
 	end
 end
 
@@ -1589,6 +1595,8 @@ GameUtilities.Win_Sequence_Timed_Single_Player = function(Game_Cards, CurrentGam
 	local winningCardTable = winningCard._cardTable
 	local winningString = CardObject.getSequence(winningCardTable)
 	table.insert(CurrentGameInfo._foundSolutions, winningString)
+	------ Increment Stats ------
+	GameUtilities.IncrementStats(CurrentGameInfo._difficulty, winningString, CurrentGameInfo.currentPlayer, nil)
 
 	------ Turn Winning Card into Ball and Orbit ------
 	------ Create the Ball ------
@@ -1702,9 +1710,9 @@ GameUtilities.Timer_Finished_Single_Player = function(Game_Cards, CurrentGameInf
 	end
 
 	------ Increment Stats + Save Solutions ------
-	for _, v in pairs(CurrentGameInfo._foundSolutions) do
-		GameUtilities.IncrementStats(CurrentGameInfo._difficulty, v, CurrentGameInfo.currentPlayer, nil)
-	end
+	-- for _, v in pairs(CurrentGameInfo._foundSolutions) do
+	-- 	GameUtilities.IncrementStats(CurrentGameInfo._difficulty, v, CurrentGameInfo.currentPlayer, nil)
+	-- end
 	--[[
 		1. Get All Saved Completed 24 Sequences
 		2. VFX for spitting out equations -- need to calculate potential range which may host

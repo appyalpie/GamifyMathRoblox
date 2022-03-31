@@ -5,6 +5,7 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local ShopItemsInformation = require(ReplicatedStorage:WaitForChild("ShopItemsInformation"))
 
+local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
 local InventoryInformationRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("InventoryInformationRF")
 local ShopPurchaseRF = ReplicatedStorage.InventoryEventsNew:WaitForChild("ShopPurchaseRF")
 
@@ -216,13 +217,21 @@ ShopGuiUtilities.updateShopMenu = function(player, ShopMenu, Shopkeeper)
         ["head"] = EquipsFrame:WaitForChild("ScrollingFrameHeadAccessories"),
         ["leg"] = EquipsFrame:WaitForChild("ScrollingFrameLegAccessories")
     }
+
+    local playerData = PlayerStatsRF:InvokeServer(false) -- Player Data to get Currency
     local playerInventoryData = InventoryInformationRF:InvokeServer() -- Table of all owned item names
-    print(playerInventoryData)
+    
+    --print(playerInventoryData)
+    print(playerData)
+    ------ Initialize Currency ------
+    local PlayerCurrency = EquipsFrame:WaitForChild("PlayerCurrency")
+    PlayerCurrency.Text = "Currency: " .. playerData["Currency"]
+    
     for _, playerItemName in pairs(playerInventoryData) do
         ------ Get Info on Item ------
         local shopItemInfo = ShopItemsInformation[Shopkeeper][playerItemName]
         if shopItemInfo == nil then continue end
-        print(playerItemName)
+        --print(playerItemName)
 
         ------ Initialize Item Frames To Owned / Equipped------
         local typeFrame = typeToFrameDictionary[shopItemInfo.Type]
