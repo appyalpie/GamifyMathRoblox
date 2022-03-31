@@ -17,11 +17,14 @@ muteMusicButton.Activated:Connect(function()
     -- Fetch the SoundGroup that music is stored under
     local soundGroupToMute = workspace.Sounds:FindFirstChild("MusicSoundGroup")
     -- Check if volume is NOT 0. If it is NOT 0, mute the SoundGroup, otherwise if it IS 0, set the SoundGroup Volume multiplier to 1
-    if soundGroupToMute.Volume ~= 0 
-    then
+    if soundGroupToMute.Volume ~= 0 then
         soundGroupToMute.Volume = 0
+        muteMusicButton.Image = "rbxassetid://9211442308"
+        muteMusicButton.HoverImage = "rbxassetid://9211441904"
     else
         soundGroupToMute.Volume = 1
+        muteMusicButton.Image = "rbxassetid://9241632631"
+        muteMusicButton.HoverImage = "rbxassetid://9241632526"
     end
 
 end)
