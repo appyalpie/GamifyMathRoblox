@@ -50,8 +50,15 @@ function BlockDropUtilities.correctAnswerServicing(block, operator)
     block.Anchored = true
     block.CanTouch = false
 
-    GameStatsUtilities.incrementXP(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), MathBlocksInfo.BlockDropRewardTable["XP"])
-    GameStatsUtilities.incrementCurrency(Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy")), MathBlocksInfo.BlockDropRewardTable["Currency"])
+    local player = Players:GetPlayerByUserId(block:GetAttribute("lastTouchedBy"))
+    if player then
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        GameStatsUtilities.incrementXP(player, MathBlocksInfo.BlockDropRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.BlockDropRewardTable["Currency"])
+        GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.BlockDropRewardTable["XP"], MathBlocksInfo.BlockDropRewardTable["Currency"], 
+            hrp.Position, hrp.Orientation.Y)
+    end
 
     local blockDrop
     local blockDoor

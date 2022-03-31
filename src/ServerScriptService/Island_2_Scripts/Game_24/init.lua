@@ -258,6 +258,9 @@ local function CleanupTimed(promptObject, player, Game_Cards, CurrentGameInfo)
 	------ Reset Player Camera Controls ------
 	CameraSetFOVRE:FireClient(player, 70)
 	CameraResetRE:FireClient(player)
+
+	-- Show player name/title on player side
+	PlayerSideShowNameAndTitleEvent:FireClient(player)
 	
 	-- play the song that was playing before this
 	MusicEvent:FireClient(player,"lastsound", 0.9)
@@ -336,6 +339,9 @@ end
 function Game_24.initializeTimed(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model")
 
+	-- Hide player name/title on player side
+	PlayerSideHideNameAndTitleEvent:FireClient(player)
+
 	-- play transition song (player, assetId, volume)
 	MusicEvent:FireClient(player,"rbxassetid://9203228470", 0.45)
 
@@ -376,8 +382,11 @@ function Game_24.initializeTimed(promptObject, player)
 	CameraMoveToRE:FireClient(player, CurrentGameInfo._defaultCameraCFrame, GameInfo.InitialCameraMoveTime)
 	CameraSetFOVRE:FireClient(player, GameInfo.FOV, GameInfo.FOVSetTime)
 	------ Move player to position ------
-	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
-		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModel.PromptPart.Position
+	-- player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+	-- 	math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModel.PromptPart.Position
+	player.Character:SetPrimaryPartCFrame(CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModel.PromptPart.Position)
+		* CFrame.Angles(0, math.rad(ancestorModel.PromptPart.Orientation.Y + 90), 0))
 	------ Tie Cleanup to Death and Leave Event ------
 	local playerHumanoidDiedConnection
 	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
