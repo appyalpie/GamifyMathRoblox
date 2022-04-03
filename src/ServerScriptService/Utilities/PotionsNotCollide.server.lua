@@ -10,7 +10,7 @@ Filter._index = {lightingZones,MusicZones, Locations,Main_hubEffects}
 Filter.TAG_NAME = "NoCollidePotions"
 
 
-
+-- add tag to all Filter parts
 for i,_ in pairs(Filter._index) do
 	for _,v in pairs(Filter._index[i]) do
 		local zone = v:IsA("Part")
@@ -19,15 +19,15 @@ for i,_ in pairs(Filter._index) do
 				CollectionService:AddTag(v,Filter.TAG_NAME)
 		end
     end
- end
-
- function NoCollision(part,zone)
+end
+--whenever a projectile is created all tagged parts excute this
+function NoCollision(part,zone)
     local NoConstraint = Instance.new("NoCollisionConstraint")
     NoConstraint.Part0 = zone
     NoConstraint.Part1 = part
     NoConstraint.Parent = part
 end
-
+-- adds the previous function to all tagged parts
 function Filter.new(zone)
     local self = {}
     setmetatable(self,Filter)
@@ -37,7 +37,7 @@ function Filter.new(zone)
     end)
     
 end
-
+--Fires the Filter.new() 
 for _,instance in pairs(CollectionService:GetTagged(Filter.TAG_NAME)) do
     Filter.new(instance)
 end

@@ -92,7 +92,6 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             loopLevel = loopLevel + 1
         end 
         LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
-        --LevelSystem.PlayerXPList[Player.UserId]["totalXP"] = LevelSystem.PlayerXPList[Player.UserId]["totalXP"] +nextLevel -- This is an extra increment
         LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel
         LevelSystem.TriggerCelebration(Player)
     end
@@ -141,8 +140,5 @@ LevelSystem.TriggerCelebration = function(Player)
         task.wait(3)
         Particles:Destroy()
     end)
-    --[[
-        activate some VFX here on server
-    ]]
 end
 return LevelSystem
