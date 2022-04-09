@@ -19,6 +19,7 @@ local MissingIngredientRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild
 local InvalidRecipeRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("InvalidRecipeEvent")
 local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombineMenuFinishedEvent")
 local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
+local PlayerExitCombinationServerRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PlayerExitCombinationServerEvent")
 
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
@@ -36,6 +37,17 @@ local steamSound
 local potionPrompt
 
 PotionCreation = {}
+
+local function cleanup(player)
+    potionPrompt.Enabled = true
+    beakerSmokeEffect.Enabled = false
+    beakerTameBits.Enabled = false
+
+    UnlockMovementRE:FireClient(player)
+    PlayerSideShowNameAndTitleRE:FireClient(player)
+    CameraResetRE:FireClient(player)
+    CombineMenuFinishedRE:FireClient(player)
+end
 
 -- Initialize potion creation, called when the prompt for potion creation is activated
 function PotionCreation.initialize(player, promptObject)
@@ -74,22 +86,19 @@ function PotionCreation.initialize(player, promptObject)
     -- Error handling in case player disconnects
     local playerHumanoidDiedConnection
 	playerHumanoidDiedConnection = player.Character:WaitForChild("Humanoid").Died:Connect(function()
-		potionPrompt.Enabled = true
-        beakerSmokeEffect.Enabled = false
-        beakerTameBits.Enabled = false
+		cleanup(player)
 		playerHumanoidDiedConnection:Disconnect()
 	end)
 	local playerLeaveConnection
 	playerLeaveConnection = Players.PlayerRemoving:Connect(function(removed)
 		if removed == player then
-			potionPrompt.Enabled = true
-            beakerSmokeEffect.Enabled = false
-            beakerTameBits.Enabled = false
+            cleanup(player)
 			playerLeaveConnection:Disconnect()
 		end
 	end)
 
 end
+
 
 -- TODO: only one reward object in players backpack
 local function onCombinationButtonActivated(player, selectedIngredients)
@@ -159,6 +168,12 @@ end
 
 CombinationButtonActivatedRE.OnServerEvent:Connect(onCombinationButtonActivated)
 
+local function PlayerExitCombinationServer(player)
+    potionPrompt.Enabled = true;
+end
+
+PlayerExitCombinationServerRE.OnServerEvent:Connect(PlayerExitCombinationServer)
+
 local function onExitButtonActivatedEvent(player)
     UnlockMovementRE:FireClient(player)
     PlayerSideShowNameAndTitleRE:FireClient(player)
@@ -166,8 +181,6 @@ local function onExitButtonActivatedEvent(player)
 
     beakerSmokeEffect.Enabled = false
     CombineMenuFinishedRE:FireClient(player)
-    wait(1)
-    potionPrompt.Enabled = true;
 end
 
 ExitButtonActivatedRE.OnServerEvent:Connect(onExitButtonActivatedEvent)
