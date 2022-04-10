@@ -11,6 +11,8 @@ local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChi
 local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
 local Island3EnteredRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3EnteredEvent")
 local Island3ExitRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3ExitEvent")
+local PlayerExitCombinationServerRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PlayerExitCombinationServerEvent")
+local UpdatePlayerIngredientGUIRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("UpdatePlayerIngredientGUIEvent")
 
 local IngredientGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 
@@ -42,24 +44,27 @@ local Ingredient1AmountToAddTextBox = AddIngredient1SubFrame:WaitForChild("Ingre
 local Ingredient2AmountToAddTextBox = AddIngredient2SubFrame:WaitForChild("IngredientAmount")
 local Ingredient3AmountToAddTextBox = AddIngredient3SubFrame:WaitForChild("IngredientAmount")
 
-local UpdatePlayerIngredientGUIEvent = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("UpdatePlayerIngredientGUIEvent")
+local GUIActivated = false
 
 local playerIngredientInventory = {}
 
-local Populate = function()
-    Ingredient1QuantityDisplay.Text = playerIngredientInventory["Ingredient1"]
 
-    Ingredient2QuantityDisplay.Text = playerIngredientInventory["Ingredient2"]
-
-    Ingredient3QuantityDisplay.Text = playerIngredientInventory["Ingredient3"]
+-- This is made in case of player death, and will reinitialize variables
+local InitializeDeathConnect = function()
+     ------ Connect Death Functionality ------
+    game.Workspace:WaitForChild(Player.Name):WaitForChild("Humanoid").Died:Connect(function()
+        local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
+        local goalPosition = {}
+        goalPosition.Position = UDim2.new(1,0,0.676,0)
+        local tweenOut = TweenService:Create(IngredientFrame ,twinfo, goalPosition)
+        tweenOut:Play()
+        tweenOut.Completed:Connect(function()
+            IngredientFrame.Visible = false
+        end)
+    end)
 end
 
-local function onUpdatePlayerIngredientGUIEvent(playerIngredients)
-    playerIngredientInventory = playerIngredients
-    Populate()
-end
 
-UpdatePlayerIngredientGUIEvent.OnClientEvent:Connect(onUpdatePlayerIngredientGUIEvent)
 
 ------ Plus button functionality on Combination Menu ------
 Ingredient1IncrementAmountToAdd.Activated:Connect(function()
@@ -93,7 +98,7 @@ Ingredient1AmountToAddTextBox:GetPropertyChangedSignal("Text"):Connect(function(
     if newText == nil or newText < 0 then
         newText = 0
     end
-	Ingredient1AmountToAddTextBox.Text = newText;
+    Ingredient1AmountToAddTextBox.Text = newText;
 end)
 
 Ingredient2AmountToAddTextBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -101,7 +106,7 @@ Ingredient2AmountToAddTextBox:GetPropertyChangedSignal("Text"):Connect(function(
     if newText == nil or newText < 0 then
         newText = 0
     end
-	Ingredient2AmountToAddTextBox.Text = newText;
+    Ingredient2AmountToAddTextBox.Text = newText;
 end)
 
 Ingredient3AmountToAddTextBox:GetPropertyChangedSignal("Text"):Connect(function()
@@ -109,15 +114,15 @@ Ingredient3AmountToAddTextBox:GetPropertyChangedSignal("Text"):Connect(function(
     if newText == nil or newText < 0 then
         newText = 0
     end
-	Ingredient3AmountToAddTextBox.Text = newText;
+    Ingredient3AmountToAddTextBox.Text = newText;
 end)
 
 ------ Combine! Button Functionality ------
 CombineButton.Activated:Connect(function()
     -- Check to see if ingredients input is zero
     if tonumber(Ingredient1AmountToAddTextBox.Text) == 0 and
-       tonumber(Ingredient2AmountToAddTextBox.Text) == 0 and
-       tonumber(Ingredient3AmountToAddTextBox.Text) == 0 then
+    tonumber(Ingredient2AmountToAddTextBox.Text) == 0 and
+    tonumber(Ingredient3AmountToAddTextBox.Text) == 0 then
         CombineButton.Text = "Please put more than 0 Ingredients in!"
         CombineButton.TextColor3 = Color3.new(1,0,0)
         wait(2)
@@ -138,6 +143,21 @@ end)
 ExitButton.Activated:Connect(function()
     ExitButtonActivatedRE:FireServer()
 end)
+
+local Populate = function()
+    Ingredient1QuantityDisplay.Text = playerIngredientInventory["Ingredient1"]
+
+    Ingredient2QuantityDisplay.Text = playerIngredientInventory["Ingredient2"]
+
+    Ingredient3QuantityDisplay.Text = playerIngredientInventory["Ingredient3"]
+end
+
+local function onUpdatePlayerIngredientGUIEvent(playerIngredients)
+    playerIngredientInventory = playerIngredients
+    Populate()
+end
+
+UpdatePlayerIngredientGUIRE.OnClientEvent:Connect(onUpdatePlayerIngredientGUIEvent)
 
 ------ Tween in the potion combination GUI ------
 local function onPotionPromptActivatedEvent()
@@ -182,6 +202,8 @@ local function onCombineMenuFinishedEvent()
     tweenOut:Play()
     tweenOut.Completed:Connect(function()
         AddToPotionFrame.Visible = false
+        PlayerExitCombinationServerRE:FireServer()
+        --fire server finished--
     end)
 end
 
@@ -189,6 +211,7 @@ CombineMenuFinishedRE.OnClientEvent:Connect(onCombineMenuFinishedEvent)
 
 ------ Called when the player has entered island 3 ------
 local function onIsland3EnteredEvent()
+    InitializeDeathConnect()
     IngredientFrame.Visible = true
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
     local goalPosition = {}
