@@ -76,3 +76,4 @@ for _,inst in pairs(collectionService:GetTagged(LightZoneTraits.TAG_NAME)) do
     onLightZoneAdded(inst)
 end
 
+

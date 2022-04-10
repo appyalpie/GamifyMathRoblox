@@ -1,0 +1,4 @@
+{
+    "Name": "PotionPromptActivatedEvent",
+    "ClassName": "RemoteEvent"
+}

@@ -1,8 +1,14 @@
 local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Debris = game:GetService("Debris")
 local CollectionService = game:GetService("CollectionService")
 
+local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 local MathBlocksInfo = require(script.Parent.MathBlocksInfo)
+
+local MATH_BLOCK_COMBINBATION_XP_GAIN = MathBlocksInfo.CombinationRewardTable["XP"]
+local MATH_BLOCK_COMBINATION_CURRENCY_GAIN = MathBlocksInfo.CombinationRewardTable["Currency"]
 
 local CollisionUtilities = {}
 
@@ -189,6 +195,54 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
     block_1.CanTouch = false -- Disallow further interaction while combining TODO: Change if model is used and not a part
     block_2.CanTouch = false
 
+    --print("lastTouchedBy: " .. tostring(block_1:GetAttribute("lastTouchedBy")))
+    --print("lastTouchedBy: " .. tostring(block_2:GetAttribute("lastTouchedBy")))
+    -- add XP to the player
+    -- if the userIds for both blocks are the same, just add XP once
+    if block_1:GetAttribute("lastTouchedBy") ~= 0 and block_2:GetAttribute("lastTouchedBy") ~= 0 then
+        if block_1:GetAttribute("lastTouchedBy") ~= block_2:GetAttribute("lastTouchedBy") then
+            -- otherwise increment each block's lastTouchedBy player XP
+            local player1 = game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy"))
+            local character1 = player1.Character or player1.CharacterAdded:Wait()
+            local hrp1 = character1:WaitForChild("HumanoidRootPart")
+            local player2 = game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy"))
+            local character2 = player2.Character or player2.CharacterAdded:Wait()
+            local hrp2 = character2:WaitForChild("HumanoidRootPart")
+            GameStatsUtilities.incrementXP(player1, MathBlocksInfo.CombinationRewardTable["XP"])
+            GameStatsUtilities.incrementCurrency(player1, MathBlocksInfo.CombinationRewardTable["Currency"])
+            GameStatsUtilities.incrementXP(player2, MathBlocksInfo.CombinationRewardTable["XP"])
+            GameStatsUtilities.incrementCurrency(player2, MathBlocksInfo.CombinationRewardTable["Currency"])
+            GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
+                hrp1.Position, hrp1.Orientation.Y)
+            GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
+                hrp2.Position, hrp2.Orientation.Y)
+        else
+            local player = game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy"))
+            local character = player.Character or player.CharacterAdded:Wait()
+            local hrp = character:WaitForChild("HumanoidRootPart")
+            GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
+            GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
+            GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
+            hrp.Position, hrp.Orientation.Y)
+        end
+    elseif block_1:GetAttribute("lastTouchedBy") ~= 0 and block_2:GetAttribute("lastTouchedBy") == 0 then
+        local player = game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy"))
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
+        GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
+        hrp.Position, hrp.Orientation.Y)
+    elseif block_1:GetAttribute("lastTouchedBy") == 0 and block_2:GetAttribute("lastTouchedBy") ~= 0 then
+        local player = game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy"))
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
+        GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
+        hrp.Position, hrp.Orientation.Y)
+    end
+
     if operator == MathBlocksInfo.ADD_BLOCK_TAG then
         local combinedBlock = MathBlocksInfo.ADD_BLOCK:Clone() -- Clone, Tag functionality, Set Attr, and sent to workspace
         combinedBlock.CanTouch = false
@@ -255,6 +309,16 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
 end
 
 function CollisionUtilities.additionCollisionProcessing(block_1, block_2)
+    -- increment add blocks for player
+    -- if the userIds for both blocks are the same, just increment once
+    if block_1:GetAttribute("lastTouchedBy") == block_2:GetAttribute("lastTouchedBy") then
+        GameStatsUtilities.incrementAddBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+    -- otherwise increment each blocks player add combined blocks stat
+    else
+        GameStatsUtilities.incrementAddBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+        GameStatsUtilities.incrementAddBlocksCombined(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")))
+    end
+    
     if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.ADD_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.ADD_OPERATOR then
         -- TODO: Explosion for invalid operator combining
         print("Invalid")
@@ -266,6 +330,16 @@ function CollisionUtilities.additionCollisionProcessing(block_1, block_2)
 end
 
 function CollisionUtilities.subtractionCollisionProcessing(block_1, block_2)
+    -- increment subtract blocks for player
+    -- if the userIds for both blocks are the same, just increment once
+    if block_1:GetAttribute("lastTouchedBy") == block_2:GetAttribute("lastTouchedBy") then
+        GameStatsUtilities.incrementSubtractBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+    -- otherwise increment each blocks player subtract combined blocks stat
+    else
+        GameStatsUtilities.incrementSubtractBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+        GameStatsUtilities.incrementSubtractBlocksCombined(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")))
+    end
+
     --local newValue = getDifference(block_1, block_2)
     if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.SUBTRACT_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.SUBTRACT_OPERATOR then
         -- TODO: Explosion for invalid operator combining
@@ -280,6 +354,16 @@ function CollisionUtilities.subtractionCollisionProcessing(block_1, block_2)
 end
 
 function CollisionUtilities.multiplicationCollsionProcessing(block_1, block_2)
+    -- increment multiply blocks for player
+    -- if the userIds for both blocks are the same, just increment once
+    if block_1:GetAttribute("lastTouchedBy") == block_2:GetAttribute("lastTouchedBy") then
+        GameStatsUtilities.incrementMultiplyBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+    -- otherwise increment each blocks player multiply combined blocks stat
+    else
+        GameStatsUtilities.incrementMultiplyBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+        GameStatsUtilities.incrementMultiplyBlocksCombined(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")))
+    end
+
     if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.MULTIPLY_OPERATOR then
         print("Invalid")
     elseif block_1:GetAttribute("value") * block_2:GetAttribute("value") > MathBlocksInfo.MULTIPLY_LIMIT then
@@ -290,6 +374,16 @@ function CollisionUtilities.multiplicationCollsionProcessing(block_1, block_2)
 end
 
 function CollisionUtilities.divisionCollisionProcessing(block_1, block_2)
+    -- increment divide blocks for player
+    -- if the userIds for both blocks are the same, just increment once
+    if block_1:GetAttribute("lastTouchedBy") == block_2:GetAttribute("lastTouchedBy") then
+        GameStatsUtilities.incrementDivideBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+    -- otherwise increment each blocks player divide combined blocks stat
+    else
+        GameStatsUtilities.incrementDivideBlocksCombined(game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy")))
+        GameStatsUtilities.incrementDivideBlocksCombined(game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy")))
+    end
+
     local higherValueBlock = block_1:GetAttribute("value") >= block_2:GetAttribute("value") and block_1 or block_2
     local lowerValueBlock = block_1:GetAttribute("value") < block_2:GetAttribute("value") and block_1 or block_2
     if not block_1:GetAttribute("operator") == MathBlocksInfo.OPERATORS.DIVIDE_OPERATOR or not block_2:GetAttribute("operator") == MathBlocksInfo.OPERATORS.DIVIDE_OPERATOR then

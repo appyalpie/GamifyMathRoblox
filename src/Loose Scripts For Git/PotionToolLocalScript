@@ -1,0 +1,5 @@
+script.Parent.Activated:Connect(function()
+	script.Parent.MousePosition:FireServer((game.Players.LocalPlayer:GetMouse().Hit.p))
+end)
+
+--Note This Script is coppied from an object and is incompatible with rojo syncing

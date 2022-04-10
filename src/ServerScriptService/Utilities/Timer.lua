@@ -1,4 +1,5 @@
 local MathUtilities = require(script.Parent:WaitForChild("MathUtilities"))
+local GuiUtilities = require(script.Parent:WaitForChild("GuiUtilities"))
 
 local Timer = {}
 Timer.__index = Timer
@@ -23,11 +24,13 @@ function Timer:start(duration, display)
 			self._duration = duration
 			self._startTime = tick()
 			while self._running and tick() - self._startTime < duration do
-                for _, v in pairs(display:GetDescendants()) do
-                    if v:IsA("TextLabel") then
-                        v.Text = MathUtilities.formatTime(duration - (tick() - self._startTime))
-                    end
-                end
+				if display then
+					for _, v in pairs(display:GetDescendants()) do
+						if v:IsA("TextLabel") then
+							v.Text = MathUtilities.formatTime(duration - (tick() - self._startTime))
+						end
+					end
+				end
 				wait()
 			end
 			local completed = self._running
@@ -35,11 +38,36 @@ function Timer:start(duration, display)
 			self._startTime = nil
 			self._duration = nil
 			self._finishedEvent:Fire(completed)
-            for _, v in pairs(display:GetDescendants()) do
-                if v:IsA("TextLabel") then
-                    v.Text = ""
-                end
-            end
+			if display then
+				for _, v in pairs(display:GetDescendants()) do
+					if v:IsA("TextLabel") then
+						v.Text = ""
+					end
+				end
+			end
+		end)
+		timerThread()
+	else
+		warn("Warning: timer could not start again as it is already running.")
+	end
+end
+
+function Timer:start_LRBar(duration, surfaceGui)
+	if not self._running then
+		local timerThread = coroutine.wrap(function()
+			self._running = true
+			self._duration = duration
+			self._startTime = tick()
+			while self._running and tick() - self._startTime < duration do
+                GuiUtilities.resizeCustomGuiLeftToRight((tick() - self._startTime) / duration, surfaceGui.FrameBase.Clipping, surfaceGui.FrameBase.Clipping.Top)
+				wait(.1)
+			end
+			local completed = self._running
+			self._running = false
+			self._startTime = nil
+			self._duration = nil
+			self._finishedEvent:Fire(completed)
+            GuiUtilities.resizeCustomGuiLeftToRight(1, surfaceGui.FrameBase.Clipping, surfaceGui.FrameBase.Clipping.Top)
 		end)
 		timerThread()
 	else

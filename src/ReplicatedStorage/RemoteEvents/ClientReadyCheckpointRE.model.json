@@ -1,0 +1,4 @@
+{
+    "Name": "ClientReadyCheckpointRE",
+    "ClassName": "RemoteEvent"
+}
