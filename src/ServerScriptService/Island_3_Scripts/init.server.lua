@@ -6,10 +6,12 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local PlayerIngredientStore = DataStoreService:GetDataStore("PlayerIngredientInventory")
 
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
+local PotionCreation = require(ServerScriptService.Island_3_Scripts:WaitForChild("PotionCreation"))
 local IngredientSpawnUtilities = require(ServerScriptService.Island_3_Scripts.IngredientSpawns:WaitForChild("IngredientSpawnUtilities"))
 
 --Initiate ingredient spawning on the islands
 IngredientSpawnUtilities.initialize()
+PotionCreation.initializeCombinationTables()
 
 Players.PlayerAdded:Connect(function(player)
     local success, returnedValue = pcall(function()

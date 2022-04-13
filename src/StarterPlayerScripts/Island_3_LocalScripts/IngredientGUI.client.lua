@@ -44,7 +44,7 @@ local Ingredient1AmountToAddTextBox = AddIngredient1SubFrame:WaitForChild("Ingre
 local Ingredient2AmountToAddTextBox = AddIngredient2SubFrame:WaitForChild("IngredientAmount")
 local Ingredient3AmountToAddTextBox = AddIngredient3SubFrame:WaitForChild("IngredientAmount")
 
-local GUIActivated = false
+local combinationTableID
 
 local playerIngredientInventory = {}
 
@@ -136,12 +136,12 @@ CombineButton.Activated:Connect(function()
         Ingredient2 = tonumber(Ingredient2AmountToAddTextBox.Text), 
         Ingredient3 = tonumber(Ingredient3AmountToAddTextBox.Text)
     }
-    CombinationButtonActivatedRE:FireServer(selectedIngredients)
+    CombinationButtonActivatedRE:FireServer(selectedIngredients, combinationTableID)
 end)
 
 ------ Exit Button Functionality ------
 ExitButton.Activated:Connect(function()
-    ExitButtonActivatedRE:FireServer()
+    ExitButtonActivatedRE:FireServer(combinationTableID)
 end)
 
 local Populate = function()
@@ -160,7 +160,8 @@ end
 UpdatePlayerIngredientGUIRE.OnClientEvent:Connect(onUpdatePlayerIngredientGUIEvent)
 
 ------ Tween in the potion combination GUI ------
-local function onPotionPromptActivatedEvent()
+local function onPotionPromptActivatedEvent(currentCombinationTableID)
+    combinationTableID = currentCombinationTableID
     AddToPotionFrame.Visible = true
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
     local goalPosition = {}
@@ -202,8 +203,7 @@ local function onCombineMenuFinishedEvent()
     tweenOut:Play()
     tweenOut.Completed:Connect(function()
         AddToPotionFrame.Visible = false
-        PlayerExitCombinationServerRE:FireServer()
-        --fire server finished--
+        PlayerExitCombinationServerRE:FireServer(combinationTableID)
     end)
 end
 
