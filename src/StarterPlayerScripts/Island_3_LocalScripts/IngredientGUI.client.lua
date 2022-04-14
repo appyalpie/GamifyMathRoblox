@@ -13,6 +13,7 @@ local Island3EnteredRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("I
 local Island3ExitRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3ExitEvent")
 local PlayerExitCombinationServerRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PlayerExitCombinationServerEvent")
 local UpdatePlayerIngredientGUIRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("UpdatePlayerIngredientGUIEvent")
+local DisableCombinationButtonRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("DisableCombinationButtonEvent")
 
 local IngredientGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 
@@ -194,6 +195,12 @@ end
 
 InvalidRecipeRE.OnClientEvent:Connect(onInvalidRecipeEvent)
 
+local function onDisableCombinationButtonEvent()
+    CombineButton.Active = false
+end
+
+DisableCombinationButtonRE.OnClientEvent:Connect(onDisableCombinationButtonEvent)
+
 ------ Called when the player is finished with the combine screen ------
 local function onCombineMenuFinishedEvent()
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
@@ -205,6 +212,7 @@ local function onCombineMenuFinishedEvent()
         AddToPotionFrame.Visible = false
         PlayerExitCombinationServerRE:FireServer(combinationTableID)
     end)
+    CombineButton.Active = true
 end
 
 CombineMenuFinishedRE.OnClientEvent:Connect(onCombineMenuFinishedEvent)

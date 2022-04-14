@@ -20,11 +20,15 @@ local InvalidRecipeRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("In
 local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombineMenuFinishedEvent")
 local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
 local PlayerExitCombinationServerRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PlayerExitCombinationServerEvent")
+local DisableCombinationButtonRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("DisableCombinationButtonEvent")
+local AddTextToRecipeReferenceRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("AddTextToRecipeReferenceEvent")
 
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
+local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
-local AddTextToRecipeReferenceRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("AddTextToRecipeReferenceEvent")
+local POTION_COMBINATION_XP_REWARD = 1
+local POTION_COMBINATION_CURRENCY_REWARD = 1
 
 PotionCreation = {}
 
@@ -46,6 +50,7 @@ local function cleanup(player, combinationTableID)
     CombineMenuFinishedRE:FireClient(player)
 end
 
+-- Initialize combination tables so the correct effects play on the proper tables
 function PotionCreation.initializeCombinationTables()
     for _, tableObject in pairs(game.Workspace.Island_3.Islands.PotionCreationTables:GetChildren()) do
         combinationTables[tableObject:GetAttribute("ID")] = tableObject
@@ -127,6 +132,8 @@ local function onCombinationButtonActivated(player, selectedIngredients, combina
                     PotionUtilities.DecrementIngredients(player, selectedIngredients)
                     local rewardObject = returnedValue["RewardObject"]:Clone()
 
+                    DisableCombinationButtonRE:FireClient(player)
+
                     bubblingSound:Play()
                     beakerBitsFlyingUp.Enabled = true
 
@@ -143,6 +150,14 @@ local function onCombinationButtonActivated(player, selectedIngredients, combina
                     beakerBitsFlyingUp.Enabled = false
                     beakerExplosionSmoke.Enabled = false
                     beakerTameBits.Enabled = false
+
+                    -- Increment XP and Currency, play VFX for them too.
+                    local character = player.Character or player.CharacterAdded:Wait()
+                    local hrp = character:WaitForChild("HumanoidRootPart")
+                    GameStatsUtilities.incrementXP(player, POTION_COMBINATION_XP_REWARD)
+                    GameStatsUtilities.incrementCurrency(player, POTION_COMBINATION_CURRENCY_REWARD)
+                    GameStatsUtilities.XPandCurrencyIncrementVFX(POTION_COMBINATION_XP_REWARD, POTION_COMBINATION_CURRENCY_REWARD, 
+                                                                    hrp.Position, hrp.Orientation.Y)
 
                     -- Add the discovered recipe to the recipe reference paper
                     AddTextToRecipeReferenceRE:FireClient(player, recipe)
