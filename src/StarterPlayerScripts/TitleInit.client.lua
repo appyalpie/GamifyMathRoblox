@@ -9,11 +9,10 @@ local PlayerSideShowNameAndTitleEvent = ReplicatedStorage.RemoteEvents.Titles:Wa
 local ActivateTitleButtonEvent = ReplicatedStorage.RemoteEvents.Titles:WaitForChild("ActivateTitleButtonEvent")
 
 local Player = Players.LocalPlayer
+local overheadTitle = game.Workspace:WaitForChild(Player.Name):WaitForChild("Head"):WaitForChild("overheadTitle")
+local overheadName = game.Workspace:WaitForChild(Player.Name):WaitForChild("Head"):WaitForChild("overheadName")
 local InventoryGUI = Player:WaitForChild("PlayerGui"):WaitForChild("UniqueOpenGui"):WaitForChild("MenuGui"):WaitForChild("InventoryMenu")
 local TitleList = InventoryGUI:WaitForChild("TitlesFrame"):WaitForChild("InlayFrame")
-
-local overheadTitle = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadTitle")
-local overheadName = game.Workspace:FindFirstChild(Player.Name).Head:WaitForChild("overheadName")
 
 local titles = {}
 
@@ -123,6 +122,9 @@ end
 ActivateTitleButtonEvent.OnClientEvent:Connect(onActivateTitleButton)
 
 local function onPlayerSideHideNameAndTitle()
+    -- Redefine in case player has died b/c a new model is created --
+    local overheadTitle = game.Workspace:WaitForChild(Player.Name):WaitForChild("Head"):WaitForChild("overheadTitle")
+    local overheadName = game.Workspace:WaitForChild(Player.Name):WaitForChild("Head"):WaitForChild("overheadName")
     overheadName.TextLabel.Visible = false
     overheadTitle.TextLabel.Visible = false
 end
@@ -130,6 +132,8 @@ end
 PlayerSideHideNameAndTitleEvent.OnClientEvent:Connect(onPlayerSideHideNameAndTitle)
 
 local function onPlayerSideShowNameAndTitle()
+    local overheadTitle = game.Workspace:WaitForChild(Player.Name):WaitForChild("Head"):WaitForChild("overheadTitle")
+    local overheadName = game.Workspace:WaitForChild(Player.Name):WaitForChild("Head"):WaitForChild("overheadName")
     overheadName.TextLabel.Visible = true
     overheadTitle.TextLabel.Visible = true
 end
