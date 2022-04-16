@@ -3,8 +3,10 @@
     in order for teleport to work a new part is to be added to the portal model simply named "Exit" 
     the script will then handle the rest
 ]]
+local ServerScriptService = game:GetService("ServerScriptService")
+local QuestTrackerUpdateBE = ServerScriptService.GameStatsInitialization.QuestTracker:WaitForChild("QuestTrackerUpdateBE")
 
-
+local Players = game:GetService("Players")
 local collectionService = game:GetService("CollectionService")
 local portals = game.workspace:GetChildren()
 
@@ -45,8 +47,10 @@ function portals:onTouch(part)
     -- GUI should collect Portal Tag or something to populate the GUI
     --local selection = workspace:WaitForChild("Selection") -- what selects the portal is added here
     PortalActivation.SelectPortal(self.portal , human.Parent:FindFirstChild("HumanoidRootPart"))
-
-    
+    if self.portal:GetAttribute("quest_finisher") then
+        local player = Players:GetPlayerFromCharacter(human.Parent)
+        QuestTrackerUpdateBE:Fire(player, self.portal:GetAttribute("quest_finisher"), "completed")
+    end
 end
 
 
