@@ -27,6 +27,20 @@ local RecipeList = {
         Ingredient2 = 2,
         Ingredient3 = 2,
         RewardObject =  ServerStorage.Island_3.ingredients:WaitForChild("ExplosivePotion")
+    },
+    [4] = {
+        Name = "Speed Potion",
+        Ingredient1 = 3,
+        Ingredient2 = 1,
+        Ingredient3 = 2,
+        RewardObject = ServerStorage.Island_3.ingredients:WaitForChild("SpeedPotion")
+    },
+    [5] = {
+        Name = "Jump Potion",
+        Ingredient1 = 2,
+        Ingredient2 = 1,
+        Ingredient3 = 3,
+        RewardObject = ServerStorage.Island_3.ingredients:WaitForChild("JumpPotion")
     }
 }
 
