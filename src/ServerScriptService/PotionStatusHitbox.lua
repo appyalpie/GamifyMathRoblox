@@ -71,9 +71,6 @@ elseif StatusName == "SizeFactor" then
         end
         coroutine.resume(coroutine.create(function()
         local savedHeadScale = value.HeadScale.Value
-        local savedBScale = value.BodyDepthScale.Value
-        local savedWScale = value.BodyWidthScale.Value
-        local savedHScale = value.BodyHeightScale.Value
         if savedHeadScale >= 7 or savedHeadScale <= 0.24 then
             value.Health = 0
             return
@@ -83,16 +80,10 @@ elseif StatusName == "SizeFactor" then
         value.BodyWidthScale.Value = value.BodyWidthScale.Value * scaling
         value.BodyHeightScale.Value = value.BodyHeightScale.Value * scaling
         task.wait(30*scaling)
-        value.HeadScale.Value = savedHeadScale
-        value.BodyDepthScale.Value = savedBScale
-        value.BodyWidthScale.Value = savedWScale
-        value.BodyHeightScale.Value = savedHScale
-        if savedHeadScale ~= 1 then
-            value.HeadScale.Value = 1
-            value.BodyDepthScale.Value = 1
-            value.BodyWidthScale.Value = 1
-            value.BodyHeightScale.Value = 1
-        end
+        value.HeadScale.Value = value.HeadScale.Value / scaling 
+        value.BodyDepthScale.Value = value.BodyDepthScale.Value / scaling
+        value.BodyWidthScale.Value = value.BodyWidthScale.Value / scaling
+        value.BodyHeightScale.Value = value.BodyHeightScale.Value / scaling
         end))
     end
 
@@ -117,21 +108,17 @@ elseif StatusName == "Speed" then
             value = value.parent.Humanoid
         end
         coroutine.resume(coroutine.create(function()
-            local saved = value.WalkSpeed
             value.WalkSpeed = value.WalkSpeed * scaling
 				-- visual effect gets added here
 				local SpeedTrail = Instance.new("Trail")
 				SpeedTrail.Color = Color3.fromRGB(255, 243, 73)
 				SpeedTrail.Parent = value.Parent.Head
-				SpeedTrail.Attachment0 = Instance.new("Attachment",value.Parent.Head)
-				SpeedTrail.Attachment1 = Instance.new("Attachment",value.Parent.HumanoidRootPart)
+				--SpeedTrail.Attachment0 = Instance.new("Attachment",value.Parent.Head)
+				--SpeedTrail.Attachment1 = Instance.new("Attachment",value.Parent.HumanoidRootPart)
 
             ----------------------------------
             task.wait(20)
-            value.WalkSpeed = saved
-            if saved ~= 1 then
-                value.WalkSpeed = 1
-            end
+            value.WalkSpeed = value.WalkSpeed / scaling
             -- remove visual effect here
 			SpeedTrail:Destroy()
             ----------------------------------
@@ -144,20 +131,14 @@ elseif StatusName == "Jump" then
             value = value.parent.Humanoid
         end
         coroutine.resume(coroutine.create(function()
-            local savedJP = value.JumpPower
-            local savedJH = value.JumpHeight
                value.JumpPower = value.JumpPower*scaling
                value.JumpHeight = value.JumpHeight * scaling
             -- visual effect gets added here
 
             ----------------------------------
             task.wait(20)
-            value.JumpPower = savedJP
-            value.JumpHeight = savedJH
-            if savedJP ~= 1 then
-                value.JumpPower = 1
-                value.JumpHeight = 7.2
-            end
+            value.JumpPower = value.JumpPower / scaling
+               value.JumpHeight = value.JumpHeight / scaling
             -- remove visual effect here
 
             ----------------------------------
