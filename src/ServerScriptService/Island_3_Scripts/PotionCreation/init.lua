@@ -21,6 +21,8 @@ local CombineMenuFinishedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChi
 local ExitButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ExitButtonActivatedEvent")
 local PlayerExitCombinationServerRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PlayerExitCombinationServerEvent")
 
+local ResetIngredientsBE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ResetIngredientsEvent")
+
 local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreation:WaitForChild("PotionUtilities"))
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
 
@@ -185,6 +187,10 @@ end
 
 ExitButtonActivatedRE.OnServerEvent:Connect(onExitButtonActivatedEvent)
 
+local function onResetIngredientsEvent(player)
+    PotionUtilities.InitializePlayerIngredientInventory(player)
+end
 
+ResetIngredientsBE.Event:Connect(onResetIngredientsEvent)
 
 return PotionCreation
