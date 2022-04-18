@@ -1,3 +1,8 @@
+local disabled = true
+if disabled then
+    return
+end
+
 --services and variables up top. allow access to globaldatastore
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")

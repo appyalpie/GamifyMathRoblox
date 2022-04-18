@@ -9,6 +9,7 @@ local CheckpointUtilities = require(script.CheckpointUtilities)
 local BlurRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("BlurRE")
 local ClientReadyCheckpointRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("ClientReadyCheckpointRE")
 local SetCheckpointOnStartRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("SetCheckpointOnStartRE")
+local MovePlayerToCheckpointRE = ReplicatedStorage.RemoteEvents.CheckpointRE:WaitForChild("MovePlayerToCheckpointRE")
 
 ------ Retrieve Player Set Checkpoint + List of Gotten Checkpoints (if any) ------
 Players.PlayerAdded:Connect(function(player)
@@ -17,12 +18,12 @@ Players.PlayerAdded:Connect(function(player)
     end)
 
     if success then
-        if returnedValue == nil then
+        if returnedValue == nil or typeof(returnedValue) ~= "table" then
             player:SetAttribute("current_checkpoint", 0)
-            CheckpointUtilities.initializeCheckpointData(player)
+            CheckpointUtilities.initializeCheckpoints(player, {})
         else
             player:SetAttribute("current_checkpoint", returnedValue[1])
-            CheckpointUtilities.setCheckpointData(player, returnedValue[2])
+            CheckpointUtilities.initializeCheckpoints(player, returnedValue[2])
         end
     end
 
@@ -47,9 +48,10 @@ end)
 
 -- when the player leaves, save their current checkpoint
 Players.PlayerRemoving:Connect(function(player)
-    local playerCheckpointNum = player:GetAttribute("checkpoint")
+    local playerCheckpointNum = player:GetAttribute("current_checkpoint")
+    local playerCheckpoints = CheckpointUtilities.getCheckpoints(player)
     local success, errorMessage = pcall(function()
-        checkpointStore:SetAsync(player.UserId, playerCheckpointNum)
+        PlayerCheckpointsStore:SetAsync(player.UserId, {playerCheckpointNum, playerCheckpoints})
     end)
     if not success then
         print(errorMessage)
@@ -57,10 +59,17 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 ClientReadyCheckpointRE.OnServerEvent:Connect(function(player)
-    SetCheckpointOnStartRE:FireClient(player, player:GetAttribute("checkpoint"))
-    
+    SetCheckpointOnStartRE:FireClient(player, player:GetAttribute("current_checkpoint"))
 end)
 
 
 -- set all Checkpoint events
 CheckpointUtilities.setCheckpointEvents()
+
+-- Client requests a move
+MovePlayerToCheckpointRE.OnServerEvent:Connect(function(player, checkpoint)
+    if not player.Character or not player.Character.Parent then -- need to wait for the player's character to actually load in first
+        player.Character = player.CharacterAdded:Wait()
+    end
+    CheckpointUtilities.moveCharacterToCheckpoint(player.Character, checkpoint)
+end)
