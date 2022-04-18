@@ -1,5 +1,7 @@
 local PotionHitboxFunctions = {}
-local debris = game:GetService("Debris")
+local Debris = game:GetService("Debris")
+local Speed_Core = game:GetService("ServerStorage").EffectCores:WaitForChild("Speed_Core")
+local Jump_Core = game:GetService("ServerStorage").EffectCores:WaitForChild("Jump_Core")
 overlapParams = OverlapParams.new() 
 
 -- prunes the touched list 
@@ -109,18 +111,17 @@ elseif StatusName == "Speed" then
         end
         coroutine.resume(coroutine.create(function()
             value.WalkSpeed = value.WalkSpeed * scaling
-				-- visual effect gets added here
-				local SpeedTrail = Instance.new("Trail")
-				SpeedTrail.Color = Color3.fromRGB(255, 243, 73)
-				SpeedTrail.Parent = value.Parent.Head
-				--SpeedTrail.Attachment0 = Instance.new("Attachment",value.Parent.Head)
-				--SpeedTrail.Attachment1 = Instance.new("Attachment",value.Parent.HumanoidRootPart)
+			-- visual effect gets added here
+				local humanoidRootPart = value.Parent.HumanoidRootPart
+			    local newSpeedCore = Speed_Core:Clone()
+			    Debris:AddItem(newSpeedCore.Particles, 20)
+			    newSpeedCore.Particles.Parent = humanoidRootPart
 
             ----------------------------------
             task.wait(20)
             value.WalkSpeed = value.WalkSpeed / scaling
             -- remove visual effect here
-			SpeedTrail:Destroy()
+            newSpeedCore:Destroy()
             ----------------------------------
         end))
     end
@@ -134,13 +135,16 @@ elseif StatusName == "Jump" then
                value.JumpPower = value.JumpPower*scaling
                value.JumpHeight = value.JumpHeight * scaling
             -- visual effect gets added here
-
+            local humanoidRootPart = value.Parent.HumanoidRootPart
+			    local newJumpCore = Jump_Core:Clone()
+			    Debris:AddItem(Jump_Core.Particles, 20)
+			    newJumpCore.Particles.Parent = humanoidRootPart
             ----------------------------------
             task.wait(20)
             value.JumpPower = value.JumpPower / scaling
                value.JumpHeight = value.JumpHeight / scaling
             -- remove visual effect here
-
+            newJumpCore:Destory()
             ----------------------------------
         end))
     end
