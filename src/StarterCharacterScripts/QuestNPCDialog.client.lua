@@ -56,13 +56,14 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     InventoryGUI.Visible = false
     --do this once the dialog is exhausted 
     if Index == #Dialog then
-        
+    
+
         if ProximityPrompt:GetAttribute("QuestCompleted") then --handles situation where player already completed the quest
             print("Quest Completed")
 
         elseif ProximityPrompt:GetAttribute("FirstMeetingComplete") then --handle if the quest has been accepted but not completed
             --name of potion is  "GrowPotion"
-            if Player.Backpack:FindFirstChild("GrowPotion") then --handle if player accepted quest and obtained quest key item (completed)
+            if Player.Backpack:FindFirstChild("GrowPotion") or game.Workspace:WaitForChild(Player.Name):FindFirstChild("GrowPotion") then --handle if player accepted quest and obtained quest key item (completed)
                 
                 --tween in yes no 
                 local Tween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
@@ -111,10 +112,13 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                             ColorSequenceKeypoint.new(1, Color3.fromRGB(57, 194, 23))
                             }
                         end
-                        --also decrement the potion from players backpack
-                        if Player.Backpack:FindFirstChild("GrowPotion") then
+                        --also decrement the potion from players backpack or their hand if it's in their hand
+                        if game.Workspace:WaitForChild(Player.Name):FindFirstChild("GrowPotion") then
+                            game.Workspace:WaitForChild(Player.Name):FindFirstChild("GrowPotion"):Destroy()
+                        elseif Player.Backpack:FindFirstChild("GrowPotion") then
                             Player.Backpack:FindFirstChild("GrowPotion"):Destroy()
                         end
+
                         -- Update the Portal GUI and Update the player's Barrier Status
                         PortalGuiUpdateIsland3BE:Fire(true)
                         UpdateIsland3BarrierDownStatusRE:FireServer()
