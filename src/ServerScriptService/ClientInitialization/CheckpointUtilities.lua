@@ -1,3 +1,8 @@
+local disabled = true
+if disabled then
+    return
+end
+
 --services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CheckpointsRE = ReplicatedStorage.RemoteEvents:WaitForChild("CheckpointsRE")

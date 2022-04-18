@@ -1,3 +1,8 @@
+local disabled = true
+if disabled then
+    return
+end
+
 --get services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 

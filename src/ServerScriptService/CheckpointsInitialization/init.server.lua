@@ -1,44 +1,36 @@
-local disabled = true
-if disabled then
-    return
-end
-
---services and variables up top. allow access to globaldatastore
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local checkpointStore = DataStoreService:GetDataStore("PlayerCheckpoints")
---get module
+local PlayerCheckpointsStore = DataStoreService:GetDataStore("PlayerCheckpoints")
+
 local CheckpointUtilities = require(script.CheckpointUtilities)
+
 local BlurRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("BlurRE")
 local ClientReadyCheckpointRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("ClientReadyCheckpointRE")
 local SetCheckpointOnStartRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("SetCheckpointOnStartRE")
+local MovePlayerToCheckpointRE = ReplicatedStorage.RemoteEvents.CheckpointRE:WaitForChild("MovePlayerToCheckpointRE")
 
---connects the event of adding a player to checkpoint
+------ Retrieve Player Set Checkpoint + List of Gotten Checkpoints (if any) ------
 Players.PlayerAdded:Connect(function(player)
-    -- set the player's "checkpoint" value v    ia datastore info, or if no datastore just set to 0
-    local checkpointValue = 0
-
-    --handling errors
     local success, returnedValue = pcall(function()
-        return checkpointStore:GetAsync(player.UserId)
+        return PlayerCheckpointsStore:GetAsync(player.UserId)
     end)
 
-    if success then --successfully got checkpointInformation
-        if returnedValue == nil then -- on the intial load, we might successfully get nil
-            checkpointValue = 0
+    if success then
+        if returnedValue == nil or typeof(returnedValue) ~= "table" then
+            player:SetAttribute("current_checkpoint", 0)
+            CheckpointUtilities.initializeCheckpoints(player, {})
         else
-            checkpointValue = returnedValue
+            player:SetAttribute("current_checkpoint", returnedValue[1])
+            CheckpointUtilities.initializeCheckpoints(player, returnedValue[2])
         end
     end
-    --making the attibrute checkpoint the move function will use and set to value
-    player:SetAttribute("checkpoint", checkpointValue)
 
-    -- connect function which sends player to their checkpoint level should they die
+    ------ Player Respawns at Most Recently Saved Checkpoint ------
     player.CharacterAdded:Connect(function(character)
         CheckpointUtilities.moveCharacterToCheckpoint(character)
-    end)    
+    end)
 
     -- move the player to their checkpoint level (initial move)
     if not player.Character or not player.Character.Parent then -- need to wait for the player's character to actually load in first
@@ -56,9 +48,10 @@ end)
 
 -- when the player leaves, save their current checkpoint
 Players.PlayerRemoving:Connect(function(player)
-    local playerCheckpointNum = player:GetAttribute("checkpoint")
+    local playerCheckpointNum = player:GetAttribute("current_checkpoint")
+    local playerCheckpoints = CheckpointUtilities.getCheckpoints(player)
     local success, errorMessage = pcall(function()
-        checkpointStore:SetAsync(player.UserId, playerCheckpointNum)
+        PlayerCheckpointsStore:SetAsync(player.UserId, {playerCheckpointNum, playerCheckpoints})
     end)
     if not success then
         print(errorMessage)
@@ -66,10 +59,17 @@ Players.PlayerRemoving:Connect(function(player)
 end)
 
 ClientReadyCheckpointRE.OnServerEvent:Connect(function(player)
-    SetCheckpointOnStartRE:FireClient(player, player:GetAttribute("checkpoint"))
-    
+    SetCheckpointOnStartRE:FireClient(player, player:GetAttribute("current_checkpoint"))
 end)
 
 
 -- set all Checkpoint events
 CheckpointUtilities.setCheckpointEvents()
+
+-- Client requests a move
+MovePlayerToCheckpointRE.OnServerEvent:Connect(function(player, checkpoint)
+    if not player.Character or not player.Character.Parent then -- need to wait for the player's character to actually load in first
+        player.Character = player.CharacterAdded:Wait()
+    end
+    CheckpointUtilities.moveCharacterToCheckpoint(player.Character, checkpoint)
+end)
