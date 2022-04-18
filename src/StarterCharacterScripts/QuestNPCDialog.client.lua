@@ -6,6 +6,8 @@ local Player = game:GetService("Players").LocalPlayer
 
 local PortalGuiUpdateIsland3BE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PortalGuiUpdateIsland3BE")
 local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
+local QuestTrackerUpdateQuestRE = ReplicatedStorage.RemoteEvents.QuestTrackerRE:WaitForChild("QuestTrackerUpdateQuestRE")
+local QuestNPCUpdateRE = ReplicatedStorage.RemoteEvents.QuestTrackerRE:WaitForChild("QuestNPCUpdateRE")
 
 --GUI variables
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
@@ -102,6 +104,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                         
                         --set QuestCompleted flag and unlock the barrier. later place for animation?
                         ProximityPrompt:SetAttribute("QuestCompleted", true)
+                        QuestTrackerUpdateQuestRE:FireServer(4, "completed")
                         local Barrier = game.Workspace.Island_3.Barrier
 
                         if Barrier:FindFirstChild("Barrier_Part") then
@@ -213,6 +216,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                     
                     --switch the flag 
                     ProximityPrompt:SetAttribute("FirstMeetingComplete", true)
+                    QuestTrackerUpdateQuestRE:FireServer(4, "active")
 
                     --cleanup
                     --change yes/no button back
@@ -364,3 +368,13 @@ for _, v in pairs(QuestNPCs:GetChildren()) do
         end)
     end
 end
+
+QuestNPCUpdateRE.OnClientEvent:Connect(function(questData)
+    local RandallfPrompt = QuestNPCs.Randallf.HumanoidRootPart.ProximityPrompt
+    if questData[4].Status == "active" then
+        RandallfPrompt:SetAttribute("FirstMeetingComplete", true)
+    end
+    if questData[4].Status == "completed" then
+        RandallfPrompt:SetAttribute("QuestCompleted", true)
+    end
+end)
