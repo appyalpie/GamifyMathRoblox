@@ -136,7 +136,7 @@ game.Players.PlayerRemoving:Connect(function(player)
 end)
 
 local function onShowTitlesEvent(player, title)
-    overheadTitle = game.Workspace:FindFirstChild(player.name):FindFirstChild("Head"):WaitForChild("overheadTitle")
+    overheadTitle = game.Workspace:WaitForChild(player.name):WaitForChild("Head"):WaitForChild("overheadTitle")
     overheadTitle.TextLabel.Text = title
 end
 
