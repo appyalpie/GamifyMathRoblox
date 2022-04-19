@@ -27,8 +27,8 @@ local PotionUtilities = require(ServerScriptService.Island_3_Scripts.PotionCreat
 local RecipeList = require(ServerScriptService.Island_3_Scripts:WaitForChild("RecipeList"))
 local GameStatsUtilities = require(ServerScriptService.GameStatsInitialization.GameStatsUtilities)
 
-local POTION_COMBINATION_XP_REWARD = 1
-local POTION_COMBINATION_CURRENCY_REWARD = 1
+local POTION_COMBINATION_XP_REWARD = 20
+local POTION_COMBINATION_CURRENCY_REWARD = 5
 
 PotionCreation = {}
 

@@ -7,7 +7,7 @@ ShopItemsInformation["Llama"] = {
         Row = 1,
         Column = 1,
         Description = "Math-block head",
-        Cost = 0,
+        Cost = 50,
         ImageAssetID = "rbxassetid://9213448562"
     },
     ["Goggles"] = {
@@ -15,7 +15,7 @@ ShopItemsInformation["Llama"] = {
         Row = 1,
         Column = 2,
         Description = "Goggles",
-        Cost = 3,
+        Cost = 180,
         ImageAssetID = "rbxassetid://9227214496"
     },
     ------ Body Accessories ------
@@ -32,7 +32,7 @@ ShopItemsInformation["Llama"] = {
         Row = 1,
         Column = 2,
         Description = "So many ways to make one number",
-        Cost = 2424,
+        Cost = 600,
         ImageAssetID = "rbxassetid://9227214583"
     },
     ------ Leg Accessories ------
@@ -41,7 +41,7 @@ ShopItemsInformation["Llama"] = {
         Row = 1,
         Column = 1,
         Description = "Math-block knee",
-        Cost = 0,
+        Cost = 50,
         ImageAssetID = "rbxassetid://9213448154"
     },
     ["TwoDeckKneeCover"] = {
@@ -49,7 +49,7 @@ ShopItemsInformation["Llama"] = {
         Row = 1,
         Column = 2,
         Description = "Tommy Two Deck's Knee Cap Cover",
-        Cost = 0,
+        Cost = 200,
         ImageAssetID = "rbxassetid://9213447875"
     }
 }
@@ -61,7 +61,7 @@ ShopItemsInformation["Skeleton At Tony V"] = {
         Row = 1,
         Column = 1,
         Description = "Argg, Ahoy there!",
-        Cost = 10,
+        Cost = 1000,
         ImageAssetID = "rbxassetid://9222520524"
     }
     ------ Body Accessories ------

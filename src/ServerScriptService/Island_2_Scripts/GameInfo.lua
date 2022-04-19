@@ -62,27 +62,27 @@ GameInfo.FOV = 85
 GameInfo.FOVWinning = 105
 
 GameInfo.NPCXPTable = {
-    easy = 15,
-    medium = 20,
-    hard = 25
+    easy = 30,
+    medium = 80,
+    hard = 160
 }
 
 GameInfo.NPCCurrencyTable = {
     easy = 15,
-    medium = 20,
-    hard = 25
+    medium = 30,
+    hard = 50
 }
 
 GameInfo.SinglePlayerXPTable = {
-    easy = 10,
-    medium = 15,
-    hard = 20
+    easy = 20,
+    medium = 40,
+    hard = 60
 }
 
 GameInfo.SinglePlayerCurrencyTable = {
-    easy = 10,
+    easy = 5,
     medium = 15,
-    hard = 20
+    hard = 30
 }
 
 GameInfo.BoardSpinTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
