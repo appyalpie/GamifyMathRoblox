@@ -70,5 +70,5 @@ For more help, check out [the Rojo documentation](https://rojo.space/docs).
  
 
  ## License
-Copyright (c) 2022, GamifyMath
+Copyright (c) 2022, GamifyMath <br>
 Provided for public use in educational and recreational purposes under the [ECL 2.0 License](https://github.com/appyalpie/GamifyMathRoblox/blob/main/LICENSE.md)
