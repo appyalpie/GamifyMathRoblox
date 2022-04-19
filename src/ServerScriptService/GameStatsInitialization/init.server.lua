@@ -9,6 +9,8 @@ local GameStatsUtilities = require(script.GameStatsUtilities)
 local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
 local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
 local PlayerPortalGuiLoadedRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PlayerPortalGuiLoadedRE")
+local QuestTrackerStatsSyncBE = script.QuestTracker:WaitForChild("QuestTrackerStatsSyncBE")
+local QuestTrackerStatsSyncReadyBE = script.QuestTracker:WaitForChild("QuestTrackerStatsSyncReadyBE")
 
 ------Math Blocks------
 
@@ -33,6 +35,10 @@ Players.PlayerAdded:Connect(function(player)
     else -- Possible datastore throttle error
         GameStatsUtilities.initializePlayerGameStats(player)
     end
+end)
+
+QuestTrackerStatsSyncReadyBE.Event:Connect(function(player)
+    QuestTrackerStatsSyncBE:Fire(player, GameStatsUtilities.getPlayerData(player))
 end)
 
 -- when the player leaves, save their current checkpoint

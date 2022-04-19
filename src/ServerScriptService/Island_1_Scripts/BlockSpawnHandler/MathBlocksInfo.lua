@@ -194,8 +194,8 @@ MathBlocksInfo.CombinationRewardTable = {
 }
 
 MathBlocksInfo.BlockDropRewardTable = {
-    XP = 50,
-    Currency = 5
+    XP = 20,
+    Currency = 10
 }
 
 return MathBlocksInfo

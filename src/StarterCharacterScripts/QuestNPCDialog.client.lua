@@ -6,6 +6,8 @@ local Player = game:GetService("Players").LocalPlayer
 
 local PortalGuiUpdateIsland3BE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PortalGuiUpdateIsland3BE")
 local UpdateIsland3BarrierDownStatusRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UpdateIsland3BarrierDownStatusRE")
+local QuestTrackerUpdateQuestRE = ReplicatedStorage.RemoteEvents.QuestTrackerRE:WaitForChild("QuestTrackerUpdateQuestRE")
+local QuestNPCUpdateRE = ReplicatedStorage.RemoteEvents.QuestTrackerRE:WaitForChild("QuestNPCUpdateRE")
 
 --GUI variables
 local DialogFrame = Player:WaitForChild("PlayerGui"):WaitForChild("Dialog"):WaitForChild("DialogFrame")
@@ -56,13 +58,14 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
     InventoryGUI.Visible = false
     --do this once the dialog is exhausted 
     if Index == #Dialog then
-        
+    
+
         if ProximityPrompt:GetAttribute("QuestCompleted") then --handles situation where player already completed the quest
             print("Quest Completed")
 
         elseif ProximityPrompt:GetAttribute("FirstMeetingComplete") then --handle if the quest has been accepted but not completed
             --name of potion is  "GrowPotion"
-            if Player.Backpack:FindFirstChild("GrowPotion") then --handle if player accepted quest and obtained quest key item (completed)
+            if Player.Backpack:FindFirstChild("GrowPotion") or game.Workspace:WaitForChild(Player.Name):FindFirstChild("GrowPotion") then --handle if player accepted quest and obtained quest key item (completed)
                 
                 --tween in yes no 
                 local Tween = TweenService:Create(YesNoFrame, TweenInfo.new(0.25, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
@@ -102,6 +105,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                         
                         --set QuestCompleted flag and unlock the barrier. later place for animation?
                         ProximityPrompt:SetAttribute("QuestCompleted", true)
+                        QuestTrackerUpdateQuestRE:FireServer(4, "completed")
                         local Barrier = game.Workspace.Island_3.Barrier
 
                         if Barrier:FindFirstChild("Barrier_Part") then
@@ -111,10 +115,13 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                             ColorSequenceKeypoint.new(1, Color3.fromRGB(57, 194, 23))
                             }
                         end
-                        --also decrement the potion from players backpack
-                        if Player.Backpack:FindFirstChild("GrowPotion") then
+                        --also decrement the potion from players backpack or their hand if it's in their hand
+                        if game.Workspace:WaitForChild(Player.Name):FindFirstChild("GrowPotion") then
+                            game.Workspace:WaitForChild(Player.Name):FindFirstChild("GrowPotion"):Destroy()
+                        elseif Player.Backpack:FindFirstChild("GrowPotion") then
                             Player.Backpack:FindFirstChild("GrowPotion"):Destroy()
                         end
+
                         -- Update the Portal GUI and Update the player's Barrier Status
                         PortalGuiUpdateIsland3BE:Fire(true)
                         UpdateIsland3BarrierDownStatusRE:FireServer()
@@ -213,6 +220,7 @@ local function OnDialog(Dialog, Index, ProximityPrompt)
                     
                     --switch the flag 
                     ProximityPrompt:SetAttribute("FirstMeetingComplete", true)
+                    QuestTrackerUpdateQuestRE:FireServer(4, "active")
 
                     --cleanup
                     --change yes/no button back
@@ -364,3 +372,13 @@ for _, v in pairs(QuestNPCs:GetChildren()) do
         end)
     end
 end
+
+QuestNPCUpdateRE.OnClientEvent:Connect(function(questData)
+    local RandallfPrompt = QuestNPCs.Randallf.HumanoidRootPart.ProximityPrompt
+    if questData[4].Status == "active" then
+        RandallfPrompt:SetAttribute("FirstMeetingComplete", true)
+    end
+    if questData[4].Status == "completed" then
+        RandallfPrompt:SetAttribute("QuestCompleted", true)
+    end
+end)

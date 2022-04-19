@@ -4,6 +4,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
+local QuestTrackerUpdateQuestRE = ReplicatedStorage.RemoteEvents.QuestTrackerRE:WaitForChild("QuestTrackerUpdateQuestRE")
+
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
 local PortalGuiUpdateIsland3BE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PortalGuiUpdateIsland3BE")
 local PlayerPortalGuiLoadedRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PlayerPortalGuiLoadedRE")
@@ -26,7 +28,6 @@ local warpOffset = Vector3.new(0,5,0)
 
 local function warpButton(input, gameProcessed, warpPosition)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        script.Disabled = true
 
         local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
         local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -34,11 +35,6 @@ local function warpButton(input, gameProcessed, warpPosition)
 
         local tween = TweenService:Create(PortalMenu, tweenInfo, {Position = UDim2.new(0.5, 0, 1.5, 0)})
         tween:Play()
-        local finishedTweenConnection
-        finishedTweenConnection = tween.Completed:Connect(function()
-            finishedTweenConnection:Disconnect()
-            script.Disabled = false
-        end)
     end
 end
 
@@ -86,6 +82,9 @@ end)
 local WarpButton2 = InlayFrame2:WaitForChild("WarpButton2")
 WarpButton2.InputEnded:Connect(function(input, gameProcessed)
     warpButton(input, gameProcessed, WarpButton2:GetAttribute("warp_position"))
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        QuestTrackerUpdateQuestRE:FireServer(2, "active")
+    end
 end)
 
 ------ Exit Button ------

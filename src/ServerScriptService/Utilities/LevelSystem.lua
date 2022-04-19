@@ -1,3 +1,4 @@
+local titleModule = require(game.ServerScriptService:WaitForChild("TitleModule"))
 
 local LevelSystem = {}
  LevelSystem.PlayerXPList = {}
@@ -91,6 +92,29 @@ LevelSystem.SetLevelUpdate = function(Player, XP)
             end
             loopLevel = loopLevel + 1
         end 
+        if loopLevel == 10 then
+            titleModule.AddTitleToUser(Player, 5)
+        end
+        if loopLevel == 20 then
+            titleModule.AddTitleToUser(Player, 6)
+            -- maybe add badge
+        end
+        if loopLevel == 30 then
+            titleModule.AddTitleToUser(Player, 7)
+        end
+        if loopLevel == 40 then
+            titleModule.AddTitleToUser(Player, 8)
+            -- maybe add badge
+        end
+        if loopLevel == 50 then
+            titleModule.AddTitleToUser(Player, 9)
+            -- maybe add an accessory
+        end
+        if loopLevel == 100 then
+            titleModule.AddTitleToUser(Player, 10)
+            --add Badge
+            --add an accessory
+        end
         LevelSystem.PlayerXPList[Player.UserId]["nextLevel"] = nextLevel
         LevelSystem.PlayerXPList[Player.UserId]["Level"] = loopLevel
         LevelSystem.TriggerCelebration(Player)

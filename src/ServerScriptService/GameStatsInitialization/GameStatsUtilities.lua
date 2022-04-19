@@ -5,6 +5,8 @@ local Debris = game:GetService("Debris")
 
 local StatsGuiPart = ServerStorage.Statistics_Stuff:WaitForChild("StatsGuiPart")
 
+local QuestTrackerUpdateBE = script.Parent.QuestTracker:WaitForChild("QuestTrackerUpdateBE")
+
 local UnlockBarrierRE = ReplicatedStorage.RemoteEvents.Island_2:WaitForChild("UnlockBarrierRE")
 local UnlockIsland3BarrierRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("UnlockIsland3BarrierRE")
 local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGuiUpdateRE")
@@ -109,8 +111,10 @@ GameStatsUtilities.newGame24NPCDefeated = function(player, npcName)
     else
         --print("Setting")
         table.insert(playerGameStats[player.UserId]["Game24NPCDefeated"], npcName)
-        if #playerGameStats[player.UserId]["Game24NPCDefeated"] >= 1 then
+        QuestTrackerUpdateBE:Fire(player, 2, nil, #playerGameStats[player.UserId]["Game24NPCDefeated"])
+        if #playerGameStats[player.UserId]["Game24NPCDefeated"] >= 2 then
             --print("Firing")
+            QuestTrackerUpdateBE:Fire(player, 2, "completed", nil)
             playerGameStats[player.UserId]["BarrierToIsland3Down"] = true
             UnlockBarrierRE:FireClient(player)
             PortalGuiUpdateRE:FireClient(player, true)

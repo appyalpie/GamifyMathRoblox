@@ -13,6 +13,7 @@ local Island3EnteredRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("I
 local Island3ExitRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3ExitEvent")
 local PlayerExitCombinationServerRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PlayerExitCombinationServerEvent")
 local UpdatePlayerIngredientGUIRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("UpdatePlayerIngredientGUIEvent")
+local DisableCombinationButtonRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("DisableCombinationButtonEvent")
 
 local IngredientGUI = Player:WaitForChild("PlayerGui"):WaitForChild("Island3GUI"):WaitForChild("IngredientFrame")
 
@@ -44,7 +45,7 @@ local Ingredient1AmountToAddTextBox = AddIngredient1SubFrame:WaitForChild("Ingre
 local Ingredient2AmountToAddTextBox = AddIngredient2SubFrame:WaitForChild("IngredientAmount")
 local Ingredient3AmountToAddTextBox = AddIngredient3SubFrame:WaitForChild("IngredientAmount")
 
-local GUIActivated = false
+local combinationTableID
 
 local playerIngredientInventory = {}
 
@@ -136,12 +137,12 @@ CombineButton.Activated:Connect(function()
         Ingredient2 = tonumber(Ingredient2AmountToAddTextBox.Text), 
         Ingredient3 = tonumber(Ingredient3AmountToAddTextBox.Text)
     }
-    CombinationButtonActivatedRE:FireServer(selectedIngredients)
+    CombinationButtonActivatedRE:FireServer(selectedIngredients, combinationTableID)
 end)
 
 ------ Exit Button Functionality ------
 ExitButton.Activated:Connect(function()
-    ExitButtonActivatedRE:FireServer()
+    ExitButtonActivatedRE:FireServer(combinationTableID)
 end)
 
 local Populate = function()
@@ -160,7 +161,8 @@ end
 UpdatePlayerIngredientGUIRE.OnClientEvent:Connect(onUpdatePlayerIngredientGUIEvent)
 
 ------ Tween in the potion combination GUI ------
-local function onPotionPromptActivatedEvent()
+local function onPotionPromptActivatedEvent(currentCombinationTableID)
+    combinationTableID = currentCombinationTableID
     AddToPotionFrame.Visible = true
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
     local goalPosition = {}
@@ -193,6 +195,12 @@ end
 
 InvalidRecipeRE.OnClientEvent:Connect(onInvalidRecipeEvent)
 
+local function onDisableCombinationButtonEvent()
+    CombineButton.Active = false
+end
+
+DisableCombinationButtonRE.OnClientEvent:Connect(onDisableCombinationButtonEvent)
+
 ------ Called when the player is finished with the combine screen ------
 local function onCombineMenuFinishedEvent()
     local twinfo = TweenInfo.new(1,Enum.EasingStyle.Exponential,Enum.EasingDirection.Out,0,false,0)
@@ -202,9 +210,9 @@ local function onCombineMenuFinishedEvent()
     tweenOut:Play()
     tweenOut.Completed:Connect(function()
         AddToPotionFrame.Visible = false
-        PlayerExitCombinationServerRE:FireServer()
-        --fire server finished--
+        PlayerExitCombinationServerRE:FireServer(combinationTableID)
     end)
+    CombineButton.Active = true
 end
 
 CombineMenuFinishedRE.OnClientEvent:Connect(onCombineMenuFinishedEvent)
