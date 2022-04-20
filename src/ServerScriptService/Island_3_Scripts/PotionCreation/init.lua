@@ -68,8 +68,10 @@ function PotionCreation.initialize(player, promptObject)
     local beakerSmokeEffect = combinationTable.Beaker.MagicSmoke.Attachment:WaitForChild("Smoke")
     local beakerTameBits = combinationTable.Beaker.MagicSmoke.Core:WaitForChild("Bits")
 
+    
     -- Move the player to the lock position
-    player.Character:WaitForChild("HumanoidRootPart").Position = lockObject.Position
+    --player.Character:WaitForChild("HumanoidRootPart").Position = lockObject.Position
+    player.character:SetPrimaryPartCFrame(CFrame.new(lockObject.Position))
 
     -- Disable the prompt so other players cannot trigger the same interaction
     promptObject.Enabled = false;
