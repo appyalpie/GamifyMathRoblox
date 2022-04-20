@@ -13,6 +13,8 @@ local CameraMoveToRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild(
 local CameraResetRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraResetRE")
 local CameraSetFOVRE = ReplicatedStorage.RemoteEvents.CameraUtilRE:WaitForChild("CameraSetFOVRE")
 
+local ResetIngredientsBE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("ResetIngredientsEvent")
+
 local PotionPromptActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("PotionPromptActivatedEvent")
 local CombinationButtonActivatedRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("CombinationButtonActivatedEvent")
 local MissingIngredientRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("MissingIngredientsEvent")
@@ -204,5 +206,10 @@ end
 ExitButtonActivatedRE.OnServerEvent:Connect(onExitButtonActivatedEvent)
 
 
+local function onResetIngredientsEvent(player)
+    PotionUtilities.InitializePlayerIngredientInventory(player)
+end
+
+ResetIngredientsBE.Event:Connect(onResetIngredientsEvent)
 
 return PotionCreation
