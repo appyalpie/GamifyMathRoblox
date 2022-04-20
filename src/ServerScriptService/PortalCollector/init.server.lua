@@ -46,7 +46,8 @@ function portals:onTouch(part)
     -- open gui here
     -- GUI should collect Portal Tag or something to populate the GUI
     --local selection = workspace:WaitForChild("Selection") -- what selects the portal is added here
-    PortalActivation.SelectPortal(self.portal , human.Parent:FindFirstChild("HumanoidRootPart"))
+    --PortalActivation.SelectPortal(self.portal , human.Parent:FindFirstChild("HumanoidRootPart"))
+    PortalActivation.SelectPortal(self.portal , human.Parent)
     if self.portal:GetAttribute("quest_finisher") then
         local player = Players:GetPlayerFromCharacter(human.Parent)
         QuestTrackerUpdateBE:Fire(player, self.portal:GetAttribute("quest_finisher"), "completed")

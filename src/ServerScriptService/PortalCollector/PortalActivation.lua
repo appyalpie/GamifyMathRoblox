@@ -3,7 +3,8 @@ local PortalActivation = {}
 
 function PortalActivation.Teleport(TargetPortal, Player)
     local targetposition = Vector3.new(TargetPortal.Exit.Position.X, TargetPortal.Exit.Position.Y+1,TargetPortal.Exit.Position.z)
-    Player.Position = targetposition 
+    Player:SetPrimaryPartCFrame(CFrame.new(targetposition))
+    --Player.Position = targetposition 
 end
 
 -- the function is a placeholder until either an animation is ready or FX to apply to the player
