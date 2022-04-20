@@ -22,7 +22,7 @@ elseif StatusType == 1 then
 
     for _, value in pairs(Touching) do
         if value:isA("Part") and value.Anchored == false then
-            if value.Parent:FindFirstChild("HumanoidRootPart") and not table.find(prunedList, value.Parent) and not CollectionService.HasTag(value.Parent,"NPC") then
+            if value.Parent:FindFirstChild("HumanoidRootPart") and not table.find(prunedList, value.Parent) and not CollectionService:HasTag(value.Parent,"NPC") then
                 table.insert(prunedList,value.Parent:FindFirstChild("HumanoidRootPart"))
             elseif not value.Parent:FindFirstChild("HumanoidRootPart") then
                 table.insert(prunedList,value)
@@ -34,8 +34,8 @@ elseif StatusType == 1 then
 -- player only
 elseif StatusType == 2 then 
     for _, value in pairs(Touching) do
-        if value.Parent:FindFirstChild("HumanoidRootPart") and not CollectionService.HasTag(value.Parent,"NPC") then
-            if not table.find(prunedList, value.Parent:FindFirstChild("HumanoidRootPart")) then
+        if value.Parent:FindFirstChild("HumanoidRootPart") and not CollectionService:HasTag(value.Parent,"NPC") then
+            if not table.find(prunedList, value.Parent:FindFirstChild("HumanoidRootPart")) and not CollectionService:HasTag(value.Parent,"NPC") then
                 table.insert(prunedList,value.Parent:FindFirstChild("HumanoidRootPart"))
             end
         end
