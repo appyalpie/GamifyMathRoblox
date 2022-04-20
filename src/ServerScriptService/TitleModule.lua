@@ -18,7 +18,7 @@ titleModule.titles =
     [6] = "Apprentice",
     [7] = "Adept",
     [8] = "Maker",
-    [9] = "Journymen",
+    [9] = "Journeyman",
     [10] = "Master"
 }
 
@@ -65,7 +65,7 @@ end
 -- Adds title to a userID, then invokes the client to update its list of titles
 -- titleModule.AddTitleToUser(player, int titleId)
 titleModule.AddTitleToUser = function(player, titleId)
-    local addTitlesEvent = game.ReplicatedStorage:FindFirstChild('AddTitlesEvent')
+    local addTitlesEvent = game.ReplicatedStorage.RemoteEvents.Titles:FindFirstChild('AddTitlesEvent')
     for key,value in pairs(titleModule.onlinePlayerTitleSets) do
         if value.userId == player.UserId and not table.find(value.IDs, titleId) then
             table.insert(value.IDs, titleId)
