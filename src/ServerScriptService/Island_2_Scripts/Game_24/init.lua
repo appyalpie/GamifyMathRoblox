@@ -781,6 +781,9 @@ local function CleanupCompetitive(arena_index)
 			---- Reset Player Camera Controls ----
 			CameraSetFOVRE:FireClient(v.currentPlayer, 70)
 			CameraResetRE:FireClient(v.currentPlayer)
+
+			---- Show player title once again ----
+			PlayerSideShowNameAndTitleEvent:FireClient(v.currentPlayer)
 		end
 	end
 	---- Reset promptObjects (2) ----
@@ -806,11 +809,15 @@ local function CleanupPreCompetitive(promptObject, player, CurrentGameInfo)
 	-- Reenable Player Camera Controls
 	CameraSetFOVRE:FireClient(player, 70)
 	CameraResetRE:FireClient(player)
+
+	PlayerSideShowNameAndTitleEvent:FireClient(player)
 end
 
 function Game_24.preInitializationCompetitive(promptObject, player)
 	local ancestorModel = promptObject:FindFirstAncestorWhichIsA("Model") -- Got Competitive_Arena
 	local terminalPart = promptObject.Parent.Parent
+
+	PlayerSideHideNameAndTitleEvent:FireClient(player)
 
 	-- Disable proximityPrompt (one user at a time) and set user who is playing
 	promptObject.Enabled = false
