@@ -33,7 +33,7 @@ QuestTrackerUpdateRE.OnClientEvent:Connect(function(questData)
             local description = newQuestFrame.Description
             if v.Amount ~= nil then
                 title.Text = v.Title
-                description.Text = v.Description .. " [" .. v.Amount .. "/" .. v.AmountRequired .. "]"
+                description.Text = " - " .. v.Description .. " [" .. v.Amount .. "/" .. v.AmountRequired .. "]"
             else
                 title.Text = v.Title
                 description.Text = v.Description
