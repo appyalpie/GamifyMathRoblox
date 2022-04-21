@@ -70,7 +70,6 @@ game.Players.PlayerAdded:Connect(function(player)
             currentlySelectedTitle = PastSelectedTitle
         }
 
-        print(onlinePlayerEntry)
 
         -- Store currently active online player titles. This helps cut down on datastore calls by
         -- copying the data to the server.
