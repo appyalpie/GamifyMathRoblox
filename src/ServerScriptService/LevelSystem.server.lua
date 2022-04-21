@@ -27,7 +27,10 @@ Players.PlayerAdded:Connect(function(player)
 end)
 
 Players.PlayerRemoving:Connect(function(player)
-    playerLevelStore2:setAsync(player.UserId,GameStats.getPlayerData(player)["XP"])
+    local PlayerStats = GameStats.getPlayerData(player)
+    print(PlayerStats["XP"])
+    local XP = PlayerStats["XP"]
+    playerLevelStore2:setAsync(player.UserId,XP)
     table.remove(ConnectedPlayers,table.find(ConnectedPlayers,player))
 end)
 
