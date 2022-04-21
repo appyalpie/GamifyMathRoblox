@@ -1,4 +1,5 @@
 local DialogModule = {
+
     --create dialog for NPCs
     ["Eenie"] = {
         [1] = "Hi There! I'm the Gatekeeper of Mega Blue. Welcome to the Island!",
@@ -30,16 +31,13 @@ local DialogModule = {
     },
     ["Gurdy"] = {
         [1] = "Har Har! I'm Gurdy! Welcome to the 24 Island Stage.",
-        [2] = "Take the teleport pad ahead to the Island.",
-        [3] = "You'll find a scoreboard to the left. You can also find a 24 practice pedestal.",
-        [4] = "Check out Tony V's below if you need a break. Feel free to do so before venturing on.", 
-        [5] = "Master the math concepts here and unlock your way to the 3rd island.",
-        [6] = "Make sure to speak to Hurdy if you want to learn more about the 24 game. It's what they pay him for..."  
+        [2] = "Check out Tony V's if you need a break.",
+        [3] = "Master the math concepts here and unlock your way to the 3rd island. Or so my brother Hurdy tells me.",
     },
     ["Pubby"] = {
         [1] = "Welcome to Tony V's!",
         [2] = "Stay awhile if you'd like, we got the finest company in town!",
-        [3] = "If you're looking to get to the next Island, ya gotta prove your worth. You gotta beat at least 2 people in 24 to move on.",
+        [3] = "If you're looking to get to the next Island, ya gotta prove your worth. You gotta beat at least 2 people in a game of 24 to move on.",
         [4] = "Try starting with that 'Tough Guy' in the back!"
     },
     ["Hurdy"] = {
@@ -51,7 +49,8 @@ local DialogModule = {
         [6] = "Click on a card and select a math operator (addition, subtraction, multiplication, and division). Then click on the card you want to combine. Repeat until you've made 24!",
         [7] = "You will find games of varying difficulty. Green pedestals are the easiest, followed by yellow for medium, and red for hard.",
         [8] = "Players can play alone at pedestals or against other island denizens.",
-        [9] = "Lastly, when you are ready for a real challenge. Seek out Tommy Two Decks in the Club. ",
+        [9] = "Grab a friend and duke it out in the 24 Club.",
+        [10] = "Lastly, when you are ready for a real challenge. Seek out Tommy Two Decks in the 24 Club.",
     },
     ["Tammy Two Docks"] = {
         [1] = "Ohhhh ho ho ho! Let's play twenty Fo!"
@@ -64,6 +63,7 @@ local DialogModule = {
         [2] = "You win and I'll give you a special prize.",
         [3] = "Remember, If you wanna swing at the king then ya betta not miss!" 
     },
+
     ---main hub NPCs
     ["Rama"] = {
         [1] = "Welcome to the main hub of Mega Blue Traveler. I am Rama the Keeper of these lands.",
@@ -76,6 +76,7 @@ local DialogModule = {
         [2] = "What I got is wot you want!",
         [3] = "'and me yor bees and honey (money) and av a butcher's hook (a look)."
     },
+
     ------ Inside Tony Vs ------
     ["Tough Guy"] = {
         [1] = "I'm a tough customer.",
@@ -133,6 +134,7 @@ local DialogModule = {
         [2] = "This guy keeps bugging me on this really tough problem.",
         [3] = "Maybe you can solve it?"
     },
+
     ------ Other Misc Island 2 Folk ------
     ["builderman"] = {
         [1] = "Oh hey there!",
@@ -169,23 +171,22 @@ local DialogModule = {
     --island 3 npcs--
     ["Randallf_first_meeting"] = {
         [1] = "ooo ooo! eee eee eee urgggghhh....",
-        [2] = "Please, give me a Grow potion.",
+        [2] = "Please, give me a Grow Potion.",
         [3] = "You only need 100 red mushrooms, 100 blue berries, and 100 green herbs.",
         [4] = "In return, I'll unlock the portal to the next world.", 
     },
     ["Randallf_second_meeting"] = { --if player accept quest does not have potion
-        [1] = "Do you have a Grow Potion yet?"
-            
+        [1] = "Do you have a Grow Potion yet?"      
     },
     ["Randallf_third_meeting"] = { --if player accept quest does have potion
         [1] = "Ah! you have a Grow Potion!",
         [2] = "Will you please let me have it?"      
     },
     ["Randallf_fourth_meeting"] = { --when quest is done
-        [1] = "Thank you for helping me friend! My Back feels much better.",       
+        [1] = "Thank you for helping me friend! My back feels much better.", 
     },
     ["Prentiss the apprentice"] = {
-        [1] = "Hello Stranger, Welcome to Alchemy Island.",
+        [1] = "Hello Stranger, welcome to Alchemy Island!",
         [2] = "You can mix ingredients to make potions with wondorous results using your knowledge of ratios.",
         [3] = "My master and I were on our way to make potions when he was beset by back pain. He needs a specific potion to cure him.",
         [4] = "I would help him myself but he hasn't taught me about ratios yet!",
@@ -194,10 +195,12 @@ local DialogModule = {
     ["Alchemia"] = {
         [1] = "Oh did Randallf send you? That's so nice of you to help him.",
         [2] = "He always gets his ratios confused though.",
-        [3] = "To make a grow potion you need: 1 red mushroom, 1 blue berry, and 1 green herb.",
-        [4] = "Because you're so nice I'll tell you how to make other potions as well",
-        [5] = "To make a shrink potion you need: 1 red mushrooms, 3 blue berries, and 1 green herbs.",
-        [6] = "To make an explosive potion you need: 2 red mushrooms, 1 blue berries, and 1 green herbs."
+        [3] = "To make a Grow Potion you need: 1 red mushroom, 1 blue berry, and 1 green herb.",
+        [4] = "Because you're so kind I'll tell you how to make other potions as well",
+        [5] = "To make a Shrink Potion you need: 1 red mushroom, 3 blue berries, and 1 green herb.",
+        [6] = "To make an Explosive Potion you need: 2 red mushrooms, 1 blue berry, and 1 green herb.",
+        [7] = "To make an Speed Potion you need: 3 red mushrooms, 1 blue berry, and 2 green herbs.",
+        [8] = "To make an Jump Potion you need: 2 red mushrooms, 1 blue berry, and 3 green herbs."
     }
 }
 
