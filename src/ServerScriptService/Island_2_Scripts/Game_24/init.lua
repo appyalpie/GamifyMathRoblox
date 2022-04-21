@@ -104,8 +104,11 @@ function Game_24.initialize(promptObject, player)
 
 	-- Move player to position
 	--player.Character:WaitForChild("HumanoidRootPart").Position = ancestorModel:GetAttribute("move_to_position") -- config
-	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
-	+ ancestorModel.PromptPart.Position
+	-- player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
+	-- + ancestorModel.PromptPart.Position
+	player.Character:SetPrimaryPartCFrame(CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModel.PromptPart.Position)
+		* CFrame.Angles(0, math.rad(ancestorModel.PromptPart.Orientation.Y + 90), 0))
 
 	-- Tie cleanup events to death and leave
 	local playerHumanoidDiedConnection
@@ -583,9 +586,12 @@ function Game_24.initializeNPC(promptObject, player)
 	local NPC_Game_Cards = {}
 
 	-- Move player to position
-	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._playerOrientation + (math.pi / 2)), 0, 
-		math.cos(CurrentGameInfo._playerOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
-		+ ancestorModelArena.PlayerTerminalPart.Position
+	-- player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._playerOrientation + (math.pi / 2)), 0, 
+	-- 	math.cos(CurrentGameInfo._playerOrientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
+	-- 	+ ancestorModelArena.PlayerTerminalPart.Position
+	player.Character:SetPrimaryPartCFrame(CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + ancestorModelArena.PlayerTerminalPart.Position)
+		* CFrame.Angles(0, math.rad(ancestorModelArena.PlayerTerminalPart.Orientation.Y + 90), 0))
 
 	-- Save opponent position to move back to
 	CurrentGameInfo._npcOldPosition = ancestorModel.HumanoidRootPart.Position
@@ -869,8 +875,11 @@ function Game_24.preInitializationCompetitive(promptObject, player)
 	end	
 	
 	-- Move player to position
-	player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
-	+ terminalPart.Position
+	-- player.Character:WaitForChild("HumanoidRootPart").Position = (Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) 
+	-- + terminalPart.Position
+	player.Character:SetPrimaryPartCFrame(CFrame.new((Vector3.new(math.sin(CurrentGameInfo._orientation + (math.pi / 2)), 0, 
+		math.cos(CurrentGameInfo._orientation + (math.pi / 2))) * GameInfo.MOVE_POSITION_OFFSET) + terminalPart.Position)
+		* CFrame.Angles(0, math.rad(terminalPart.Orientation.Y + 90), 0))
 
 	print(Competitive_Arenas_Manager)
 	if #Competitive_Arenas_Manager[CurrentGameInfo._arena_index] == 2 then -- 2 players are in the arena detected
