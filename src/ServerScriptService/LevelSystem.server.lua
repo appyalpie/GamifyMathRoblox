@@ -33,6 +33,7 @@ end)
 
 coroutine.resume(coroutine.create(function()
     while true do 
+        task.wait(300) -- trigger a server update every 5 minutes
         local clientTable = {}
         for i, v in pairs(ConnectedPlayers) do
             print(ConnectedPlayers[i])
@@ -55,7 +56,7 @@ coroutine.resume(coroutine.create(function()
         print(clientTable)
         -- advance to look or not at all
         UpdateLeaderBoardRE:FireAllClients(clientTable)
-        task.wait(300) -- trigger a server update every 5 minutes
+        
     end 
 end))
 
