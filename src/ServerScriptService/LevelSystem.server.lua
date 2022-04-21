@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LevelSystem = require(script.Parent.Utilities.LevelSystem)
 local GameStats = require(game:GetService("ServerScriptService"):WaitForChild("GameStatsInitialization"):WaitForChild("GameStatsUtilities"))
 local UpdateLeaderBoardRE = game:GetService("ReplicatedStorage"):FindFirstChild("RemoteEvents"):WaitForChild("UpdateLeaderBoardRE")
-
+local LeaderBoardGUI = game.Workspace.Main_Hub_Enclave.LeaderBoard.SurfaceGui.Board
 local ConnectedPlayers = {}
 
 --local LeadboardGUI = game.Workspace.
@@ -46,22 +46,24 @@ coroutine.resume(coroutine.create(function()
 
         local pages = playerLevelStore2:GetSortedAsync(false,10)
         local FirstPage = pages:GetCurrentPage()
+        LeaderBoardGUI.Text = ""
         for _,v in pairs(FirstPage) do
             local PlayerItem = {}
             local player = tonumber(v.key)
             local value = LevelSystem.DisplayLevel(Players:GetPlayerByUserId(tonumber(v.key)))
             
             if player and value then
-                table.insert(PlayerItem,player,value)
-                print(PlayerItem)
-                table.insert(clientTable,PlayerItem)
+                --table.insert(PlayerItem,player,value)
+                --print(PlayerItem)
+                --table.insert(clientTable,PlayerItem)
+                LeaderBoardGUI.Text = LeaderBoardGUI.Text .. Players:GetNameFromUserIdAsync(player) .. " - " ..  value .. "\n"
             end
             -- update leaderboard GUI
         end
 
-        print(clientTable)
+        --print(clientTable)
         -- advance to look or not at all
-        UpdateLeaderBoardRE:FireAllClients(clientTable)
+        --UpdateLeaderBoardRE:FireAllClients(clientTable)
         
     end 
 end))
