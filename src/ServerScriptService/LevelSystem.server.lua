@@ -55,7 +55,7 @@ coroutine.resume(coroutine.create(function()
         print(clientTable)
         -- advance to look or not at all
         UpdateLeaderBoardRE:FireAllClients(clientTable)
-        task.wait(30) -- trigger a server update every 5 minutes
+        task.wait(300) -- trigger a server update every 5 minutes
     end 
 end))
 
