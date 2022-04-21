@@ -1,3 +1,6 @@
+local ServerScriptService = game:GetService("ServerScriptService")
+local AwardBadgeBE = ServerScriptService.BadgesInitialization:WaitForChild("AwardBadgeBE")
+
 local QuestTrackerUtilities = {}
 
 local playerQuestData = {}
@@ -50,6 +53,17 @@ end
 QuestTrackerUtilities.updateStatus = function(player, questIndex, status)
     if playerQuestData[player.UserId][questIndex].Status == "completed" then return end
     playerQuestData[player.UserId][questIndex].Status = status
+    if status == "completed" then
+        if questIndex == 1 then
+            AwardBadgeBE:Fire(player, "MathBlocksBadge")
+        elseif questIndex == 2 then
+            AwardBadgeBE:Fire(player, "ChallengerBadge")
+        elseif questIndex == 3 then
+            print("No badge yet")
+        elseif questIndex == 4 then
+            AwardBadgeBE:Fire(player, "WizardBadge")
+        end
+    end
 end
 
 QuestTrackerUtilities.updateAmount = function(player, questIndex, amount)

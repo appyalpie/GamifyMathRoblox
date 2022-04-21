@@ -1,6 +1,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local BadgeService = game:GetService("BadgeService")
 
 local BadgeInformation = require(ReplicatedStorage:WaitForChild("BadgeInformation"))
@@ -27,39 +28,7 @@ local BadgesDataStore = DataStoreService:GetDataStore("BadgesDataStore")
 
 local PlayerBadgesTable = {}
 
------- Restore Badges Data (w/o using multiple BadgeService Calls)
-Players.PlayerAdded:Connect(function(player)
-    local success, returnedValue = pcall(function()
-        return BadgesDataStore:GetAsync(player.UserId)
-    end)
-
-    if success then
-        if returnedValue == nil or type(returnedValue) ~= "table" then
-            PlayerBadgesTable[player.UserId] = {}
-        else
-            PlayerBadgesTable[player.UserId] = returnedValue
-        end
-    else -- Possible datastore throttle error
-        PlayerBadgesTable[player.UserId] = {}
-    end
-end)
-
------- When Client is ready to update, update (handshake) ------
-UpdateBadgesReadyRE.OnServerEvent:Connect(function(player)
-    UpdateBadgesRE:FireClient(player, PlayerBadgesTable[player.UserId])
-end)
-
------- Save Cached Badge Data on Leave ------
-Players.PlayerRemoving:Connect(function(player)
-    local playerData = PlayerBadgesTable[player.UserId]
-    local success, errorMessage = pcall(function()
-        BadgesDataStore:SetAsync(player.UserId, playerData)
-    end)
-    if not success then
-        print(errorMessage)
-    end
-end)
-
+------ Aware Badge Event (BindableEvent, server sided) ------
 AwardBadgeBE.Event:Connect(function(player, badge_key)
     local badgeId = BadgeInformation[badge_key].badgeId
 
@@ -79,6 +48,7 @@ AwardBadgeBE.Event:Connect(function(player, badge_key)
             if success and result then
                 print("Successfully got a badge!")
                 table.insert(PlayerBadgesTable[player.UserId], badge_key)
+                UpdateBadgesRE:FireClient(player, PlayerBadgesTable[player.UserId])
             end
 			
 			if not success then
@@ -93,3 +63,40 @@ AwardBadgeBE.Event:Connect(function(player, badge_key)
 		warn("Error while fetching badge info: " .. badgeInfo)
 	end
 end)
+
+------ Restore Badges Data (w/o using multiple BadgeService Calls)
+Players.PlayerAdded:Connect(function(player)
+    local success, returnedValue = pcall(function()
+        return BadgesDataStore:GetAsync(player.UserId)
+    end)
+
+    if success then
+        if returnedValue == nil or type(returnedValue) ~= "table" then
+            PlayerBadgesTable[player.UserId] = {}
+        else
+            PlayerBadgesTable[player.UserId] = returnedValue
+        end
+    else -- Possible datastore throttle error
+        PlayerBadgesTable[player.UserId] = {}
+    end
+
+    AwardBadgeBE:Fire(player, "WelcomeBadge")
+    AwardBadgeBE:Fire(player, "BetaTesterBadge")
+end)
+
+------ When Client is ready to update, update (handshake) ------
+UpdateBadgesReadyRE.OnServerEvent:Connect(function(player)
+    UpdateBadgesRE:FireClient(player, PlayerBadgesTable[player.UserId])
+end)
+
+------ Save Cached Badge Data on Leave ------
+Players.PlayerRemoving:Connect(function(player)
+    local playerData = PlayerBadgesTable[player.UserId]
+    local success, errorMessage = pcall(function()
+        BadgesDataStore:SetAsync(player.UserId, playerData)
+    end)
+    if not success then
+        print(errorMessage)
+    end
+end)
+
