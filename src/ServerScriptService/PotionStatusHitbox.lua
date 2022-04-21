@@ -145,7 +145,7 @@ elseif StatusName == "Jump" then
             value.JumpPower = value.JumpPower / scaling
                value.JumpHeight = value.JumpHeight / scaling
             -- remove visual effect here
-            newJumpCore:Destory()
+            newJumpCore:Destroy()
             ----------------------------------
         end))
     end
