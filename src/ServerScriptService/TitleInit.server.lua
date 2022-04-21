@@ -14,8 +14,6 @@ local InitTitlesEvent = ReplicatedStorage.RemoteEvents.Titles:FindFirstChild('In
 local ActivateTitleButtonEvent = ReplicatedStorage.RemoteEvents.Titles:FindFirstChild('ActivateTitleButtonEvent')
 
 
-local overheadTitleClone
-
 --TODO: Make sure this is only called when player enters the server
 game.Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
@@ -52,29 +50,31 @@ game.Players.PlayerAdded:Connect(function(player)
             end
         end
 
-        local PastSelectedTitle
-        local success, errorMessage = pcall(function()
-            PastSelectedTitle = CurrentTitleDataStore:GetAsync(player.UserId)
-        end)
-    
-        if success then
-            print("PastSelectedTitle GetAsync Success")
-        else
-            print("Error: " .. errorMessage)
-        end
+        local PastSelectedTitle = titleModule.GetCurrentlySelectedTitle(player)
+        if PastSelectedTitle == nil then
+            local success, errorMessage = pcall(function()
+                PastSelectedTitle = CurrentTitleDataStore:GetAsync(player.UserId)
+            end)
         
+            if success then
+                print("PastSelectedTitle GetAsync Success")
+            else
+                print("Error: " .. errorMessage)
+            end
+        end
+     
         -- This is the format that is stored on the server to avoid using dataStore calls
         local onlinePlayerEntry = {
-            userId = player.UserId;
-            IDs = IDs
+            userId = player.UserId,
+            IDs = IDs,
+            currentlySelectedTitle = PastSelectedTitle
         }
 
+        print(onlinePlayerEntry)
 
         -- Store currently active online player titles. This helps cut down on datastore calls by
         -- copying the data to the server.
         titleModule.StoreOnlinePlayerTitles(onlinePlayerEntry)
-
-        titleModule.AddTitleToUser(player, 1)
 
         -- send the initial titles to the current player
         InitTitlesEvent:FireClient(player, titleModule.ParseTitleIDs(titleModule.GetUserTitles(player.UserId)))
@@ -82,8 +82,9 @@ game.Players.PlayerAdded:Connect(function(player)
         ActivateTitleButtonEvent:FireClient(player, PastSelectedTitle)
 
         -- Clone both the overheadTitle and overheadName. The title sits above the name.
-        overheadTitleClone = overheadTitle:Clone()
+        local overheadTitleClone = overheadTitle:Clone()
         local overheadNameClone = overheadName:Clone()
+
         -- we wait for the clone to finish I think? The code has a hard time functioning w/o this
         wait(1)
         overheadNameClone.Parent = character.Head
@@ -119,7 +120,7 @@ game.Players.PlayerRemoving:Connect(function(player)
     end
 
     local success, errorMessage = pcall(function()
-        CurrentTitleDataStore:SetAsync(player.UserId, overheadTitleClone.TextLabel.Text)
+        CurrentTitleDataStore:SetAsync(player.UserId, titleModule.GetCurrentlySelectedTitle(player))
     end)
 
     if success then
@@ -138,6 +139,7 @@ end)
 local function onShowTitlesEvent(player, title)
     overheadTitle = game.Workspace:WaitForChild(player.name):WaitForChild("Head"):WaitForChild("overheadTitle")
     overheadTitle.TextLabel.Text = title
+    titleModule.SetCurrentlySelectedTitle(player, title)
 end
 
 ShowTitlesEvent.OnServerEvent:Connect(onShowTitlesEvent)

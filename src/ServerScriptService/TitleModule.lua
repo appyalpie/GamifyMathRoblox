@@ -2,7 +2,8 @@ local titleModule = {}
 
 titleModule.onlinePlayerTitleSets = {
     userId = "",
-    idArray = {}
+    idArray = {},
+    currentlySelectedTitle = nil
 }
 
 -- This is where all titles will be stored
@@ -59,7 +60,6 @@ titleModule.GetUserTitles = function(playerId)
             return value.IDs
         end
     end
-
 end
 
 -- Adds title to a userID, then invokes the client to update its list of titles
@@ -70,6 +70,22 @@ titleModule.AddTitleToUser = function(player, titleId)
         if value.userId == player.UserId and not table.find(value.IDs, titleId) then
             table.insert(value.IDs, titleId)
             addTitlesEvent:FireClient(player, titleModule.titles[titleId])
+        end
+    end
+end
+
+titleModule.SetCurrentlySelectedTitle = function(player, title)
+    for key,value in pairs(titleModule.onlinePlayerTitleSets) do
+        if value.userId == player.UserId then
+            value.currentlySelectedTitle = title
+        end
+    end
+end
+
+titleModule.GetCurrentlySelectedTitle = function(player)
+    for key,value in pairs(titleModule.onlinePlayerTitleSets) do
+        if value.userId == player.UserId then
+            return value.currentlySelectedTitle
         end
     end
 end
