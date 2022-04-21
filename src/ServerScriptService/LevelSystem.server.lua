@@ -1,5 +1,5 @@
 local DataStoreService = game:GetService("DataStoreService")
-local playerLevelStore = DataStoreService:GetOrderedDataStore("PlayerLevelStore")
+local playerLevelStore2 = DataStoreService:GetOrderedDataStore("PlayerLevelStore2")
 local Players = game:GetService("Players")
 local LevelSystem = require(script.Parent.Utilities.LevelSystem)
 local GameStats = require(game:GetService("ServerScriptService"):WaitForChild("GameStatsInitialization"):WaitForChild("GameStatsUtilities"))
@@ -20,14 +20,14 @@ Players.PlayerAdded:Connect(function(player)
 
     print(LevelSystem.DisplayLevel(player)) -- test code to show Player Level after connecting
     --if PlayerLevelStore:
-    playerLevelStore:setAsync(player.UserId,XP)
-    table.insert(ConnectedPlayers,player)
+    playerLevelStore2:setAsync(player.UserId,XP)
+    table.insert(ConnectedPlayers,player.UserId)
     -- test code for changing XP value in non-game place enviorment 
     --LevelSystem.SetLevelUpdate(player,(XP+3000))
 end)
 
 Players.PlayerRemoving:Connect(function(player)
-    playerLevelStore:setAsync(player.UserId,GameStats.getPlayerData(player)["XP"])
+    playerLevelStore2:setAsync(player.UserId,GameStats.getPlayerData(player)["XP"])
     table.remove(ConnectedPlayers,table.find(ConnectedPlayers,player))
 end)
 
@@ -35,20 +35,23 @@ coroutine.resume(coroutine.create(function()
     while true do 
         task.wait(300) -- trigger a server update every 5 minutes
         local clientTable = {}
-        for i, v in pairs(ConnectedPlayers) do
+        for i in pairs(ConnectedPlayers) do
             print(ConnectedPlayers[i])
-             playerLevelStore:setAsync(ConnectedPlayers[i].UserId, (GameStats.getPlayerData(ConnectedPlayers[i]))["XP"])
+             playerLevelStore2:setAsync(ConnectedPlayers[i], (GameStats.getPlayerData(Players:GetPlayerByUserId(ConnectedPlayers[i])))["XP"])
+             print(Players:GetPlayerByUserId(ConnectedPlayers[i]))
         end
 
-        local pages = playerLevelStore:GetSortedAsync(false,10)
+        local pages = playerLevelStore2:GetSortedAsync(false,10)
         local FirstPage = pages:GetCurrentPage()
         for _,v in pairs(FirstPage) do
             local PlayerItem = {}
             local player = tonumber(v.key)
-            local value = tonumber(v.value)
+            local value = LevelSystem.DisplayLevel(Players:GetPlayerByUserId(tonumber(v.key)))
+            
             if player and value then
-            table.insert(PlayerItem,player,value)
-            table.insert(clientTable,PlayerItem)
+                table.insert(PlayerItem,player,value)
+                print(PlayerItem)
+                table.insert(clientTable,PlayerItem)
             end
             -- update leaderboard GUI
         end

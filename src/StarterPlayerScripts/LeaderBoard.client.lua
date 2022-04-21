@@ -1,19 +1,16 @@
---local LeaderBoardGUI = game.Workspace.something
+local LeaderBoardGUI = game.Workspace.Main_Hub_Enclave.LeaderBoard.SurfaceGui.Board.Text
+local Players = game:GetService("Players")
 local UpdateLeaderBoardRE = game:GetService("ReplicatedStorage"):FindFirstChild("RemoteEvents"):FindFirstChild("UpdateLeaderBoardRE")
 
 local function UpdateClientLeaderBoard(LeaderBoardTable)
-    --LeaderBoardGUI.TextStorage.Text = ""
-    local x = 0
-    print(LeaderBoardTable)
-     --[[   for i,v in pairs(LeaderBoardTable) do
-            
-            if player then
-                player = Players:GetNameFromUserIdAsync(v.value)
+    LeaderBoardGUI = ""
+      for _,v in pairs(LeaderBoardTable) do
+            for k,d in pairs(v) do
+                LeaderBoardGUI = LeaderBoardGUI .. Players:GetNameFromUserIdAsync(k) .. " - " ..  d .. "\n"
             end
-                -- convert each item to a row
-                LeaderBoardGUI.TextStorage.Text = -- Name .. "  " .. Level .. "\n"
-                
-        end]]
+      end
 end
+
+
 
 UpdateLeaderBoardRE.onClientEvent:Connect(UpdateClientLeaderBoard)
