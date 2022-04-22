@@ -81,8 +81,9 @@ end
 
 ------ Initializes All Inventory Items to be Unowned at the start ------
 InventoryGuiUtilities.initializeInventoryMenu = function(InventoryMenu)
-    --print("Initializing Menu")
+    print("Initializing Menu")
     for k, v in pairs(accessoryButtonGUIDTable) do
+        --print("Cleaningup: " .. k)
         InventoryGuiUtilities.CleanupEntry(k)
         --print(k)
         v[2] = v[1].InputEnded:Connect(function(input, gameProcessed)
@@ -122,6 +123,7 @@ InventoryGuiUtilities.initializeInventoryMenu = function(InventoryMenu)
                 Description2.Text = inventoryInfo.Description
             end
         end)
+        v[1].Parent.ImageColor3 = Color3Lookup.inactive
     end
 end
 
@@ -270,6 +272,7 @@ InventoryGuiUtilities.updateInventoryMenu = function(player, InventoryMenu)
         ["leg"] = EquipsFrame:WaitForChild("ScrollingFrameLegAccessories")
     }
     local playerInventoryData = InventoryInformationRF:InvokeServer() -- Table of all owned item names
+
     local playerEquipmentFolder -- Table of all equipped items
     if player:FindFirstChild("EquipmentFolder") then
         playerEquipmentFolder = player:FindFirstChild("EquipmentFolder")

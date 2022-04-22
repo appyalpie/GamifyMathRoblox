@@ -10,6 +10,8 @@ local PortalGuiUpdateRE = ReplicatedStorage.RemoteEvents:WaitForChild("PortalGui
 local PortalGuiUpdateIsland3BE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PortalGuiUpdateIsland3BE")
 local PlayerPortalGuiLoadedRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Island_3"):WaitForChild("BarrierAndPortalEvents"):WaitForChild("PlayerPortalGuiLoadedRE")
 local PlayerStatsRF = ReplicatedStorage:WaitForChild("PlayerStatsRF")
+local ResetPortalGuiBE = ReplicatedStorage.RemoteEvents:WaitForChild("ResetPortalGuiBE")
+
 local localPlayer = Players.LocalPlayer
 
 local PlayerGui = localPlayer:WaitForChild("PlayerGui")
@@ -25,6 +27,9 @@ local otherFrames = {MenuGui:WaitForChild("OptionsMenu"),MenuGui:WaitForChild("S
 local tweenInfo = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 local tweenInfo2 = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
 local warpOffset = Vector3.new(0,5,0)
+
+local WarpButton3Connection
+local WarpButton4Connection
 
 local function warpButton(input, gameProcessed, warpPosition)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -50,7 +55,7 @@ PortalGuiUpdateRE.OnClientEvent:Connect(function(warp3Status)
     WarpTitle3.Text = "Alchemy"
 
     if warp3Status == true then
-        WarpButton3.InputEnded:Connect(function(input, gameProcessed)
+        WarpButton3Connection = WarpButton3.InputEnded:Connect(function(input, gameProcessed)
             warpButton(input, gameProcessed, WarpButton3:GetAttribute("warp_position"))
         end)
     end
@@ -66,7 +71,7 @@ PortalGuiUpdateIsland3BE.Event:Connect(function(warp4Status)
     WarpTitle4.BackgroundColor3 = Color3.fromRGB(188, 188, 188)
 
     if warp4Status == true then
-        WarpButton4.InputEnded:Connect(function(input, gameProcessed)
+        WarpButton4Connection = WarpButton4.InputEnded:Connect(function(input, gameProcessed)
             warpButton(input, gameProcessed, WarpButton4:GetAttribute("warp_position"))
         end)
     end
@@ -143,3 +148,26 @@ if playerData["BarrierToIsland3Down"] == true then
         warpButton(input, gameProcessed, WarpButton3:GetAttribute("warp_position"))
     end)
 end
+
+ResetPortalGuiBE.Event:Connect(function()
+    if WarpButton3Connection and WarpButton3Connection.Connected then
+        WarpButton3Connection:Disconnect()
+    end
+    if WarpButton4Connection and WarpButton4Connection.Connected then
+        WarpButton4Connection:Disconnect()
+    end
+    local WarpButton3 = InlayFrame2:WaitForChild("WarpButton3")
+    local WarpTitle3 = InlayFrame2:WaitForChild("WarpTitle3")
+    local WarpButton4 = InlayFrame2:WaitForChild("WarpButton4")
+    local WarpTitle4 = InlayFrame2:WaitForChild("WarpTitle4")
+
+    WarpButton3.BackgroundColor3 = Color3.fromRGB(90, 37, 37)
+    WarpButton3.AutoButtonColor = false
+    WarpTitle3.BackgroundColor3 = Color3.fromRGB(59, 59, 59)
+    WarpTitle3.Text = "???"
+
+    WarpButton4.BackgroundColor3 = Color3.fromRGB(90, 37, 37)
+    WarpButton4.AutoButtonColor = false
+    WarpTitle4.BackgroundColor3 = Color3.fromRGB(59, 59, 59)
+    WarpTitle4.Text = "???"
+end)

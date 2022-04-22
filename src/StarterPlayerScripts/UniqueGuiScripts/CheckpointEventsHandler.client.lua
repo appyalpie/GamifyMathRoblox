@@ -39,11 +39,15 @@ local MovePlayerToCheckpointRE = ReplicatedStorage.RemoteEvents.CheckpointRE:Wai
 local ClientReadyCheckpointRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("ClientReadyCheckpointRE")
 local SetCheckpointOnStartRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("SetCheckpointOnStartRE")
 
+local ResetCheckpointsBE = ReplicatedStorage.RemoteEvents.CheckpointRE:WaitForChild("ResetCheckpointsBE")
+
 local CheckpointGhost = ReplicatedFirst:WaitForChild("CheckpointGhost")
 local GuiUtilities = require(ReplicatedStorage:WaitForChild("GuiUtilities"))
 
 local tweenInfo = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.In)
 local tweenInfo2 = TweenInfo.new(0.8, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
+local defaultImage = "rbxassetid://9407239459"
 
 local BrickColorLookup = {
 	inactive = BrickColor.new("Medium red"),
@@ -269,3 +273,16 @@ SetCheckpointOnStartRE.OnClientEvent:Connect(function(targetCheckpoint)
 end)
 
 ClientReadyCheckpointRE:FireServer()
+
+ResetCheckpointsBE.Event:Connect(function()
+	for _, v in pairs(Row1:GetChildren()) do
+		if v:IsA("ImageButton") then
+			v.Image = defaultImage
+		end
+	end
+	for _, v in pairs(Row2:GetChildren()) do
+		if v:IsA("ImageButton") then
+			v.Image = defaultImage
+		end
+	end
+end)

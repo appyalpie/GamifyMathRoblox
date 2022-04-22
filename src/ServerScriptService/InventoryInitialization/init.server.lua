@@ -132,4 +132,5 @@ end
 
 ResetInventoryBE.Event:Connect(function(player)
     PlayerInventoryTable[player.UserId] = {}
+
 end)
