@@ -150,6 +150,7 @@ function Game_24.initialize(promptObject, player)
 		+ ancestorModel.PromptPart.Position - Vector3.new(0, 1.5, 0)
 
 	CurrentGameInfo._originalOriginPosition = originalOriginPosition
+
 	local cardAddedConnection
 	CurrentGameInfo.cardFolderConnect = cardAddedConnection
 	cardAddedConnection = CardFolder.ChildAdded:Connect(function()
@@ -162,9 +163,10 @@ function Game_24.initialize(promptObject, player)
 			
 			iterator = iterator + 1
 		end
+
 		if #CardFolder:GetChildren() == 1 then -- check if winning condition is met
 			for _, v in pairs(Game_Cards) do
-				if v.calculateValue(v._cardTable) == 24 then
+				if v.calculateValue(v._cardTable) == 24 and v.maxDepth(v._cardTable) == 4 then
 					print("YOU WIN!")
 					cardAddedConnection:Disconnect()
 					CurrentGameInfo._winSequencePlaying = true
@@ -441,7 +443,7 @@ function Game_24.initializeTimed(promptObject, player)
 		------ 24 Success ------
 		if #CardFolder:GetChildren() == 1 then --TODO: Move from children number to a more static and changeable number
 			for _, v in pairs(Game_Cards) do
-				if v.calculateValue(v._cardTable) == 24 then
+				if v.calculateValue(v._cardTable) == 24 and v.maxDepth(v._cardTable) == 4 then
 					print("24 Card Created! No Other Cards Left")
 					--cardAddedConnection:Disconnect()
 					CurrentGameInfo._winSequencePlaying = true
@@ -659,7 +661,7 @@ function Game_24.initializeNPC(promptObject, player)
 		end
 		if #PlayerCardFolder:GetChildren() == 1 then
 			for _, v in pairs(Game_Cards) do
-				if v.calculateValue(v._cardTable) == 24 then
+				if v.calculateValue(v._cardTable) == 24 and v.maxDepth(v._cardTable) == 4 then
 					print("YOU WIN!")
 					playerCardAddedConnection:Disconnect()
 					CurrentGameInfo._winSequencePlaying = true
@@ -695,7 +697,7 @@ function Game_24.initializeNPC(promptObject, player)
 		end
 		if #AI_CardFolder:GetChildren() == 1 then
 			for _, v in pairs(NPC_Game_Cards) do
-				if v.calculateValue(v._cardTable) == 24 then
+				if v.calculateValue(v._cardTable) == 24 and v.maxDepth(v._cardTable) == 4 then
 					print("YOU WIN!")
 					npcCardAddedConnection:Disconnect()
 					CurrentGameInfo._winSequencePlaying = true
@@ -975,7 +977,7 @@ function Game_24.initializeCompetitive(arena_index)
 		end
 		if #player1CurrentGameInfo._cardFolder:GetChildren() == 1 then -- check if winning condition is met
 			for _, v in pairs(player1Game_Cards) do
-				if v.calculateValue(v._cardTable) == 24 then
+				if v.calculateValue(v._cardTable) == 24 and v.maxDepth(v._cardTable) == 4 then
 					print("PLAYER 1 WINS!")
 					player1CurrentGameInfo.cardFolderConnect:Disconnect()
 					player2CurrentGameInfo.cardFolderConnect:Disconnect()
@@ -1016,7 +1018,7 @@ function Game_24.initializeCompetitive(arena_index)
 		end
 		if #player2CurrentGameInfo._cardFolder:GetChildren() == 1 then -- check if winning condition is met
 			for _, v in pairs(player2Game_Cards) do
-				if v.calculateValue(v._cardTable) == 24 then
+				if v.calculateValue(v._cardTable) == 24 and v.maxDepth(v._cardTable) == 4 then
 					print("PLAYER 2 WINS!")
 					player1CurrentGameInfo.cardFolderConnect:Disconnect()
 					player2CurrentGameInfo.cardFolderConnect:Disconnect()
