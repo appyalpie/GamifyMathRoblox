@@ -132,10 +132,11 @@ function BlockDropUtilities.correctAnswerServicing(block, operator)
             
             -- increment lights on door
             for _, v in pairs(blockDoor.Lights:GetChildren()) do
-                if v:GetAttribute("light_number") == blockDoor:GetAttribute("keys_accepted") + 1 then
-                    v.BrickColor = BrickColor.new("Lime green") -- TODO: module to MathBlocks
-                    break
-                end
+                -- if v:GetAttribute("light_number") == blockDoor:GetAttribute("keys_accepted") + 1 then
+                --     v.BrickColor = BrickColor.new("Lime green") -- TODO: module to MathBlocks
+                --     break
+                -- end
+                v.BrickColor = BrickColor.new("Lime green")
             end
             print("KA: " .. blockDoor:GetAttribute("keys_accepted") .. "   KR: " .. blockDoor:GetAttribute("keys_required"))
             if blockDoor:GetAttribute("keys_accepted") + 1 == blockDoor:GetAttribute("keys_required") then

@@ -10,6 +10,7 @@ local BlurRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("Blur
 local ClientReadyCheckpointRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("ClientReadyCheckpointRE")
 local SetCheckpointOnStartRE = ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("SetCheckpointOnStartRE")
 local MovePlayerToCheckpointRE = ReplicatedStorage.RemoteEvents.CheckpointRE:WaitForChild("MovePlayerToCheckpointRE")
+local Island3ExitRE = ReplicatedStorage.RemoteEvents.Island_3:WaitForChild("Island3ExitEvent")
 
 ------ Retrieve Player Set Checkpoint + List of Gotten Checkpoints (if any) ------
 Players.PlayerAdded:Connect(function(player)
@@ -72,4 +73,7 @@ MovePlayerToCheckpointRE.OnServerEvent:Connect(function(player, checkpoint)
         player.Character = player.CharacterAdded:Wait()
     end
     CheckpointUtilities.moveCharacterToCheckpoint(player.Character, checkpoint)
+    if checkpoint ~= 8 then
+        Island3ExitRE:FireClient(player)
+    end
 end)

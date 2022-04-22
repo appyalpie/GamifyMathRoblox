@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LevelSystem = require(script.Parent.Utilities.LevelSystem)
 local GameStats = require(game:GetService("ServerScriptService"):WaitForChild("GameStatsInitialization"):WaitForChild("GameStatsUtilities"))
 local UpdateLeaderBoardRE = game:GetService("ReplicatedStorage"):FindFirstChild("RemoteEvents"):WaitForChild("UpdateLeaderBoardRE")
-local LeaderBoardGUI = game.Workspace.Main_Hub_Enclave.LeaderBoard.SurfaceGui.Board
+--local LeaderBoardGUI = game.Workspace.Main_Hub_Enclave.LeaderBoard.SurfaceGui.Board
 local ConnectedPlayers = {}
 
 --local LeadboardGUI = game.Workspace.
