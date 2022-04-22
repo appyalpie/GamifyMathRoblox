@@ -1,3 +1,8 @@
+local disabled = true
+if disabled then
+    return
+end
+
 local LeaderBoardGUI = game.Workspace.Main_Hub_Enclave.LeaderBoard.SurfaceGui.Board
 local Players = game:GetService("Players")
 local UpdateLeaderBoardRE = game:GetService("ReplicatedStorage"):FindFirstChild("RemoteEvents"):FindFirstChild("UpdateLeaderBoardRE")
