@@ -189,6 +189,17 @@ local function explosionCollisionProcessing(block_1, block_2, operator)
     end)
 end
 
+local function incrementXPandCurrency(player)
+    if player ~= nil then
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
+        GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
+        GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
+            hrp.Position, hrp.Orientation.Y)
+    end
+end
+
 local function successfulCollisionProcessing(block_1, block_2, operator)
     block_1.Anchored = true -- Prevent weird gravity interaction while tweening
     block_2.Anchored = true
@@ -203,44 +214,19 @@ local function successfulCollisionProcessing(block_1, block_2, operator)
         if block_1:GetAttribute("lastTouchedBy") ~= block_2:GetAttribute("lastTouchedBy") then
             -- otherwise increment each block's lastTouchedBy player XP
             local player1 = game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy"))
-            local character1 = player1.Character or player1.CharacterAdded:Wait()
-            local hrp1 = character1:WaitForChild("HumanoidRootPart")
             local player2 = game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy"))
-            local character2 = player2.Character or player2.CharacterAdded:Wait()
-            local hrp2 = character2:WaitForChild("HumanoidRootPart")
-            GameStatsUtilities.incrementXP(player1, MathBlocksInfo.CombinationRewardTable["XP"])
-            GameStatsUtilities.incrementCurrency(player1, MathBlocksInfo.CombinationRewardTable["Currency"])
-            GameStatsUtilities.incrementXP(player2, MathBlocksInfo.CombinationRewardTable["XP"])
-            GameStatsUtilities.incrementCurrency(player2, MathBlocksInfo.CombinationRewardTable["Currency"])
-            GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
-                hrp1.Position, hrp1.Orientation.Y)
-            GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
-                hrp2.Position, hrp2.Orientation.Y)
+            incrementXPandCurrency(player1)
+            incrementXPandCurrency(player2)
         else
             local player = game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy"))
-            local character = player.Character or player.CharacterAdded:Wait()
-            local hrp = character:WaitForChild("HumanoidRootPart")
-            GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
-            GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
-            GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
-            hrp.Position, hrp.Orientation.Y)
+            incrementXPandCurrency(player)
         end
     elseif block_1:GetAttribute("lastTouchedBy") ~= 0 and block_2:GetAttribute("lastTouchedBy") == 0 then
         local player = game.Players:GetPlayerByUserId(block_1:GetAttribute("lastTouchedBy"))
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character:WaitForChild("HumanoidRootPart")
-        GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
-        GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
-        GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
-        hrp.Position, hrp.Orientation.Y)
+        incrementXPandCurrency(player)
     elseif block_1:GetAttribute("lastTouchedBy") == 0 and block_2:GetAttribute("lastTouchedBy") ~= 0 then
         local player = game.Players:GetPlayerByUserId(block_2:GetAttribute("lastTouchedBy"))
-        local character = player.Character or player.CharacterAdded:Wait()
-        local hrp = character:WaitForChild("HumanoidRootPart")
-        GameStatsUtilities.incrementXP(player, MathBlocksInfo.CombinationRewardTable["XP"])
-        GameStatsUtilities.incrementCurrency(player, MathBlocksInfo.CombinationRewardTable["Currency"])
-        GameStatsUtilities.XPandCurrencyIncrementVFX(MathBlocksInfo.CombinationRewardTable["XP"], MathBlocksInfo.CombinationRewardTable["Currency"], 
-        hrp.Position, hrp.Orientation.Y)
+        incrementXPandCurrency(player)
     end
 
     if operator == MathBlocksInfo.ADD_BLOCK_TAG then
