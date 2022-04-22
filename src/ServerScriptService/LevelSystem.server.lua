@@ -34,7 +34,7 @@ Players.PlayerRemoving:Connect(function(player)
     table.remove(ConnectedPlayers,table.find(ConnectedPlayers,player))
 end)
 
-coroutine.resume(coroutine.create(function()
+--[[coroutine.resume(coroutine.create(function()
     while true do 
         task.wait(300) -- trigger a server update every 5 minutes
         local clientTable = {}
@@ -66,6 +66,6 @@ coroutine.resume(coroutine.create(function()
         --UpdateLeaderBoardRE:FireAllClients(clientTable)
         
     end 
-end))
+end))]]
 
 
